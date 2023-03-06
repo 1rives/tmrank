@@ -36,7 +36,7 @@
         {
             // First part
             echo "<div class='tab-pane fade show active' id='merge' role='tabpanel' aria-labelledby='merge-leaderboard'>
-                        <table class='table table-bordered'>
+                        <table class='table table-bordered table-hover'>
                             <thead>
                                 <tr>
                                     <th scope='col'>$rank_text</th>
@@ -82,7 +82,7 @@
 
                 // First part
                 echo "<div class='tab-pane fade". $active_tab . "' id='".strtolower($environments[$i])."' role='tabpanel' aria-labelledby='".strtolower($environments[$i])."-leaderboard'>
-                        <table class='table table-dark table-bordered table-hover'>
+                        <table class='table table-bordered table-hover'>
                             <thead>
                                 <tr>
                                     <th scope='col'>$rank_text</th>
