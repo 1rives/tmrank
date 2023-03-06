@@ -11,18 +11,24 @@
         unset($_SESSION['errorMessage']);
     }
 
-    $login = $_POST['login'];
+
+    if (isset($_POST['submit']) && isset($_POST['login']))
+    {
+        $login = $_POST['login'];
+    }
 
     // header('Content-Type: application/json'); Data debug
 
-    $test = loadWorldInfo($login);
+    $worldinfo = loadWorldInfo($login);
+    $player_environment = "Merge";
+
 
     // if(isset($test)) print_r(json_encode($test->leaderboard['Merge'], JSON_PRETTY_PRINT)); Data debug
 
 ?>
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme='dark'>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -33,9 +39,8 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
 
-    <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
     <!-- Bootstrap core CSS -->
-    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
 
 </head>
 
@@ -46,6 +51,8 @@
         <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
     </symbol>
 </svg>
+
+<body>
 
 <div class="container py-3">
     <header>
@@ -84,13 +91,59 @@
             </div>
         </form>
 
-        <?php if(isset($test) & isset($login)) print_r($test->leaderboard['Merge']);  if(isset($test)) print_r($test);?>
-
-
+        <ul class='nav nav-tabs justify-content-center ' id='myTab' role='tablist'>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link active' id='merge-leaderboard' data-bs-toggle='tab' data-bs-target='#merge' type='button'
+                        role='tab' aria-controls='merge' aria-selected='true'>General
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='stadium-leaderboard' data-bs-toggle='tab' data-bs-target='#stadium' type='button'
+                        role='tab' aria-controls='stadium' aria-selected='false' <?php playerDisableButton($login); ?>>Stadium
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='island-leaderboard' data-bs-toggle='tab' data-bs-target='#island' type='button'
+                        role='tab' aria-controls='island' aria-selected='false' <?php playerDisableButton($login); ?>>Island
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='desert-leaderboard' data-bs-toggle='tab' data-bs-target='#desert' type='button'
+                        role='tab' aria-controls='desert' aria-selected='false' <?php playerDisableButton($login); ?>>Desert
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='coast-leaderboard' data-bs-toggle='tab' data-bs-target='#coast' type='button'
+                        role='tab' aria-controls='coast' aria-selected='false' <?php playerDisableButton($login); ?>>Coast
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='rally-leaderboard' data-bs-toggle='tab' data-bs-target='#rally' type='button'
+                        role='tab' aria-controls='rally' aria-selected='false' <?php playerDisableButton($login); ?>>Rally
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='bay-leaderboard' data-bs-toggle='tab' data-bs-target='#bay' type='button'
+                        role='tab' aria-controls='bay' aria-selected='false' <?php playerDisableButton($login); ?>>Bay
+                </button>
+            </li>
+            <li class='nav-item' role='presentation'>
+                <button class='nav-link' id='snow-leaderboard' data-bs-toggle='tab' data-bs-target='#snow' type='button'
+                        role='tab' aria-controls='snow' aria-selected='false' <?php playerDisableButton($login); ?>>Snow
+                </button>
+            </li>
+        </ul>
+        <div class='tab-content' id='myTabContent'>
+            <?php showWorldTable($login, $worldinfo, $player_environment); ?>
+        </div>
     </main>
 
-
 </div>
+
+
+<script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>
+<script src='assets/js/scripts.js'></script>
+
 </body>
 <?php include_once "footer.php" ?>
 </html>

@@ -16,7 +16,6 @@
         $playerinfo = loadPlayerInfo($login);
     }
 
-
 ?>
 
 <!doctype html>

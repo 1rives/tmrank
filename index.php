@@ -43,7 +43,7 @@ $apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
 
 
     <!-- Bootstrap core CSS -->
-    <link href="../assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">

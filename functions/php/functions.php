@@ -4,6 +4,120 @@
     require_once('./class/tmfcolorparser.inc.php'); // Nickname parser
 
     /**
+     * Shows table with the top 10 players on the world
+     * depending on the selected environment
+     *
+     * @param string $login Player login
+     * @param object $data World data
+     * @param string $environment Trackmania environment
+     *
+     * @return void
+     */
+    function showWorldTable($login, $data, $environment)
+    {
+        $environments = array(
+            'Merge', // General ranking
+            'Stadium',
+            'Desert',
+            'Island',
+            'Rally',
+            'Coast',
+            'Bay',
+            'Snow'
+        );
+
+        $rank_text = 'Rank';
+        $nickname_text = 'Nickname';
+        $nation_text = 'Country';
+        $ladderpoints_text = 'Ladder Points';
+
+
+        if(isset($login))
+        {
+            // First part
+            echo "<div class='tab-pane fade show active' id='merge' role='tabpanel' aria-labelledby='merge-leaderboard'>
+                        <table class='table table-bordered'>
+                            <thead>
+                                <tr>
+                                    <th scope='col'>$rank_text</th>
+                                    <th scope='col'>$nickname_text</th>
+                                    <th scope='col'>$nation_text</th>
+                                    <th scope='col'>$ladderpoints_text</th>
+                                </tr>
+                            </thead>";
+
+            // Content
+            for ($x = 0; $x < 10; $x++)
+            {
+                // Data structure differs for player submitted
+                $player_rank = ordinalSuffix(number_format($data[$x]->rank , 0, ',', '.'));
+                $player_nickname = $data[$x]->nickname;
+                $player_country = $data[$x]->nation;
+                $player_ladderpoints = $data[$x]->points;
+
+                echo "<tbody>
+                            <tr>
+                                <th scope='row'>$player_rank</th>
+                                <td>$player_nickname</td>
+                                <td>$player_country</td>
+                                <td>$player_ladderpoints</td>
+                            </tr>
+                        </tbody>";
+            }
+
+            // End of table
+            echo '</table>
+                </div>';
+        }
+        else
+        {
+            for ($i = 0; $i < count($environments); $i++)
+            {
+                if ($i == 0)
+                    $active_tab = " show active";
+                else
+                    $active_tab = "";
+
+                // echo $environments[$i];
+
+                // First part
+                echo "<div class='tab-pane fade". $active_tab . "' id='".strtolower($environments[$i])."' role='tabpanel' aria-labelledby='".strtolower($environments[$i])."-leaderboard'>
+                        <table class='table table-dark table-bordered table-hover'>
+                            <thead>
+                                <tr>
+                                    <th scope='col'>$rank_text</th>
+                                    <th scope='col'>$nickname_text</th>
+                                    <th scope='col'>$nation_text</th>
+                                    <th scope='col'>$ladderpoints_text</th>
+                                </tr>
+                            </thead>";
+
+                // Content
+                for ($x = 0; $x < 10; $x++)
+                {
+                    $player_rank = ordinalSuffix(number_format($data->leaderboard[$environments[$i]][$x]->rank , 0, ',', '.'));
+                    $player_nickname = $data->leaderboard[$environments[$i]][$x]->nickname;
+                    $player_country = $data->leaderboard[$environments[$i]][$x]->nation;
+                    $player_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
+
+                    echo "<tbody>
+                            <tr>
+                                <th scope='row'>$player_rank</th>
+                                <td>$player_nickname</td>
+                                <td>$player_country</td>
+                                <td>$player_ladderpoints</td>
+                            </tr>
+                        </tbody>";
+                }
+
+                // End of table
+                echo '</table>
+                </div>';
+            }
+        }
+    }
+
+    /**
      * Loads all player data to an object.
      *
      * Uses the validateLogin function to check
@@ -30,7 +144,7 @@
 
                 try
                 {
-                    $cp = new \TMFColorParser();
+                    $colorparser = new \TMFColorParser();
                     $api = new \TrackMania\WebServices\Players($apiuser, $apipw);
 
                     // Data from API
@@ -46,7 +160,7 @@
 
                     // Nickname parsed to HTML
                     $playerinfo->nickname =
-                        $cp->toHTML($api_user->nickname);
+                        $colorparser->toHTML($api_user->nickname);
 
                     // Account type (bool)
                     ($api_user->united) ? $playerinfo->account = "United" : $playerinfo->account = "Forever"; // False
@@ -139,12 +253,10 @@
             $flag = 'default'; // Placeholder flag
 
             // Initialize
-            $cp = new \TMFColorParser(); // Color parser
+            $colorparser = new \TMFColorParser(); // Color parser
             $worldinfo = new stdClass();
 
-            // All TMF environments
-            // ALWAYS with ucfirst() or won't work on request
-            $env = array(
+            $environments = array(
                 'Merge', // General ranking
                 'Stadium',
                 'Desert',
@@ -160,10 +272,8 @@
             //    Get player rank for $offset     //
             ////////////////////////////////////////
 
-            if($_SERVER['REQUEST_METHOD'] == 'POST')
+            if(isset($login))
             {
-                $login = $_POST['login'];
-
                 if(validateLogin($login) != 0)
                 {
                     // RIP
@@ -183,22 +293,16 @@
 
             // Connection for World data
             $world = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
-
+            $varname = 'worldinfo';
 
             //////////////////////////////////////////////////////////////////////////
             //                             Getting data                             //
             //////////////////////////////////////////////////////////////////////////
 
-            //////////////////////////////////////////////////////////////////////////////////
-            // Option 1. If a valid login is submitted, request from API
-            //           current position of player with Merge environment (General)
-            //
-            //           $env[0] = 'Merge'
-
-            if(isset($login))
+            if($_SERVER['REQUEST_METHOD'] == 'POST')
             {
                 // General ranking data
-                $worldinfo = $world->getPlayerRanking('World', $env[0], $offset);
+                $worldinfo = $world->getPlayerRanking('World', $environments[0], $offset);
 
                 for ($x = 0; $x < 10; $x++)
                 {
@@ -208,20 +312,20 @@
                     ////////////////////////////////////////////
 
                     // Declare class
-                    ${'worldinfo' . $env[0]}[] = new stdClass();
+                    ${$varname . $environments[0]}[] = new stdClass();
 
                     // Current rank
-                    ${'worldinfo' . $env[0]}[$x]->rank =
+                    ${$varname . $environments[0]}[$x]->rank =
                         $worldinfo->players[$x]->rank;
 
                     // Nickname parsed to HTML
-                    ${'worldinfo' . $env[0]}[$x]->nickname =
-                        $cp->toHTML($worldinfo->players[$x]->player->nickname);
+                    ${$varname . $environments[0]}[$x]->nickname =
+                        $colorparser->toHTML($worldinfo->players[$x]->player->nickname);
 
                     // Nation
                     $temp = explode('|', $worldinfo->players[$x]->player->path); // Explode path
 
-                    ${'worldinfo' . $env[0]}[$x]->nation =
+                    ${$varname . $environments[0]}[$x]->nation =
                         $temp[1];
 
                     //////////////////////////
@@ -234,26 +338,21 @@
                     if (file_exists('assets/img/flag/' . $nation . '.png')) $flag = $nation; // ex.: Argentina = ARG
 
                     // 3. Correspondent flag name
-                    ${'worldinfo' . $env[0]}[$x]->flag = $nation;
+                    ${$varname . $environments[0]}[$x]->flag = $nation;
 
                     //
                     //////////////////////////
 
                     // Ladder Points
-                    ${'worldinfo' . $env[0]}[$x]->points =
-                        number_format($worldinfo->players[$x]->points) . ' ' . $worldinfo->unit;
+                    ${$varname . $environments[0]}[$x]->points =
+                        number_format($worldinfo->players[$x]->points) . ' LP';
 
                 }
 
                 // Return data player
-                return ${'worldinfo' . $env[0]};
+                return ${$varname . $environments[0]};
 
             }
-
-            //////////////////////////////////////////////////////////////////////////////////
-            // Option 2. Loading page w/o $login set, show top 10 for all environments and
-            //           cache all.
-
             else
             {
 
@@ -261,9 +360,9 @@
                 $worldinfoAll = new stdClass();
 
                 // Getting all the data
-                for ($i = 0; $i < count($env); $i++)
+                for ($i = 0; $i < count($environments); $i++)
                 {
-                    $worldinfo = $world->getPlayerRanking('World', $env[$i], $offset);
+                    $worldinfo = $world->getPlayerRanking('World', $environments[$i], $offset);
 
                     for ($x = 0; $x < 10; $x++)
                     {
@@ -272,21 +371,21 @@
                         ////////////////////////////////////////////
 
                         // Declare class
-                        ${'worldinfo' . $env[$i]}[] = new stdClass();
+                        ${$varname . $environments[$i]}[] = new stdClass();
 
                         // Current rank
-                        ${'worldinfo' . $env[$i]}[$x]->rank =
+                        ${$varname . $environments[$i]}[$x]->rank =
                             $worldinfo->players[$x]->rank;
 
                         // Nickname parsed to HTML
 
-                        ${'worldinfo' . $env[$i]}[$x]->nickname =
-                            $cp->toHTML($worldinfo->players[$x]->player->nickname);
+                        ${$varname . $environments[$i]}[$x]->nickname =
+                            $colorparser->toHTML($worldinfo->players[$x]->player->nickname);
 
                         // Nation
                         $temp = explode('|', $worldinfo->players[$x]->player->path); // Explode path
 
-                        ${'worldinfo' . $env[$i]}[$x]->nation =
+                        ${$varname . $environments[$i]}[$x]->nation =
                             $temp[1];
 
                         //////////////////////////
@@ -299,57 +398,38 @@
                         if (file_exists('assets/img/flag/' . $nation . '.png')) $flag = $nation; // ex.: Argentina = ARG
 
                         // 3. Correspondent flag name
-                        ${'worldinfo' . $env[$i]}[$x]->flag = $nation;
+                        ${$varname . $environments[$i]}[$x]->flag = $nation;
 
                         //
                         //////////////////////////
 
                         // Ladder Points
-                        ${'worldinfo' . $env[$i]}[$x]->points =
-                            number_format($worldinfo->players[$x]->points) . ' ' . $worldinfo->unit;
+                        ${$varname . $environments[$i]}[$x]->points =
+                            number_format($worldinfo->players[$x]->points) . ' LP';
                     }
 
-                    $worldinfoAll->leaderboard[$env[$i]] = ${'worldinfo' . $env[$i]};
+                    $worldinfoAll->leaderboard[$environments[$i]] = ${$varname . $environments[$i]};
                 }
 
                 // Return all data
                 return $worldinfoAll;
             }
 
-
-
-
-
             // DEBUG: Show all tables
-            for ($i = 0; $i < count($env); $i++)
+            for ($i = 0; $i < count($environments); $i++)
             {
-                echo " - $env[$i]";
+                echo " - $environments[$i]";
                 echo "<br><br>";
 
                 for ($x = 0; $x < 10; $x++)
                 {
 
-                    print_r(${'worldinfo' . $env[$i]}[$x]);
+                    print_r(${$varname . $environments[$i]}[$x]);
                     echo '<br>';
 
                 }
 
             }
-
-
-
-
-
-            // Format: Rank(Auto) - nickname - Nation w/flag - Ladder points (1000 LP)
-
-            // TODO:
-            //
-            // TRAER TODOS LOS DATOS EN UN ARRAY/OBJETO (INVESTIGAR)
-
-
-//          $worldinfo{$i} = new stdClass();
-//          $worldinfo{$i} = $world->getPlayerRanking('World','Merge', $offset, '10');
-//          $offset = $offset + 10;
 
         }
         catch (\TrackMania\WebServices\Exception $e)
@@ -463,7 +543,36 @@
     }
 
     /**
-     * -- FROM TMFDataFetcher v1.5B --
+     * Adds ordinal suffix to player rank
+     *
+     * @param $number Player ranking
+     *
+     * @return false|string
+     */
+    function ordinalSuffix($number)
+    {
+        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+        if ((($number % 100) >= 11) && (($number%100) <= 13))
+            return $number. 'th';
+        else
+            return $number. $ends[$number % 10];
+    }
+
+    /**
+     * In case of submitting a player login, disables all buttons except 'General' (Merge)
+     * with the CSS property 'disabled'
+     *
+     * @param $var Player login
+     *
+     * @return void
+     */
+    function playerDisableButton($var)
+    {
+        if(isset($var)) echo "hidden";
+    }
+
+    /**
+     * FROM TMFDataFetcher v1.5B
      *
      * Ripped out of XAseco, thanks to Xymph for the effort =)
      *
