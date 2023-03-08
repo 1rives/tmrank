@@ -1,7 +1,7 @@
 <?php
 
-    require_once('./class/autoload.php'); // API
-    require_once('./class/tmfcolorparser.inc.php'); // Nickname parser
+    require_once('/var/www/html/tmrank/class/autoload.php'); // API
+    require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php'); // Nickname parser
 
     /**
      * Shows table with the top 10 players on the world

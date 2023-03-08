@@ -1,0 +1,9 @@
+# ------------------
+#
+# Variable for script to check
+IS_CRON=1
+* * * * * echo "sas funca" >> /var/log/cron_tm.log 2>&1
+# Startup script for getting data
+@reboot /usr/local/bin/php /var/www/html/tmrank/test.php  >> /var/log/cron_tm.log 2>&1
+# Ladder data refresh every midnight
+* * * * * /usr/local/bin/php /var/www/html/tmrank/test.php  >> /var/log/cron_tm.log 2>&1

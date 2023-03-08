@@ -1,29 +1,33 @@
 <?php
 
-session_start();
+    session_start();
+
+    include_once('functions/php/functions.php'); // General functions
+
+    if(!isset($_POST['submit']))
+    {
+        unset($_SESSION['errorMessage']);
+    }
+
+    if (isset($_POST['submit']) && isset($_POST['login']))
+    {
+        $login = $_POST['login'];
+
+        $playerinfo = loadPlayerInfo($login);
+    }
+
+    unset($_SESSION['sas']);
+
+    //$login = $_POST['logins'];
 
 
+    // Player information
+    // $info = new \TrackMania\WebServices\Players($apiuser, $apipw);
+    // $player = $info->get('dragsterboy01');
 
-/**
- * Simple autoloader, so we don't need Composer just for this.
- */
-require_once('class/autoload.php');
-
-// User and password for API login
-$apiuser = $_ENV['TMFWEBSERVICE_USER'];
-$apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
-
-
-//$login = $_POST['logins'];
-
-
-// Player information
-// $info = new \TrackMania\WebServices\Players($apiuser, $apipw);
-// $player = $info->get('dragsterboy01');
-
-// For testing purposes
-// $info = new \TrackMania\WebServices\Foobar();
-// $sos = $info->get();
+    // For testing purposes
+    // $info = new \TrackMania\WebServices\Foobar();
+    // $sos = $info->get();
 
 
 ?>

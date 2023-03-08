@@ -19,7 +19,7 @@
 
     // header('Content-Type: application/json'); Data debug
 
-    $worldinfo = loadWorldInfo($login);
+    $worldinfo = $_SESSION['sas'];
     $player_environment = "Merge";
 
 
