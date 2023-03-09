@@ -1,0 +1,1 @@
+$(location).prop('href', 'localhost:8080/tmrank/test.php')

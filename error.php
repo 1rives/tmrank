@@ -13,7 +13,6 @@ if (isset($_POST['submit']) && isset($_POST['login']))
 {
     $login = $_POST['login'];
 
-    $playerinfo = loadPlayerInfo($login);
 }
 
 

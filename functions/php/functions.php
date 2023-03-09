@@ -3,6 +3,65 @@
     require_once('/var/www/html/tmrank/class/autoload.php'); // API
     require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php'); // Nickname parser
 
+    // TODO: Refactor functions creating namespaces for everything
+    // Namespaces: world (Separate player search for no-player search), player, zone
+
+
+    /**
+     * Save the world data to redis.
+     *
+     * @param stdClass $data Ladder data
+     *
+     * @return void
+     * @throws RedisException
+     */
+    function saveWorldCache($data)
+    {
+        // Takes the variable name as value
+        $key = getVariableName($data);
+        $host = $_ENV['REDIS_HOST'];
+        $port = $_ENV['REDIS_PORT'];
+
+        //$serialized_data = serialize($data);
+        $timeout = getTimeUntilMidnight();
+
+        // Database connection
+        $redis = new Redis();
+        $redis->connect($host, $port);
+        $redis->set($key, $data, $timeout);
+        $redis->close();
+    }
+
+    /**
+     * Gets the world data from redis.
+     * aka 'worldinfoAll'
+     * @param string Name of key
+     *
+     * @return stdClass Data obtained from redis
+     * @throws RedisException
+     */
+    function getWorldCache($name)
+    {
+        // Takes the variable name as value
+        // $key = getVariableName($data);
+        $host = $_ENV['REDIS_HOST'];
+        $port = $_ENV['REDIS_PORT'];
+
+        //$unserialized_data = unserialize($data);
+        //$timeout = getTimeUntilMidnight();
+
+        // Database connection
+        $redis = new Redis();
+        $redis->connect($host, $port);
+        $data = $redis->get($name);
+        //$unserialized_data = unserialize($redis->get($name));
+        $redis->close();
+
+        return $data;
+        //return $unserialized_data;
+
+    }
+
     /**
      * Shows table with the top 10 players on the world
      * depending on the selected environment
@@ -50,7 +109,8 @@
             for ($x = 0; $x < 10; $x++)
             {
                 // Data structure differs for player submitted
-                $player_rank = ordinalSuffix(number_format($data[$x]->rank , 0, ',', '.'));
+                $player_rank = number_format($data[$x]->rank , 0, ',', '.');
+                //$player_rank = ordinalSuffix(number_format($data[$x]->rank , 0, ',', '.'));
                 $player_nickname = $data[$x]->nickname;
                 $player_country = $data[$x]->nation;
                 $player_ladderpoints = $data[$x]->points;
@@ -95,8 +155,9 @@
                 // Content
                 for ($x = 0; $x < 10; $x++)
                 {
-                    $player_rank = ordinalSuffix(number_format($data->leaderboard[$environments[$i]][$x]->rank , 0, ',', '.'));
-                    $player_nickname = $data->leaderboard[$environments[$i]][$x]->nickname;
+                    $player_rank = number_format($data[$x]->rank , 0, ',', '.');
+                    //$player_rank = ordinalSuffix(number_format($data[$x]->rank , 0, ',', '.'));
+                    $player_nickname = $data[$x]->nickname;
                     $player_country = $data->leaderboard[$environments[$i]][$x]->nation;
                     $player_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
 
@@ -255,6 +316,7 @@
             // Initialize
             $colorparser = new \TMFColorParser(); // Color parser
             $worldinfo = new stdClass();
+            $varname = getVariableName($worldinfo);
 
             $environments = array(
                 'Merge', // General ranking
@@ -293,7 +355,7 @@
 
             // Connection for World data
             $world = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
-            $varname = 'worldinfo';
+
 
             //////////////////////////////////////////////////////////////////////////
             //                             Getting data                             //
@@ -545,6 +607,8 @@
     /**
      * Adds ordinal suffix to player rank
      *
+     * ex.: 1 equals 1st
+     *
      * @param $number Player ranking
      *
      * @return false|string
@@ -569,6 +633,20 @@
     function playerDisableButton($var)
     {
         if(isset($var)) echo "hidden";
+    }
+
+    /**
+     * Generates the time left in seconds for
+     * the cache to expire.
+     *
+     * @return int
+     */
+    function getTimeUntilMidnight() : int
+    {
+        $now = time(); // get the current timestamp in seconds
+        $midnight = strtotime('today midnight'); // get the timestamp of midnight today
+
+        return $now - $midnight; // calculate the difference in seconds
     }
 
     /**
@@ -779,4 +857,23 @@
             $nation = 'OTH';
         }
         return $nation;
+    }
+
+    /**
+     * Returns the name of entered variable.
+     *
+     * @param var $var
+     *
+     * @return false|int|string Variable name
+     */
+    function getVariableName($var)
+    {
+        foreach($GLOBALS as $demo => $value)
+        {
+            if ($value === $var)
+            {
+                return $demo;
+            }
+        }
+        return false;
     }

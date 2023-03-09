@@ -9,14 +9,14 @@
         unset($_SESSION['errorMessage']);
     }
 
-    if (isset($_POST['submit']) && isset($_POST['login']))
-    {
-        $login = $_POST['login'];
+//    if (isset($_POST['submit']) && isset($_POST['login']))
+//    {
+//        $login = $_POST['login'];
+//
+//        $playerinfo = loadPlayerInfo($login);
+//    }
 
-        $playerinfo = loadPlayerInfo($login);
-    }
-
-    unset($_SESSION['sas']);
+    print_r(unserialize($_SESSION['sas']));
 
     //$login = $_POST['logins'];
 

@@ -19,9 +19,17 @@
 
     // header('Content-Type: application/json'); Data debug
 
-    $worldinfo = $_SESSION['sas'];
-    $player_environment = "Merge";
+    $variable_name = 'worldinfoAll';
 
+    $world_cache = unserialize(getWorldCache($variable_name));
+    $world_api = loadWorldInfo($login);
+
+    if($world_cache != $world_api)
+        print_r($world_cache) && print_r($world_api);
+
+
+
+    $player_environment = "Merge";
 
     // if(isset($test)) print_r(json_encode($test->leaderboard['Merge'], JSON_PRETTY_PRINT)); Data debug
 
@@ -134,7 +142,7 @@
             </li>
         </ul>
         <div class='tab-content' id='myTabContent'>
-            <?php showWorldTable($login, $worldinfo, $player_environment); ?>
+            <?php showWorldTable($login, $world, $player_environment); ?>
         </div>
     </main>
 
