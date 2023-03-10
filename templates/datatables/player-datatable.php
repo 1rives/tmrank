@@ -13,7 +13,7 @@ if (!isset($playerinfo)) {
                 <strong>Player information</strong>
             </h4>
             <p>Nickname: <?php echo $playerinfo->nickname; ?></p>
-            <p>Account type: <?php echo  $playerinfo->account; ?></p>
+            <p>Account type: <?php echo $playerinfo->account; ?></p>
             <p>Zone: <?php echo  $playerinfo->nation; ?></p>
         </div>
     </div>

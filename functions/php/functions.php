@@ -3,22 +3,23 @@
     require_once('/var/www/html/tmrank/class/autoload.php'); // API
     require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php'); // Nickname parser
 
-    // TODO: Refactor functions creating namespaces for everything
-    // Namespaces: world (Separate player search for no-player search), player, zone
-
+    // TODO: Refactor functions creating classes (If needed)
+    // - Namespaces for world (Separate player search for no-player search), player, zone
+    // - Better implementation of saving memory
+    // - Try again with Cron, if isn't working search a PHP/docker script solution
 
     /**
-     * Save the world data to redis.
+     * Save data to redis.
      *
      * @param stdClass $data Ladder data
+     * @param string $key Name of redis variable
      *
      * @return void
      * @throws RedisException
      */
-    function saveWorldCache($data)
+    function saveCacheObject($data, $key)
     {
         // Takes the variable name as value
-        $key = getVariableName($data);
         $host = $_ENV['REDIS_HOST'];
         $port = $_ENV['REDIS_PORT'];
 
@@ -33,151 +34,33 @@
     }
 
     /**
-     * Gets the world data from redis.
-     * aka 'worldinfoAll'
-     * @param string Name of key
+     * Get data from redis.
+     * 
+     * @param string $key Name of key
      *
      * @return stdClass Data obtained from redis
      * @throws RedisException
      */
-    function getWorldCache($name)
+    function getCacheObject($key)
     {
-        // Takes the variable name as value
-        // $key = getVariableName($data);
         $host = $_ENV['REDIS_HOST'];
         $port = $_ENV['REDIS_PORT'];
 
-        //$unserialized_data = unserialize($data);
-        //$timeout = getTimeUntilMidnight();
-
         // Database connection
         $redis = new Redis();
+
         $redis->connect($host, $port);
-        $data = $redis->get($name);
-        //$unserialized_data = unserialize($redis->get($name));
+        $data = $redis->get($key);
         $redis->close();
 
+        // For objects
+        if(strpos($data, 'stdClass'))
+            $data = (object) unserialize($data);
+            
         return $data;
-        //return $unserialized_data;
 
     }
-
-    /**
-     * Shows table with the top 10 players on the world
-     * depending on the selected environment
-     *
-     * @param string $login Player login
-     * @param object $data World data
-     * @param string $environment Trackmania environment
-     *
-     * @return void
-     */
-    function showWorldTable($login, $data, $environment)
-    {
-        $environments = array(
-            'Merge', // General ranking
-            'Stadium',
-            'Desert',
-            'Island',
-            'Rally',
-            'Coast',
-            'Bay',
-            'Snow'
-        );
-
-        $rank_text = 'Rank';
-        $nickname_text = 'Nickname';
-        $nation_text = 'Country';
-        $ladderpoints_text = 'Ladder Points';
-
-
-        if(isset($login))
-        {
-            // First part
-            echo "<div class='tab-pane fade show active' id='merge' role='tabpanel' aria-labelledby='merge-leaderboard'>
-                        <table class='table table-bordered table-hover'>
-                            <thead>
-                                <tr>
-                                    <th scope='col'>$rank_text</th>
-                                    <th scope='col'>$nickname_text</th>
-                                    <th scope='col'>$nation_text</th>
-                                    <th scope='col'>$ladderpoints_text</th>
-                                </tr>
-                            </thead>";
-
-            // Content
-            for ($x = 0; $x < 10; $x++)
-            {
-                // Data structure differs for player submitted
-                $player_rank = number_format($data[$x]->rank , 0, ',', '.');
-                //$player_rank = ordinalSuffix(number_format($data[$x]->rank , 0, ',', '.'));
-                $player_nickname = $data[$x]->nickname;
-                $player_country = $data[$x]->nation;
-                $player_ladderpoints = $data[$x]->points;
-
-                echo "<tbody>
-                            <tr>
-                                <th scope='row'>$player_rank</th>
-                                <td>$player_nickname</td>
-                                <td>$player_country</td>
-                                <td>$player_ladderpoints</td>
-                            </tr>
-                        </tbody>";
-            }
-
-            // End of table
-            echo '</table>
-                </div>';
-        }
-        else
-        {
-            for ($i = 0; $i < count($environments); $i++)
-            {
-                if ($i == 0)
-                    $active_tab = " show active";
-                else
-                    $active_tab = "";
-
-                // echo $environments[$i];
-
-                // First part
-                echo "<div class='tab-pane fade". $active_tab . "' id='".strtolower($environments[$i])."' role='tabpanel' aria-labelledby='".strtolower($environments[$i])."-leaderboard'>
-                        <table class='table table-bordered table-hover'>
-                            <thead>
-                                <tr>
-                                    <th scope='col'>$rank_text</th>
-                                    <th scope='col'>$nickname_text</th>
-                                    <th scope='col'>$nation_text</th>
-                                    <th scope='col'>$ladderpoints_text</th>
-                                </tr>
-                            </thead>";
-
-                // Content
-                for ($x = 0; $x < 10; $x++)
-                {
-                    $player_rank = number_format($data[$x]->rank , 0, ',', '.');
-                    //$player_rank = ordinalSuffix(number_format($data[$x]->rank , 0, ',', '.'));
-                    $player_nickname = $data[$x]->nickname;
-                    $player_country = $data->leaderboard[$environments[$i]][$x]->nation;
-                    $player_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
-
-                    echo "<tbody>
-                            <tr>
-                                <th scope='row'>$player_rank</th>
-                                <td>$player_nickname</td>
-                                <td>$player_country</td>
-                                <td>$player_ladderpoints</td>
-                            </tr>
-                        </tbody>";
-                }
-
-                // End of table
-                echo '</table>
-                </div>';
-            }
-        }
-    }
-
+    
     /**
      * Loads all player data to an object.
      *
@@ -189,7 +72,7 @@
      * @author Rives <rives@outlook.jp>
      * @return object Player data
      */
-    function loadPlayerInfo($login)
+    function getPlayerInfo($login)
     {
         if($_SERVER['REQUEST_METHOD'] == 'POST')
         {
@@ -203,17 +86,21 @@
                 $apiuser = $_ENV['TMFWEBSERVICE_USER'];
                 $apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
 
+
+                // Initialize
+                $colorparser = new \TMFColorParser(); // Color parser
+                $playerinfo = new stdClass();
+
+                // Connections
+                $player = new \TrackMania\WebServices\Players($apiuser, $apipw);
+
+                // Requests
+                $data_player = $player->get($login); // Player info
+                $data_multirank = $player->getMultiplayerRanking($login); // World ranking (Player)
+
+                
                 try
                 {
-                    $colorparser = new \TMFColorParser();
-                    $api = new \TrackMania\WebServices\Players($apiuser, $apipw);
-
-                    // Data from API
-                    $api_user = $api->get($login); // Player info
-                    $api_multirank = $api->getMultiplayerRanking($login); // World ranking (Player)
-
-                    // Variable to return
-                    $playerinfo = new stdClass();
 
                     /////////////////////////////////////
                     // Player basic information
@@ -221,13 +108,13 @@
 
                     // Nickname parsed to HTML
                     $playerinfo->nickname =
-                        $colorparser->toHTML($api_user->nickname);
+                        $colorparser->toHTML($data_player->nickname);
 
                     // Account type (bool)
-                    ($api_user->united) ? $playerinfo->account = "United" : $playerinfo->account = "Forever"; // False
+                    ($data_player->united) ? $playerinfo->account = "United" : $playerinfo->account = "Forever"; // False
 
                     // Player path/nation
-                    $temp = str_replace('World|', '', $api_user->path);
+                    $temp = str_replace('World|', '', $data_player->path);
                     $playerinfo->nation = str_replace('|', ', ', $temp);
 
                     /////////////////////////////////////
@@ -235,7 +122,7 @@
                     /////////////////////////////////////
 
                     // Online Ladder Points - Merge
-                    $playerinfo->multiPoints = number_format($api_multirank->points);
+                    $playerinfo->multiPoints = number_format($data_multirank->points);
 
                     // Having 0 Ladder Points means an unranked player
                     if($playerinfo->multiPoints == 0)
@@ -245,8 +132,8 @@
                     }
                     else
                     {
-                        $playerinfo->multiWorld = number_format($api_multirank->ranks[0]->rank);
-                        $playerinfo->multiZone = number_format($api_multirank->ranks[1]->rank);
+                        $playerinfo->multiWorld = number_format($data_multirank->ranks[0]->rank);
+                        $playerinfo->multiZone = number_format($data_multirank->ranks[1]->rank);
                     }
 
 
@@ -255,13 +142,13 @@
                     /////////////////////////////////////
 
                     // Free accounts doesn't have solo ladder
-                    if($api_user->united)
+                    if($data_player->united)
                     {
-                        $api_solorank = $api->getSoloRanking($login);
+                        $data_solorank = $player->getSoloRanking($login);
 
                         // Campaign Ladder Points
-                        $playerinfo->soloPoints = 'Skill Points: '.number_format($api_solorank->points);
-                        $playerinfo->soloWorld = 'World ranking: '.number_format($api_solorank->ranks[0]->rank);
+                        $playerinfo->soloPoints = 'Skill Points: '.number_format($data_solorank->points);
+                        $playerinfo->soloWorld = 'World ranking: '.number_format($data_solorank->ranks[0]->rank);
                     }
                     else
                     {
@@ -301,13 +188,13 @@
      * @author Rives <rives@outlook.jp>
      * @return object Player data
      */
-    function loadWorldInfo($login)
+    function getWorldInfo($login)
     {
         try
         {
             // API Credentials
-            $apiuser = $_ENV['TMFWEBSERVICE_USER'];
-            $apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
+            $apiuser = $_ENV['TMFWEBSERVICE_FETCHER_USER'];
+            $apipw = $_ENV['TMFWEBSERVICE_FETCHER_PASSWORD'];
 
             // Variables
             $offset = '0'; // Request offset
@@ -317,6 +204,10 @@
             $colorparser = new \TMFColorParser(); // Color parser
             $worldinfo = new stdClass();
             $varname = getVariableName($worldinfo);
+
+            // Connections
+            $player = new \TrackMania\WebServices\Players($apiuser, $apipw);
+            $world = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
 
             $environments = array(
                 'Merge', // General ranking
@@ -343,7 +234,7 @@
                 else
                 {
                     // Get the current rank of the player for later
-                    $player = new \TrackMania\WebServices\Players($apiuser, $apipw);
+                    
                     $player_rank = $player->getMultiplayerRankingForEnvironment($login,'Merge');
 
                     // Convert ranking to offset replacing last number for 0
@@ -351,10 +242,6 @@
                 }
 
             }
-
-
-            // Connection for World data
-            $world = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
 
 
             //////////////////////////////////////////////////////////////////////////
@@ -475,23 +362,24 @@
 
                 // Return all data
                 return $worldinfoAll;
+
             }
 
             // DEBUG: Show all tables
-            for ($i = 0; $i < count($environments); $i++)
-            {
-                echo " - $environments[$i]";
-                echo "<br><br>";
+            // for ($i = 0; $i < count($environments); $i++)
+            // {
+            //     echo " - $environments[$i]";
+            //     echo "<br><br>";
 
-                for ($x = 0; $x < 10; $x++)
-                {
+            //     for ($x = 0; $x < 10; $x++)
+            //     {
 
-                    print_r(${$varname . $environments[$i]}[$x]);
-                    echo '<br>';
+            //         print_r(${$varname . $environments[$i]}[$x]);
+            //         echo '<br>';
 
-                }
+            //     }
 
-            }
+            // }
 
         }
         catch (\TrackMania\WebServices\Exception $e)
@@ -500,6 +388,119 @@
             $_SESSION['errorMessage'] = $e->getMessage();;
         }
     }
+
+    /**
+     * Shows table with the top 10 players on the world
+     * depending on the selected environment
+     *
+     * @param string $login Player login
+     * @param stdClass $data World data
+     * @param string $environment Trackmania environment
+     *
+     * @return void
+     */
+    function showWorldTable($login, $data, $environment)
+    {
+
+        $environments = array(
+            'Merge', // General ranking
+            'Stadium',
+            'Desert',
+            'Island',
+            'Rally',
+            'Coast',
+            'Bay',
+            'Snow'
+        );
+
+        $rank_text = 'Rank';
+        $nickname_text = 'Nickname';
+        $nation_text = 'Country';
+        $ladderpoints_text = 'Ladder Points';
+
+        if(isset($login))
+        {
+            // First part
+            echo "<div class='tab-pane fade show active' id='". $environments[0] ."' role='tabpanel' aria-labelledby='". $environments[0] ."-leaderboard'>
+                        <table class='table table-bordered table-hover'>
+                            <thead>
+                                <tr>
+                                <th scope='col' class='fixedrank'>$rank_text</th>
+                                <th scope='col' class='fixednickname'>$nickname_text</th>
+                                <th scope='col' class='fixednation'>$nation_text</th>
+                                <th scope='col' class='fixedlp'>$ladderpoints_text</th>
+                                </tr>
+                            </thead>";
+
+            // Content
+            for ($x = 0; $x < 10; $x++)
+            {
+                // Data structure differs for player submitted
+                $player_rank = number_format($data[$x]->rank , 0, ',', '.');
+                $player_nickname = $data[$x]->nickname;
+                $player_country = $data[$x]->nation;
+                $player_ladderpoints = $data[$x]->points;
+
+                echo "<tbody>
+                            <tr>
+                                <th scope='row'>$player_rank</th>
+                                <td>$player_nickname</td>
+                                <td>$player_country</td>
+                                <td>$player_ladderpoints</td>
+                            </tr>
+                        </tbody>";
+            }
+
+            // End of table
+            echo '</table>
+                </div>';
+        }
+        else
+        {
+            for ($i = 0; $i < count($environments); $i++)
+            {
+                $activeTabs = activeTabs($i);
+
+                // First part
+                echo "<div class='tab-pane fade". $activeTabs . "' id='".strtolower($environments[$i])."' role='tabpanel' aria-labelledby='".strtolower($environments[$i])."-leaderboard'>
+                        <table class='table table-bordered table-hover'>
+                            <thead>
+                                <tr>
+                                    <th scope='col' class='fixedrank'>$rank_text</th>
+                                    <th scope='col' class='fixednickname'>$nickname_text</th>
+                                    <th scope='col' class='fixednation'>$nation_text</th>
+                                    <th scope='col' class='fixedlp'>$ladderpoints_text</th>
+                                </tr>
+                            </thead>";
+
+                // Content
+                for ($x = 0; $x < 10; $x++)
+                {
+                    $player_rank = number_format($data->leaderboard[$environments[$i]][$x]->rank , 0, ',', '.');
+                    $player_nickname = $data->leaderboard[$environments[$i]][$x]->nickname;
+                    $player_country = $data->leaderboard[$environments[$i]][$x]->nation;
+                    $player_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
+
+                    echo "<tbody>
+                            <tr>
+                                <th scope='row'>$player_rank</th>
+                                <td>$player_nickname</td>
+                                <td>$player_country</td>
+                                <td>$player_ladderpoints</td>
+                            </tr>
+                        </tbody>";
+                }
+
+                // End of table
+                echo '</table>
+                </div>';
+            }
+        }
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * Verifies that the entered input is correct.
@@ -876,4 +877,12 @@
             }
         }
         return false;
+    }
+
+    function activeTabs($number)
+    {
+        if ($number == 0)
+                return " show active";
+            else
+                return "";
     }

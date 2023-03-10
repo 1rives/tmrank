@@ -1,9 +1,26 @@
-header{
-    background:#007bff;
+tbody {
+    display: table-row-group;
+    vertical-align: middle;
+    border-color: inherit;
+    text-align: center;
+    }
+
+th {    
+    text-align: center
 }
 
-.img {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center center;
+.fixedrank{
+    width: 15%;
+}
+
+.fixednickname{
+    width: 45%;
+}
+
+.fixednation{
+    width: 25%;
+}
+
+.fixedlp{
+    width: 15%;
 }

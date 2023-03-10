@@ -1,24 +1,22 @@
 <?php
 
-    session_start();
+session_start();
 
-    include_once('functions/php/functions.php'); // General functions
+include_once('../functions/php/functions.php'); // General functions
 
-    if(!isset($_POST['submit']))
-    {
-        unset($_SESSION['errorMessage']);
-    }
+if(!isset($_POST['submit']))
+{
+    unset($_SESSION['errorMessage']);
+}
 
-//    if (isset($_POST['submit']) && isset($_POST['login']))
-//    {
-//        $login = $_POST['login'];
-//
-//        $playerinfo = loadPlayerInfo($login);
-//    }
+if (isset($_POST['submit']) && isset($_POST['login']))
+{
+    $login = $_POST['login'];
 
-    
+}
+
+
 ?>
-
 
 <!doctype html>
 <html lang="en">
@@ -28,14 +26,17 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.84.0">
-    <title>Home</title>
+    <title>Search a player</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
 
-
+    <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
     <!-- Bootstrap core CSS -->
     <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+
 </head>
+
 
 <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
     <symbol id="check" viewBox="0 0 16 16">
@@ -44,25 +45,23 @@
     </symbol>
 </svg>
 
-    <?php include_once "templates/header.php" ?>
+    <?php include_once "../templates/navbar.php" ?>
 
 <body>
 
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h1 class="display-4 fw-normal">Search a player</h1>
+    <div class="container py-3"> 
+
+        <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+            <h1 class="display-4 fw-normal">Page not found</h1>
+        </div>
+
+        <main>
+        
+        </main>
     </div>
-
-    <main>
-        ...
-    </main>
-
-
-    <script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>
-<script src='assets/js/scripts.js'></script>
-
 
 </body>
 
-    <?php include_once "templates/footer.php" ?>
+    <?php include_once "../templates/footer.php" ?>
 
 </html>
