@@ -17,21 +17,43 @@
         $login = $_POST['login'];
     }
     
-    // Redis key name to get data
-    $php_script_name = explode(".", basename($_SERVER['PHP_SELF'])); // world.php
-    $ladder_name = strtoupper($php_script_name[0]); // WORLD
-    $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; // REDIS_VARIABLE_WORLD
+    // Redis key name to get data 
+    $php_script_name = explode(".", basename($_SERVER['PHP_SELF']));
+    $ladder_name = strtoupper($php_script_name[0]); 
+    $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; 
 
     // Get data for showing
-    if(isset($login)){
-        $world = getWorldInfo($login);
-    }
-    else{
-        $world = getCacheObject($redis_name);
-    }
+    // if(isset($login)){
+    //     $world = getWorldInfo($login);
+    // }
+    // else{
+    //     $world = getCacheObject($redis_name);
+    // }
+    
+    //$test = getZonesInfo();
+    //print_r($test);
+
+
+    ////////////////////////////////
+    // DATA TEST
+    
+    //header('Content-Type: application/json');
+    
+    //$apiuser = $_ENV['TMFWEBSERVICE_FETCHER_USER'];
+    //$apipw = $_ENV['TMFWEBSERVICE_FETCHER_PASSWORD'];
+
+    //$zones = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
+    //$results = $zones->getZoneRanking('world', 0, 10);
 
     
-    // print_r($world->leaderboard['Merge'][0]->rank);
+
+    ////////////////////////////////////
+
+    $zones = getZonesInfo();
+    
+    //sizeof($sas->ladder);
+    
+    //exit;
 
     // For showing data
     $player_environment = "Merge"; 
@@ -51,8 +73,23 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
 
     <!-- Bootstrap core CSS -->
+
     <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
+    <link href='https://cdn.datatables.net/1.13.3/css/jquery.dataTables.min.css' rel='stylesheet'>
+    
     <link href='assets/css_old/main.css' rel='stylesheet'>
+    
+
+    <script src="assets/jquery/jquery-3.3.1.min.js"></script>
+    <script src="assets/datatables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#datatable').DataTable();
+
+        } );
+    </script>
+
 </head>
 
 
@@ -69,81 +106,24 @@
 <body>
 
 <div class="container py-3">
-    
         
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h1 class="display-4 fw-normal">World ranking</h1>
+        <h1 class="display-4 fw-normal">Zone ranking</h1>
     </div>
 
     <br>
     <main class='w-100 mx-at py-3'>
-        <form action='' method='POST'>
-            <span class='fw-bold mb-0' style='color: red'>
-              <?php if ($_SESSION['errorMessage']) echo $_SESSION['errorMessage']; else echo ''; ?>
-            </span>
-
-            <div class="form-floating mb-3 d-flex">
-                <input required type="text" name="login" class="form-control" id="floatingInput" placeholder=""
-                       maxlength="20">
-                <label for="floatingInput">Player login</label>
-                <button class="btn btn-primary" name="submit" type="submit">Search</button>
-            </div>
-        </form>
-        
-        <ul class='nav nav-tabs justify-content-center ' id='myTab' role='tablist'>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link active' id='merge-leaderboard' data-bs-toggle='tab' data-bs-target='#merge' type='button'
-                        role='tab' aria-controls='merge' aria-selected='true'>General
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='stadium-leaderboard' data-bs-toggle='tab' data-bs-target='#stadium' type='button'
-                        role='tab' aria-controls='stadium' aria-selected='false' <?php playerDisableButton($login); ?>>Stadium
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='island-leaderboard' data-bs-toggle='tab' data-bs-target='#island' type='button'
-                        role='tab' aria-controls='island' aria-selected='false' <?php playerDisableButton($login); ?>>Island
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='desert-leaderboard' data-bs-toggle='tab' data-bs-target='#desert' type='button'
-                        role='tab' aria-controls='desert' aria-selected='false' <?php playerDisableButton($login); ?>>Desert
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='coast-leaderboard' data-bs-toggle='tab' data-bs-target='#coast' type='button'
-                        role='tab' aria-controls='coast' aria-selected='false' <?php playerDisableButton($login); ?>>Coast
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='rally-leaderboard' data-bs-toggle='tab' data-bs-target='#rally' type='button'
-                        role='tab' aria-controls='rally' aria-selected='false' <?php playerDisableButton($login); ?>>Rally
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='bay-leaderboard' data-bs-toggle='tab' data-bs-target='#bay' type='button'
-                        role='tab' aria-controls='bay' aria-selected='false' <?php playerDisableButton($login); ?>>Bay
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='snow-leaderboard' data-bs-toggle='tab' data-bs-target='#snow' type='button'
-                        role='tab' aria-controls='snow' aria-selected='false' <?php playerDisableButton($login); ?>>Snow
-                </button>
-            </li>
-        </ul>
-        <div class='tab-content' id='myTabContent'>
-            <?php showWorldTable($login, $world, $player_environment); ?>
-        </div>
+        <?php showZonesTable($zones); ?>
     </main>
-
 </div>
 
 
+
+
 <script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>
-<script src='assets/js/scripts.js'></script>
 
 </body>
 <?php include_once "templates/footer.php" ?>
 </html>
 
+e

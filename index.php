@@ -44,22 +44,22 @@
     </symbol>
 </svg>
 
-    <?php include_once "templates/header.php" ?>
+    <?php include_once "templates/navbar.php" ?>
 
 <body>
 
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h1 class="display-4 fw-normal">Search a player</h1>
+        <h1 class="display-4 fw-normal">Welcome</h1>
     </div>
-
+    <br>
     <main>
         ...
     </main>
 
 
     <script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>
-<script src='assets/js/scripts.js'></script>
-
+    <script src='assets/js/scripts.js'></script>
+    <script src='https://cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js'></script>
 
 </body>
 

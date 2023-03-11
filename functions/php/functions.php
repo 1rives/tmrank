@@ -89,14 +89,14 @@
 
                 // Initialize
                 $colorparser = new \TMFColorParser(); // Color parser
-                $playerinfo = new stdClass();
+                $zonesinfo = new stdClass();
 
                 // Connections
-                $player = new \TrackMania\WebServices\Players($apiuser, $apipw);
+                $zones = new \TrackMania\WebServices\Players($apiuser, $apipw);
 
                 // Requests
-                $data_player = $player->get($login); // Player info
-                $data_multirank = $player->getMultiplayerRanking($login); // World ranking (Player)
+                $data_player = $zones->get($login); // Player info
+                $data_multirank = $zones->getMultiplayerRanking($login); // World ranking (Player)
 
                 
                 try
@@ -107,33 +107,33 @@
                     /////////////////////////////////////
 
                     // Nickname parsed to HTML
-                    $playerinfo->nickname =
+                    $zonesinfo->nickname =
                         $colorparser->toHTML($data_player->nickname);
 
                     // Account type (bool)
-                    ($data_player->united) ? $playerinfo->account = "United" : $playerinfo->account = "Forever"; // False
+                    ($data_player->united) ? $zonesinfo->account = "United" : $zonesinfo->account = "Forever"; // False
 
                     // Player path/nation
                     $temp = str_replace('World|', '', $data_player->path);
-                    $playerinfo->nation = str_replace('|', ', ', $temp);
+                    $zonesinfo->nation = str_replace('|', ', ', $temp);
 
                     /////////////////////////////////////
                     // Player online ladder
                     /////////////////////////////////////
 
                     // Online Ladder Points - Merge
-                    $playerinfo->multiPoints = number_format($data_multirank->points);
+                    $zonesinfo->multiPoints = number_format($data_multirank->points);
 
                     // Having 0 Ladder Points means an unranked player
-                    if($playerinfo->multiPoints == 0)
+                    if($zonesinfo->multiPoints == 0)
                     {
-                        $playerinfo->multiWorld = 'Unranked';
-                        $playerinfo->multiZone = 'Unranked';
+                        $zonesinfo->multiWorld = 'Unranked';
+                        $zonesinfo->multiZone = 'Unranked';
                     }
                     else
                     {
-                        $playerinfo->multiWorld = number_format($data_multirank->ranks[0]->rank);
-                        $playerinfo->multiZone = number_format($data_multirank->ranks[1]->rank);
+                        $zonesinfo->multiWorld = number_format($data_multirank->ranks[0]->rank);
+                        $zonesinfo->multiZone = number_format($data_multirank->ranks[1]->rank);
                     }
 
 
@@ -144,20 +144,20 @@
                     // Free accounts doesn't have solo ladder
                     if($data_player->united)
                     {
-                        $data_solorank = $player->getSoloRanking($login);
+                        $data_solorank = $zones->getSoloRanking($login);
 
                         // Campaign Ladder Points
-                        $playerinfo->soloPoints = 'Skill Points: '.number_format($data_solorank->points);
-                        $playerinfo->soloWorld = 'World ranking: '.number_format($data_solorank->ranks[0]->rank);
+                        $zonesinfo->soloPoints = 'Skill Points: '.number_format($data_solorank->points);
+                        $zonesinfo->soloWorld = 'World ranking: '.number_format($data_solorank->ranks[0]->rank);
                     }
                     else
                     {
                         // Campaign Ladder Points
-                        $playerinfo->soloPoints = '';
-                        $playerinfo->soloWorld = "Not available on $playerinfo->account account";
+                        $zonesinfo->soloPoints = '';
+                        $zonesinfo->soloWorld = "Not available on $zonesinfo->account account";
                     }
 
-                    return $playerinfo;
+                    return $zonesinfo;
                 }
                 catch (\TrackMania\WebServices\Exception $e)
                 {
@@ -199,6 +199,7 @@
             // Variables
             $offset = '0'; // Request offset
             $flag = 'default'; // Placeholder flag
+            $path = 'World';
 
             // Initialize
             $colorparser = new \TMFColorParser(); // Color parser
@@ -206,7 +207,7 @@
             $varname = getVariableName($worldinfo);
 
             // Connections
-            $player = new \TrackMania\WebServices\Players($apiuser, $apipw);
+            $zones = new \TrackMania\WebServices\Players($apiuser, $apipw);
             $world = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
 
             $environments = array(
@@ -234,11 +235,10 @@
                 else
                 {
                     // Get the current rank of the player for later
-                    
-                    $player_rank = $player->getMultiplayerRankingForEnvironment($login,'Merge');
+                    $zones_rank = $zones->getMultiplayerRankingForEnvironment($login, $environments[0]);
 
                     // Convert ranking to offset replacing last number for 0
-                    $offset = substr_replace($player_rank->ranks[0]->rank, '0', -1);
+                    $offset = substr_replace($zones_rank->ranks[0]->rank, '0', -1);
                 }
 
             }
@@ -251,7 +251,7 @@
             if($_SERVER['REQUEST_METHOD'] == 'POST')
             {
                 // General ranking data
-                $worldinfo = $world->getPlayerRanking('World', $environments[0], $offset);
+                $worldinfo = $world->getPlayerRanking($path, $environments[0], $offset);
 
                 for ($x = 0; $x < 10; $x++)
                 {
@@ -311,7 +311,7 @@
                 // Getting all the data
                 for ($i = 0; $i < count($environments); $i++)
                 {
-                    $worldinfo = $world->getPlayerRanking('World', $environments[$i], $offset);
+                    $worldinfo = $world->getPlayerRanking($path , $environments[$i], $offset);
 
                     for ($x = 0; $x < 10; $x++)
                     {
@@ -389,6 +389,144 @@
         }
     }
 
+/**
+     * Load all zones.
+     *
+     * Cached data should be updated every midnight.
+     *
+     * @param string $login TMF player login
+     *
+     * @author Rives <rives@outlook.jp>
+     * @return object Player data
+     */
+    function getZonesInfo()
+    {
+        try
+        {
+            // API Credentials
+            $apiuser = $_ENV['TMFWEBSERVICE_USER'];
+            $apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
+
+            // Variables
+            $api_length = 10; // Request lenght (MAX 10)
+            $api_path = 'world'; // Request path
+            $api_offset = 0; // Request offset
+
+            $ladder_rank = 1;
+
+        
+            $api_data_quantity = 10; // Number of calls made, ex.: 10 different variables with data
+
+            $save_start = 0; // Used for saving data
+            $save_end = 10; // Used for saving data
+
+            // Initialize
+            $zonesinfoAll = new stdClass();
+            
+
+            //$varname = getVariableName($worldinfo);
+
+            // Connections
+            $zones = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
+
+
+            //////////////////////////////////////////////////////////////////////////
+            //                             Getting data                             //
+            //////////////////////////////////////////////////////////////////////////
+
+            
+            
+            for ($i = 0; $i < $api_data_quantity; $i++) 
+            {
+                $zonesinfo[$i] = $zones->getZoneRanking($api_path, $api_offset, $api_length);
+                $api_offset += 10;
+            }
+
+            // print_r($zonesinfo);
+            
+
+            // Getting all the data
+            for ($i = 0; $i < $api_data_quantity; $i++)
+            {
+                // Data position on $zonesinfo[]
+                $pos = 0;
+
+               for ($x = $save_start; $x < $save_end; $x++) 
+               {
+                    ////////////////////////////////////////////
+                    //          Zone rank (10 pages)          //
+                    ////////////////////////////////////////////
+
+                    if(empty($zonesinfo[$i]->zones[$pos]->zone->name))
+                    {
+                        // No more records available
+                        $i = $api_data_quantity;
+                        $x = $api_data_quantity * 10;
+                    }
+                    else
+                    {
+                        // Define object
+                        $zonesLadder[$x] = new stdClass();
+
+                        // Current rank
+                        $zonesLadder[$x]->rank =
+                            $ladder_rank;
+
+                        // Nation
+                        $zonesLadder[$x]->name = $zonesinfo[$i]->zones[$pos]->zone->name;
+
+                        //////////////////////////
+                        // Flag of the country
+
+                        // 1. Get flag name
+                        $nation_flag = mapCountry($zonesinfo[$i]->zones[$pos]->zone->name);
+
+                        // 2. Check for flag associated to country
+                        if (file_exists('assets/img/flag/' . $nation_flag . '.png')) 
+                            $flag = $nation_flag;
+                        else 
+                            $flag = 'missing';
+
+                        // 3. Correspondent flag name
+                        $zonesLadder[$x]->flag = $flag;
+                        //
+                        //////////////////////////
+
+                        // Ladder Points
+                        $zonesLadder[$x]->points =
+                            $zonesinfo[$i]->zones[$pos]->points . ' LP';
+
+                    
+                        // Save obtained data
+                        $zonesinfoAll->ladder[$x] = $zonesLadder[$x];
+
+                        $ladder_rank++;
+                        $pos++;
+                        
+                        //print_r($zonesinfoAll->ladder[$x]);
+                        //echo " //////////////////////////////// ";
+                        //exit;           
+                    } 
+               } 
+               
+               //print_r($zonesinfoAll->ladder);
+               //var_dump($save_start, $save_end);
+               $save_start += 10;
+               $save_end += 10;
+                
+            }
+            
+            return $zonesinfoAll;
+        
+
+        }
+        catch (\TrackMania\WebServices\Exception $e)
+        {
+            var_dump($e->getHTTPStatusCode(), $e->getHTTPStatusMessage(), $e->getMessage());
+            $_SESSION['errorMessage'] = $e->getMessage();;
+        }
+    }
+
     /**
      * Shows table with the top 10 players on the world
      * depending on the selected environment
@@ -414,7 +552,7 @@
         );
 
         $rank_text = 'Rank';
-        $nickname_text = 'Nickname';
+        $nation_text = 'Nickname';
         $nation_text = 'Country';
         $ladderpoints_text = 'Ladder Points';
 
@@ -425,34 +563,35 @@
                         <table class='table table-bordered table-hover'>
                             <thead>
                                 <tr>
-                                <th scope='col' class='fixedrank'>$rank_text</th>
-                                <th scope='col' class='fixednickname'>$nickname_text</th>
-                                <th scope='col' class='fixednation'>$nation_text</th>
-                                <th scope='col' class='fixedlp'>$ladderpoints_text</th>
+                                <th class='fixedrank'>$rank_text</th>
+                                <th class='fixednickname'>$nation_text</th>
+                                <th class='fixednation'>$nation_text</th>
+                                <th class='fixedlp'>$ladderpoints_text</th>
                                 </tr>
-                            </thead>";
+                            </thead>
+                        <tbody>";
 
             // Content
             for ($x = 0; $x < 10; $x++)
             {
                 // Data structure differs for player submitted
-                $player_rank = number_format($data[$x]->rank , 0, ',', '.');
-                $player_nickname = $data[$x]->nickname;
-                $player_country = $data[$x]->nation;
-                $player_ladderpoints = $data[$x]->points;
+                $zones_rank = number_format($data[$x]->rank , 0, ',', '.');
+                $zones_nation = $data[$x]->nickname;
+                $zones_country = $data[$x]->nation;
+                $zones_ladderpoints = $data[$x]->points;
 
-                echo "<tbody>
+                echo "
                             <tr>
-                                <th scope='row'>$player_rank</th>
-                                <td>$player_nickname</td>
-                                <td>$player_country</td>
-                                <td>$player_ladderpoints</td>
-                            </tr>
-                        </tbody>";
+                                <td>$zones_rank</td>
+                                <td>$zones_nation</td>
+                                <td>$zones_country</td>
+                                <td>$zones_ladderpoints</td>
+                            </tr>";
             }
 
             // End of table
-            echo '</table>
+            echo ' </tbody>
+                </table>
                 </div>';
         }
         else
@@ -466,38 +605,95 @@
                         <table class='table table-bordered table-hover'>
                             <thead>
                                 <tr>
-                                    <th scope='col' class='fixedrank'>$rank_text</th>
-                                    <th scope='col' class='fixednickname'>$nickname_text</th>
-                                    <th scope='col' class='fixednation'>$nation_text</th>
-                                    <th scope='col' class='fixedlp'>$ladderpoints_text</th>
+                                    <th class='fixedrank'>$rank_text</th>
+                                    <th class='fixednickname'>$nation_text</th>
+                                    <th class='fixednation'>$nation_text</th>
+                                    <th class='fixedlp'>$ladderpoints_text</th>
                                 </tr>
-                            </thead>";
+                            </thead>
+                        <tbody>";
 
                 // Content
                 for ($x = 0; $x < 10; $x++)
                 {
-                    $player_rank = number_format($data->leaderboard[$environments[$i]][$x]->rank , 0, ',', '.');
-                    $player_nickname = $data->leaderboard[$environments[$i]][$x]->nickname;
-                    $player_country = $data->leaderboard[$environments[$i]][$x]->nation;
-                    $player_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
+                    $zones_rank = number_format($data->leaderboard[$environments[$i]][$x]->rank , 0, ',', '.');
+                    $zones_nation = $data->leaderboard[$environments[$i]][$x]->nickname;
+                    $zones_country = $data->leaderboard[$environments[$i]][$x]->nation;
+                    $zones_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
 
-                    echo "<tbody>
+                    echo "
                             <tr>
-                                <th scope='row'>$player_rank</th>
-                                <td>$player_nickname</td>
-                                <td>$player_country</td>
-                                <td>$player_ladderpoints</td>
-                            </tr>
-                        </tbody>";
+                                <td>$zones_rank</td>
+                                <td>$zones_nation</td>
+                                <td>$zones_country</td>
+                                <td>$zones_ladderpoints</td>
+                            </tr>";
+                        
                 }
 
                 // End of table
-                echo '</table>
+                echo '</tbody>
+                </table>
                 </div>';
             }
         }
     }
 
+    /**
+     * Shows table with all the zones
+     *
+     * @param stdClass $data World data
+     *
+     * @return void
+     */
+    function showZonesTable($data)
+    {
+        // Get amount of records
+        $data_amount=0;
+        foreach ($data->ladder as $key=>$value)
+        {
+            $data_amount++;
+        }
+
+        $rank_text = 'Rank';
+        $nation_text = 'Country';
+        $ladderpoints_text = 'Ladder Points';
+
+        // First part
+        echo "<table id='datatable' class='display'>
+                    <thead class='table-light'>
+                        <tr>
+                            <th class='fixedrank'>$rank_text</th>
+                            <th class='fixednickname'>$nation_text</th>
+                            <th class='fixedlp'>$ladderpoints_text</th>
+                        </tr>
+                    </thead>
+                <tbody>";
+
+        // Content
+        for ($x = 0; $x < $data_amount; $x++)
+        {
+            // Data structure differs for player submitted
+            $zones_rank = number_format($data->ladder[$x]->rank , 0, ',', '.');
+            $zones_nation = $data->ladder[$x]->name;
+            $zones_flag = $data->ladder[$x]->flag;
+            $zones_ladderpoints = $data->ladder[$x]->points;
+
+            echo "
+                    <tr>
+                        <td>$zones_rank</td>
+                        <td><img src='assets/img/flag/$zones_flag.png' alt='$zones_nation flag' width='3%'>    " . $zones_nation . "</td>
+                        <td>$zones_ladderpoints</td>
+                </tr>";
+        }
+
+        // End of table
+        echo ' </tbody>
+            </table>';
+
+    }
+
+    
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -691,7 +887,7 @@
             'Burkina Faso' => 'BUR',
             'Burundi' => 'BDI',
             'Cambodia' => 'CAM',
-            'Cameroon' => 'CAR',  // actually CMR
+            'Cameroon' => 'CMR',  // Original value: 'CAR'
             'Canada' => 'CAN',
             'Cape Verde' => 'CPV',
             'Central African Republic' => 'CAF',
@@ -801,14 +997,14 @@
             'Portugal' => 'POR',
             'Puerto Rico' => 'PUR',
             'Qatar' => 'QAT',
-            'Romania' => 'ROM',  // actually ROU
+            'Romania' => 'ROU',  // Original value: 'ROM'
             'Russia' => 'RUS',
             'Rwanda' => 'RWA',
             'Samoa' => 'SAM',
             'San Marino' => 'SMR',
             'Saudi Arabia' => 'KSA',
             'Senegal' => 'SEN',
-            'Serbia' => 'SCG',  // actually SRB
+            'Serbia' => 'SRB',  // // Original value: 'SCG'
             'Sierra Leone' => 'SLE',
             'Singapore' => 'SIN',
             'Slovakia' => 'SVK',
@@ -855,7 +1051,7 @@
         }
         else
         {
-            $nation = 'OTH';
+            $nation = 'missing';
         }
         return $nation;
     }
@@ -879,6 +1075,13 @@
         return false;
     }
 
+    /**
+     * Returns CSS properties for default tab (First)
+     *
+     * @param $number Position
+     *
+     * @return string CSS properties
+     */
     function activeTabs($number)
     {
         if ($number == 0)

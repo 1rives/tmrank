@@ -30,7 +30,7 @@
         $world = getCacheObject($redis_name);
     }
 
-    
+
     // print_r($world->leaderboard['Merge'][0]->rank);
 
     // For showing data
@@ -50,9 +50,12 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
 
-    <!-- Bootstrap core CSS -->
+    
+    <!-- CSS styles -->
     <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
     <link href='assets/css_old/main.css' rel='stylesheet'>
+
+
 </head>
 
 
@@ -139,9 +142,8 @@
 
 </div>
 
-
 <script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>
-<script src='assets/js/scripts.js'></script>
+<script src='assets/jquery/jquery-3.3.1.min.js'></script>
 
 </body>
 <?php include_once "templates/footer.php" ?>
