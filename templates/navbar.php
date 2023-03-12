@@ -10,8 +10,8 @@
                 <a class="me-3 py-2 text-dark text-decoration-none" href="player.php">Player</a>
                 <a class="me-3 py-2 text-dark text-decoration-none" href="world.php">World</a>
                 <a class="me-3 py-2 text-dark text-decoration-none" href="zones.php">Zones</a>
-                <a class="me-3 py-2 text-dark text-decoration-none" href="#">Faq</a>
-                <a class="me-3 py-2 text-dark text-decoration-none" href="#">About</a>
+                <a class="me-3 py-2 text-dark text-decoration-none" href="faq.php">Faq</a>
+                <a class="me-3 py-2 text-dark text-decoration-none" href="about.php">About</a>
             </nav>
         </div>
     </div>

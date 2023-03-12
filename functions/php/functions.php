@@ -4,35 +4,41 @@
     require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php'); // Nickname parser
 
     // TODO: Refactor functions creating classes (If needed)
-    // - Namespaces for world (Separate player search for no-player search), player, zone
-    // - Better implementation of saving memory
-    // - Try again with Cron, if isn't working search a PHP/docker script solution
+    // - Class for world (Separate player search for no-player search), player, zone
 
-     /* Save data to redis.
-     * 
+    ///////////////////////////////////////////////////////////////////////////
+
+
+    /////////////////////////////////
+    ///
+    ///  CACHE FUNCTIONS
+    ///
+
+    /** Save data to redis.
+     *
      * @param string $key Name of key
      *
      * @return stdClass Data obtained from redis
      * @throws RedisException
      */
     function saveCacheData($data, $key)
-    {
-        // Takes the variable name as value
-        $host = $_ENV['REDIS_HOST'];
-        $port = $_ENV['REDIS_PORT'];
+        {
+            // Takes the variable name as value
+            $host = $_ENV['REDIS_HOST'];
+            $port = $_ENV['REDIS_PORT'];
 
-        $timeout = getTimeUntilMidnight();
+            $timeout = getTimeUntilMidnight();
 
-        // Database connection
-        $redis = new Redis();
-        $redis->connect($host, $port);
-        $redis->set($key, encodeCacheData($data), $timeout);
-        $redis->close();
-    }
+            // Database connection
+            $redis = new Redis();
+            $redis->connect($host, $port);
+            $redis->set($key, encodeCacheData($data), $timeout);
+            $redis->close();
+        }
 
     /**
      * Get data from redis.
-     * 
+     *
      * @param string $key Name of key
      *
      * @return stdClass Data obtained from redis
@@ -45,7 +51,6 @@
 
         // Database connection
         $redis = new Redis();
-        
 
         $redis->connect($host, $port);
         $data = decodeCacheData($redis->get($key));
@@ -54,15 +59,36 @@
         // For objects
         // if(strpos($data, 'stdClass'))
         //      $data = (object) $data;
-            
+
         return $data;
 
     }
 
     /**
-     * ONLY FOR DEV
+     * Get data length from redis.
      *
-     * Deletes a previously
+     * @param string $key Name of key
+     *
+     * @return int Length of key
+     * @throws RedisException
+     */
+    function getCacheDataLength($key)
+    {
+        $host = $_ENV['REDIS_HOST'];
+        $port = $_ENV['REDIS_PORT'];
+
+        // Database connection
+        $redis = new Redis();
+
+        $redis->connect($host, $port);
+        $data = $redis->strLen($key);
+        $redis->close();
+
+        return $data;
+    }
+
+    /**
+     * ONLY FOR DEV
      */
     function deleteCacheData($key)
     {
@@ -83,27 +109,11 @@
 
     }
 
-    /**
-     * ONLY FOR DEV
-     *
-     * Deletes a previously
-     */
-    function getCacheDataLenght($key)
-    {
-        $host = $_ENV['REDIS_HOST'];
-        $port = $_ENV['REDIS_PORT'];
+    /////////////////////////////////
+    ///
+    ///  GET DATA FROM API
+    ///
 
-        // Database connection
-        $redis = new Redis();
-
-        $redis->connect($host, $port);
-        $data = $redis->strLen($key);
-        $redis->close();
-
-        return $data;
-    }
-    
-    
     /**
      * Loads all player data to an object.
      *
@@ -141,7 +151,7 @@
                 $data_player = $zones->get($login); // Player info
                 $data_multirank = $zones->getMultiplayerRanking($login); // World ranking (Player)
 
-                
+
                 try
                 {
 
@@ -432,16 +442,16 @@
         }
     }
 
-/**
-     * Load all zones.
-     *
-     * Cached data should be updated every midnight.
-     *
-     * @param string $login TMF player login
-     *
-     * @author Rives <rives@outlook.jp>
-     * @return object Player data
-     */
+    /**
+         * Load all zones.
+         *
+         * Cached data should be updated every midnight.
+         *
+         * @param string $login TMF player login
+         *
+         * @author Rives <rives@outlook.jp>
+         * @return object Player data
+         */
     function getZonesInfo()
     {
         try
@@ -457,7 +467,7 @@
 
             $ladder_rank = 1;
 
-        
+
             $api_data_quantity = 10; // Number of calls made, ex.: 10 different variables with data
 
             $save_start = 0; // Used for saving data
@@ -465,7 +475,7 @@
 
             // Initialize
             $zonesinfoAll = new stdClass();
-            
+
 
             //$varname = getVariableName($worldinfo);
 
@@ -477,16 +487,16 @@
             //                             Getting data                             //
             //////////////////////////////////////////////////////////////////////////
 
-            
-            
-            for ($i = 0; $i < $api_data_quantity; $i++) 
+
+
+            for ($i = 0; $i < $api_data_quantity; $i++)
             {
                 $zonesinfo[$i] = $zones->getZoneRanking($api_path, $api_offset, $api_length);
                 $api_offset += 10;
             }
 
             // print_r($zonesinfo);
-            
+
 
             // Getting all the data
             for ($i = 0; $i < $api_data_quantity; $i++)
@@ -494,7 +504,7 @@
                 // Data position on $zonesinfo[]
                 $pos = 0;
 
-               for ($x = $save_start; $x < $save_end; $x++) 
+               for ($x = $save_start; $x < $save_end; $x++)
                {
                     ////////////////////////////////////////////
                     //          Zone rank (10 pages)          //
@@ -525,9 +535,9 @@
                         $nation_flag = mapCountry($zonesinfo[$i]->zones[$pos]->zone->name);
 
                         // 2. Check for flag associated to country
-                        if (file_exists('assets/img/flag/' . $nation_flag . '.png')) 
+                        if (file_exists('assets/img/flag/' . $nation_flag . '.png'))
                             $flag = $nation_flag;
-                        else 
+                        else
                             $flag = 'missing';
 
                         // 3. Correspondent flag name
@@ -539,28 +549,28 @@
                         $zonesLadder[$x]->points =
                             $zonesinfo[$i]->zones[$pos]->points . ' LP';
 
-                    
+
                         // Save obtained data
                         $zonesinfoAll->ladder[$x] = $zonesLadder[$x];
 
                         $ladder_rank++;
                         $pos++;
-                        
+
                         //print_r($zonesinfoAll->ladder[$x]);
                         //echo " //////////////////////////////// ";
-                        //exit;           
-                    } 
-               } 
-               
+                        //exit;
+                    }
+               }
+
                //print_r($zonesinfoAll->ladder);
                //var_dump($save_start, $save_end);
                $save_start += 10;
                $save_end += 10;
-                
+
             }
-            
+
             return $zonesinfoAll;
-        
+
 
         }
         catch (\TrackMania\WebServices\Exception $e)
@@ -569,6 +579,11 @@
             $_SESSION['errorMessage'] = $e->getMessage();;
         }
     }
+
+    /////////////////////////////////
+    ///
+    ///  SHOW TABLE WITH DATA
+    ///
 
     /**
      * Shows table with the top 10 players on the world
@@ -580,7 +595,7 @@
      *
      * @return void
      */
-    function showWorldTable($login, $data, $environment)
+    function showWorldTable($login, $data)
     {
 
         $environments = array(
@@ -595,7 +610,7 @@
         );
 
         $rank_text = 'Rank';
-        $nation_text = 'Nickname';
+        $nickname_text = 'Nickname';
         $nation_text = 'Country';
         $ladderpoints_text = 'Ladder Points';
 
@@ -607,7 +622,7 @@
                             <thead>
                                 <tr>
                                 <th class='fixedrank'>$rank_text</th>
-                                <th class='fixednickname'>$nation_text</th>
+                                <th class='fixednickname'>$nickname_text</th>
                                 <th class='fixednation'>$nation_text</th>
                                 <th class='fixedlp'>$ladderpoints_text</th>
                                 </tr>
@@ -618,17 +633,17 @@
             for ($x = 0; $x < 10; $x++)
             {
                 // Data structure differs for player submitted
-                $zones_rank = number_format($data[$x]->rank , 0, ',', '.');
-                $zones_nation = $data[$x]->nickname;
-                $zones_country = $data[$x]->nation;
-                $zones_ladderpoints = $data[$x]->points;
+                $world_rank = number_format($data[$x]->rank , 0, ',', '.');
+                $world_nickname = $data[$x]->nickname;
+                $world_country = $data[$x]->nation;
+                $world_ladderpoints = $data[$x]->points;
 
                 echo "
                             <tr>
-                                <td>$zones_rank</td>
-                                <td>$zones_nation</td>
-                                <td>$zones_country</td>
-                                <td>$zones_ladderpoints</td>
+                                <td>$world_rank</td>
+                                <td>$world_nickname</td>
+                                <td>$world_country</td>
+                                <td>$world_ladderpoints</td>
                             </tr>";
             }
 
@@ -649,29 +664,27 @@
                             <thead>
                                 <tr>
                                     <th class='fixedrank'>$rank_text</th>
-                                    <th class='fixednickname'>$nation_text</th>
+                                    <th class='fixednickname'>$nickname_text</th>
                                     <th class='fixednation'>$nation_text</th>
                                     <th class='fixedlp'>$ladderpoints_text</th>
                                 </tr>
                             </thead>
                         <tbody>";
 
-                // Content
-                for ($x = 0; $x < 10; $x++)
+                foreach ($data[$environments[$i]] as $player)
                 {
-                    $zones_rank = number_format($data->leaderboard[$environments[$i]][$x]->rank , 0, ',', '.');
-                    $zones_nation = $data->leaderboard[$environments[$i]][$x]->nickname;
-                    $zones_country = $data->leaderboard[$environments[$i]][$x]->nation;
-                    $zones_ladderpoints = $data->leaderboard[$environments[$i]][$x]->points;
+                    $world_rank = number_format($player['rank'] , 0, ',', '.');
+                    $world_nickname = $player['nickname'];
+                    $world_country = $player['nation'];
+                    $world_ladderpoints = $player['points'];
 
                     echo "
                             <tr>
-                                <td>$zones_rank</td>
-                                <td>$zones_nation</td>
-                                <td>$zones_country</td>
-                                <td>$zones_ladderpoints</td>
+                                <td>$world_rank</td>
+                                <td>$world_nickname</td>
+                                <td>$world_country</td>
+                                <td>$world_ladderpoints</td>
                             </tr>";
-                        
                 }
 
                 // End of table
@@ -683,7 +696,7 @@
     }
 
     /**
-     * Shows table with all the zones
+     * Shows table of the zones ladder
      *
      * @param stdClass $data World data
      *
@@ -691,19 +704,7 @@
      */
     function showZonesTable($data)
     {
-        // Get amount of records
-        if(!isset($data))
-        {
-            $data_amount=0; // No data
-        }
-        else
-        {
-            $data_amount=0;
-            foreach ($data->ladder as $key=>$value)
-            {
-                $data_amount++; // Amount of records
-            }
-        }
+        $array_search = 'ladder';
 
         $rank_text = 'Rank';
         $nation_text = 'Country';
@@ -720,21 +721,21 @@
                     </thead>
                 <tbody>";
 
-        // Content
-        for ($x = 0; $x < $data_amount; $x++)
+
+        foreach ($data[$array_search] as $zone)
         {
             // Data structure differs for player submitted
-            $zones_rank = number_format($data->ladder[$x]->rank , 0, ',', '.');
-            $zones_nation = $data->ladder[$x]->name;
-            $zones_flag = $data->ladder[$x]->flag;
-            $zones_ladderpoints = $data->ladder[$x]->points;
+            $zones_rank = number_format($zone['rank'] , 0, ',', '.');
+            $zones_nation = $zone['name'];
+            $zones_flag = $zone['flag'];
+            $zones_ladderpoints = $zone['points'];
 
-            echo "
-                    <tr>
-                        <td>$zones_rank</td>
-                        <td><img src='assets/img/flag/$zones_flag.png' alt='$zones_nation flag' width='3%'>    " . $zones_nation . "</td>
-                        <td>$zones_ladderpoints</td>
-                </tr>";
+            echo "                                                                                                                           
+                 <tr>                                                                                                                     
+                     <td>$zones_rank</td>                                                                                                 
+                     <td><img src='assets/img/flag/$zones_flag.png' alt='$zones_nation flag' width='3%'>    " . $zones_nation . "</td>    
+                     <td>$zones_ladderpoints</td>                                                                                         
+             </tr>";
         }
 
         // End of table
@@ -764,12 +765,36 @@
      */
     function decodeCacheData($data)
     {
-        return json_decode(json_encode(unserialize($data)));
+        return unserialize(json_decode(json_encode($data)));
     }
 
-
-
     ///////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////
+    ///
+    ///  GENERAL FUNCTIONS
+    ///
+
+    /**
+     * Returns parameter of defined function
+     *
+     * @param string Redis parameter
+     *
+     * @return string Parameter
+     */
+    function getFunctionParam($param)
+    {
+        $redis_world = $_ENV['REDIS_VARIABLE_WORLD'];
+
+        // Create variables with parameters for
+        // the existing functions
+        $redis_world_param = "\$login";
+
+        if(!strcmp($param, $redis_world))
+            return $redis_world_param;
+
+        return "";
+    }
 
     /**
      * Verifies that the entered input is correct.
@@ -854,45 +879,6 @@
     }
 
     /**
-     * Simple function that replaces 0 for "unranked"
-     *
-     * Used to show unranked players correctly
-     *
-     * @param int $points Current player ladder points
-     * @param int $data TMF player login
-     * @param int $type TMF player login
-     *
-     * @author Rives <rives@outlook.jp>
-     * @return string "0" or "unranked"
-     */
-    function showUnrankedPlayer($points, $value, $type)
-    {
-        // IDEA DE FUNCION
-        //
-        // Al tener 0 Ladder/Skill points, mostrar unranked
-        // En lo posible no mostrar el ranking mundial y nacional de ser asi.
-
-    }
-
-    /**
-     * Adds ordinal suffix to player rank
-     *
-     * ex.: 1 equals 1st
-     *
-     * @param $number Player ranking
-     *
-     * @return false|string
-     */
-    function ordinalSuffix($number)
-    {
-        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
-        if ((($number % 100) >= 11) && (($number%100) <= 13))
-            return $number. 'th';
-        else
-            return $number. $ends[$number % 10];
-    }
-
-    /**
      * In case of submitting a player login, disables all buttons except 'General' (Merge)
      * with the CSS property 'disabled'
      *
@@ -911,10 +897,13 @@
      *
      * @return int
      */
-    function getTimeUntilMidnight() : int
+    function getTimeUntilMidnight()
     {
+        // For specific hour: 'today 17:20pm'
+        $datetime = 'tomorrow midnight';
+
         $now = time();
-        $midnight = strtotime('tomorrow midnight');
+        $midnight = strtotime($datetime);
 
         return $midnight - $now;
     }
@@ -1161,9 +1150,4 @@
                 return " show active";
             else
                 return "";
-    }
-
-    function test()
-    {
-        $_SESSION['test'] = date('h:i:s');
     }

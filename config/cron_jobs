@@ -1,8 +1,0 @@
-# System start
-@reboot /usr/bin/w3m "http://127.0.0.1/tmrank/shells/update_cron.php" >> /var/log/cron_tm_check.log 2>&1
-
-# Minute check
-* * * * * /usr/bin/w3m "http://127.0.0.1/tmrank/shells/update_cron.php" >> /var/log/cron_tm_check.log 2>&1
-
-# Refresh data every midnight
-#0 0 * * * $W3M_LOCATION "$SCRIPT_UPDATE_DIR" >> /var/log/cron_tm_update.log 2>&1

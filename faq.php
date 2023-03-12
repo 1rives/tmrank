@@ -2,14 +2,9 @@
 
     session_start();
 
-    include_once('functions/php/functions.php'); // General functions
-
     if (!isset($_POST['submit'])) {
         unset($_SESSION['errorMessage']);
     }
-
-    var_dump(getCacheData('world'));
-    // deleteCacheData('world');
 
 ?>
 
@@ -43,9 +38,10 @@
 <body>
 
 <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-    <h1 class="display-4 fw-normal">Welcome</h1>
+    <h1 class="display-4 fw-normal">Faq</h1>
 
-    <main>
+    <main class='w-100 mx-at py-3'>
+        ...
     </main>
 
 </div>

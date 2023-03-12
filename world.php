@@ -2,8 +2,6 @@
 
     session_start();
 
-
-
     include_once('functions/php/functions.php'); // General functions
 
     if(!isset($_POST['submit']))
@@ -11,42 +9,24 @@
         unset($_SESSION['errorMessage']);
     }
 
-
     if (isset($_POST['submit']) && isset($_POST['login']))
     {
         $login = $_POST['login'];
     }
-    
+
     // Redis key name to get data
     $php_script_name = explode(".", basename($_SERVER['PHP_SELF'])); // world.php
     $ladder_name = strtoupper($php_script_name[0]); // WORLD
     $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; // REDIS_VARIABLE_WORLD
 
-    // Get data for showing
+    // Data
     if(isset($login)){
         $world = getWorldInfo($login);
     }
     else{
-        // $test = getWorldInfo($login);
-        // saveCacheObject($test, $redis_name);
-
-        // $test2 = getCacheObject($redis_name);
-        // // if(strpos($test2, 'stdClass'))
-        // //      $data = (object)unserialize($test2);
-        // print_r($test2);
-        // exit;
-
-        //echo getCacheDataLenght('test');
-        //$world = getCacheData($redis_name);
-
-        //echo $test;
-        //exit;
+        $world = getCacheData($redis_name);
     }
 
-    // print_r($world->leaderboard['Merge'][0]->rank);
-
-    // For showing data
-    $player_environment = "Merge"; 
 
 ?>
 
@@ -62,7 +42,7 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
 
-    
+
     <!-- CSS styles -->
     <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
     <link href='assets/css_old/main.css' rel='stylesheet'>
@@ -84,8 +64,8 @@
 <body>
 
 <div class="container py-3">
-    
-        
+
+
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h1 class="display-4 fw-normal">World ranking</h1>
     </div>
@@ -104,7 +84,7 @@
                 <button class="btn btn-primary" name="submit" type="submit">Search</button>
             </div>
         </form>
-        
+
         <ul class='nav nav-tabs justify-content-center ' id='myTab' role='tablist'>
             <li class='nav-item' role='presentation'>
                 <button class='nav-link active' id='merge-leaderboard' data-bs-toggle='tab' data-bs-target='#merge' type='button'
@@ -148,7 +128,7 @@
             </li>
         </ul>
         <div class='tab-content' id='myTabContent'>
-            <?php showWorldTable($login, $world, $player_environment); ?>
+            <?php showWorldTable($login, $world); ?>
         </div>
     </main>
 

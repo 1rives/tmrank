@@ -20,45 +20,10 @@
     // Redis key name to get data 
     $php_script_name = explode(".", basename($_SERVER['PHP_SELF']));
     $ladder_name = strtoupper($php_script_name[0]); 
-    $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; 
+    $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"];
 
-    // Get data for showing
-    // if(isset($login)){
-    //     $world = getWorldInfo($login);
-    // }
-    // else{
-    //     $world = getCacheObject($redis_name);
-    // }
-    
-    //$test = getZonesInfo();
-    //print_r($test);
-
-
-    ////////////////////////////////
-    // DATA TEST
-    
-    //header('Content-Type: application/json');
-    
-    //$apiuser = $_ENV['TMFWEBSERVICE_FETCHER_USER'];
-    //$apipw = $_ENV['TMFWEBSERVICE_FETCHER_PASSWORD'];
-
-    //$zones = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
-    //$results = $zones->getZoneRanking('world', 0, 10);
-
-    
-
-    ////////////////////////////////////
-
-    $zones = getZonesInfo();
-    
-    //sizeof($sas->ladder);
-    
-    //exit;
-
-    
-
-    // For showing data
-    $player_environment = "Merge"; 
+    // Data
+    $zones = getCacheData($redis_name);
 
 ?>
 
