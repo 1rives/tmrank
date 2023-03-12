@@ -27,10 +27,22 @@
         $world = getWorldInfo($login);
     }
     else{
-        $world = getCacheObject($redis_name);
+        // $test = getWorldInfo($login);
+        // saveCacheObject($test, $redis_name);
+
+        // $test2 = getCacheObject($redis_name);
+        // // if(strpos($test2, 'stdClass'))
+        // //      $data = (object)unserialize($test2);
+        // print_r($test2);
+        // exit;
+
+        //echo getCacheDataLenght('test');
+        //$world = getCacheData($redis_name);
+
+        //echo $test;
+        //exit;
     }
-
-
+    
     // print_r($world->leaderboard['Merge'][0]->rank);
 
     // For showing data

@@ -15,7 +15,8 @@
 //
 //        $playerinfo = loadPlayerInfo($login);
 //    }
-
+    var_dump($_SESSION['test']);
+    var_dump($_SESSION['test2']);
     
 ?>
 
@@ -50,11 +51,13 @@
 
     <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
         <h1 class="display-4 fw-normal">Welcome</h1>
+
+        <main>
+        </main>
+
     </div>
     <br>
-    <main>
-        ...
-    </main>
+    
 
 
     <script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>

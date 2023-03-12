@@ -8,28 +8,25 @@
     // - Better implementation of saving memory
     // - Try again with Cron, if isn't working search a PHP/docker script solution
 
-    /**
-     * Save data to redis.
+     /* Save data to redis.
+     * 
+     * @param string $key Name of key
      *
-     * @param stdClass $data Ladder data
-     * @param string $key Name of redis variable
-     *
-     * @return void
+     * @return stdClass Data obtained from redis
      * @throws RedisException
      */
-    function saveCacheObject($data, $key)
+    function saveCacheData($data, $key)
     {
         // Takes the variable name as value
         $host = $_ENV['REDIS_HOST'];
         $port = $_ENV['REDIS_PORT'];
 
-        //$serialized_data = serialize($data);
         $timeout = getTimeUntilMidnight();
 
         // Database connection
         $redis = new Redis();
         $redis->connect($host, $port);
-        $redis->set($key, $data, $timeout);
+        $redis->set($key, encodeCacheData($data), $timeout);
         $redis->close();
     }
 
@@ -41,7 +38,33 @@
      * @return stdClass Data obtained from redis
      * @throws RedisException
      */
-    function getCacheObject($key)
+    function getCacheData($key)
+    {
+        $host = $_ENV['REDIS_HOST'];
+        $port = $_ENV['REDIS_PORT'];
+
+        // Database connection
+        $redis = new Redis();
+        
+
+        $redis->connect($host, $port);
+        $data = decodeCacheData($redis->get($key));
+        $redis->close();
+
+        // For objects
+        // if(strpos($data, 'stdClass'))
+        //      $data = (object) $data;
+            
+        return $data;
+
+    }
+
+    /**
+     * ONLY FOR DEV
+     *
+     * Deletes a previously
+     */
+    function deleteCacheData($key)
     {
         $host = $_ENV['REDIS_HOST'];
         $port = $_ENV['REDIS_PORT'];
@@ -50,16 +73,36 @@
         $redis = new Redis();
 
         $redis->connect($host, $port);
-        $data = $redis->get($key);
+
+        if($redis->exists($key))
+        {
+            $redis->del($key);
+        }
+
         $redis->close();
 
-        // For objects
-        if(strpos($data, 'stdClass'))
-            $data = (object) unserialize($data);
-            
-        return $data;
-
     }
+
+    /**
+     * ONLY FOR DEV
+     *
+     * Deletes a previously
+     */
+    function getCacheDataLenght($key)
+    {
+        $host = $_ENV['REDIS_HOST'];
+        $port = $_ENV['REDIS_PORT'];
+
+        // Database connection
+        $redis = new Redis();
+
+        $redis->connect($host, $port);
+        $data = $redis->strLen($key);
+        $redis->close();
+
+        return $data;
+    }
+    
     
     /**
      * Loads all player data to an object.
@@ -649,10 +692,17 @@
     function showZonesTable($data)
     {
         // Get amount of records
-        $data_amount=0;
-        foreach ($data->ladder as $key=>$value)
+        if(!isset($data))
         {
-            $data_amount++;
+            $data_amount=0; // No data
+        }
+        else
+        {
+            $data_amount=0;
+            foreach ($data->ladder as $key=>$value)
+            {
+                $data_amount++; // Amount of records
+            }
         }
 
         $rank_text = 'Rank';
@@ -663,9 +713,9 @@
         echo "<table id='datatable' class='display'>
                     <thead class='table-light'>
                         <tr>
-                            <th class='fixedrank'>$rank_text</th>
-                            <th class='fixednickname'>$nation_text</th>
-                            <th class='fixedlp'>$ladderpoints_text</th>
+                            <th class='fixedrank' scope='col'>$rank_text</th>
+                            <th class='fixednickname' scope='col'>$nation_text</th>
+                            <th class='fixedlp' scope='col'>$ladderpoints_text</th>
                         </tr>
                     </thead>
                 <tbody>";
@@ -693,7 +743,30 @@
 
     }
 
-    
+    /**
+     * Encodes data for caching
+     *
+     * @param unknown_type $login Data
+     *
+     * @return unknown_Type Encoded data
+     */
+    function encodeCacheData($data)
+    {
+        return serialize(json_decode(json_encode($data), true));
+    }
+
+    /**
+     * Decodes data for usage
+     *
+     * @param unknown_type $login Encoded dada
+     *
+     * @return unknown_Type Data
+     */
+    function decodeCacheData($data)
+    {
+        return json_decode(json_encode(unserialize($data)));
+    }
+
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -840,10 +913,10 @@
      */
     function getTimeUntilMidnight() : int
     {
-        $now = time(); // get the current timestamp in seconds
-        $midnight = strtotime('today midnight'); // get the timestamp of midnight today
+        $now = time();
+        $midnight = strtotime('tomorrow midnight');
 
-        return $now - $midnight; // calculate the difference in seconds
+        return $midnight - $now;
     }
 
     /**
@@ -1088,4 +1161,9 @@
                 return " show active";
             else
                 return "";
+    }
+
+    function test()
+    {
+        $_SESSION['test'] = date('h:i:s');
     }

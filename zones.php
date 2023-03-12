@@ -55,6 +55,8 @@
     
     //exit;
 
+    
+
     // For showing data
     $player_environment = "Merge"; 
 
@@ -125,5 +127,3 @@
 </body>
 <?php include_once "templates/footer.php" ?>
 </html>
-
-e
