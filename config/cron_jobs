@@ -1,29 +1,8 @@
-# File needs to be located with Dockerfile (DEV)
-# TODO: Open the cron_job located in the project
+# System start
+@reboot /usr/bin/w3m "http://127.0.0.1/tmrank/shells/update_cron.php" >> /var/log/cron_tm_check.log 2>&1
 
-## General variables 
-IS_CRON=1
-IS_MIDNIGHT=1
-
-PROTOCOL=http
-DEV_WEB=127.0.0.1:8080
-DEV_HOST=127.0.0.1
-DEV_PORT=8080
-
-PHP_LOCATION=/usr/bin/w3m
-W3M_LOCATION=/usr/bin/w3m
-
-## Scripts
-SCRIPT_UPDATE_NAME=update_cron.php
-
-# Create new SCRIPT_DIR
-$SCRIPT_UPDATE_DIR = "$PROTOCOL://$DEV_HOST/tmrank/shells/$SCRIPT_NAME_UPDATE"
-
-####
-## Cron jobs
-
-# Checks if data is set
-* * * * * $W3M_LOCATION "$SCRIPT_UPDATE_DIR" $IS_CRON >> /var/log/cron_tm_check.log 2>&1
+# Minute check
+* * * * * /usr/bin/w3m "http://127.0.0.1/tmrank/shells/update_cron.php" >> /var/log/cron_tm_check.log 2>&1
 
 # Refresh data every midnight
-0 0 * * * $W3M_LOCATION "$SCRIPT_UPDATE_DIR" $IS_CRON $IS_MIDNIGHT >> /var/log/cron_tm_update.log 2>&1
+#0 0 * * * $W3M_LOCATION "$SCRIPT_UPDATE_DIR" >> /var/log/cron_tm_update.log 2>&1

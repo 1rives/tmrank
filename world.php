@@ -42,7 +42,7 @@
         //echo $test;
         //exit;
     }
-    
+
     // print_r($world->leaderboard['Merge'][0]->rank);
 
     // For showing data
