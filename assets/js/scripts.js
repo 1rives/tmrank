@@ -1,6 +1,3 @@
-$(document).ready(function () {
-    $('#tableWorld').DataTable({
-        paging: false,
-        search: false,
-    });
-});
+if ( window.history.replaceState ) {
+    window.history.replaceState( null, null, window.location.href );
+}

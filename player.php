@@ -30,9 +30,15 @@
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
 
-    <script src="http://code.jquery.com/jquery-2.0.0.js"></script>
-    <!-- Bootstrap core CSS -->
-    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- CSS styles -->
+    <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
+    <link href='assets/css_old/main.css' rel='stylesheet'>
+
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
 
 
 </head>

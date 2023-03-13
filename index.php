@@ -8,8 +8,19 @@
         unset($_SESSION['errorMessage']);
     }
 
-    //var_dump(getCacheData('world'));
-    // deleteCacheData('world');
+
+    $host = $_ENV['REDIS_HOST'];
+    $port = $_ENV['REDIS_PORT'];
+
+    $redis = new Redis();
+
+    $redis->connect($host, $port);
+    $sas = $redis->getTimeout();
+    echo $sas;
+    $redis->close();
+
+    //deleteCacheData('world');
+    //deleteCacheData('zones');
 
 ?>
 

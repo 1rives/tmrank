@@ -16,7 +16,12 @@
     {
         $login = $_POST['login'];
     }
-    
+
+$host = $_ENV['REDIS_HOST'];
+$port = $_ENV['REDIS_PORT'];
+
+$timeout = getTimeUntilMidnight();
+
     // Redis key name to get data 
     $php_script_name = explode(".", basename($_SERVER['PHP_SELF']));
     $ladder_name = strtoupper($php_script_name[0]); 
@@ -24,6 +29,20 @@
 
     // Data
     $zones = getCacheData($redis_name);
+    //deleteCacheData('zones');
+
+    $redis = new Redis();
+    $redis->connect($host, $port);
+
+    $ses = $redis->get('zones');
+    var_dump(decodeCacheData($ses));
+    //echo $sas;
+    $sos = getTimeUntilMidnight();
+
+    $sas = $redis->ttl($redis_name);
+    echo $sas . " - " . $sos;
+
+    $redis->close();
 
 ?>
 <!doctype html>
@@ -54,6 +73,12 @@
             $('#datatable').DataTable();
 
         } );
+
+    </script>
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
     </script>
 
 </head>

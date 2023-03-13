@@ -32,7 +32,10 @@
             // Database connection
             $redis = new Redis();
             $redis->connect($host, $port);
-            $redis->set($key, encodeCacheData($data), $timeout);
+
+            $redis->set($key, encodeCacheData($data));
+            $redis->expireAt($key, $timeout);
+
             $redis->close();
         }
 
@@ -457,8 +460,8 @@
         try
         {
             // API Credentials
-            $apiuser = $_ENV['TMFWEBSERVICE_USER'];
-            $apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
+            $apiuser = $_ENV['TMFWEBSERVICE_FETCHER_USER'];
+            $apipw = $_ENV['TMFWEBSERVICE_FETCHER_PASSWORD'];
 
             // Variables
             $api_length = 10; // Request lenght (MAX 10)
@@ -513,6 +516,7 @@
                     if(empty($zonesinfo[$i]->zones[$pos]->zone->name))
                     {
                         // No more records available
+                        // - Without this will keep saving empty data
                         $i = $api_data_quantity;
                         $x = $api_data_quantity * 10;
                     }
@@ -530,12 +534,14 @@
 
                         //////////////////////////
                         // Flag of the country
+                        //////////////////////////
 
                         // 1. Get flag name
                         $nation_flag = mapCountry($zonesinfo[$i]->zones[$pos]->zone->name);
 
                         // 2. Check for flag associated to country
-                        if (file_exists('assets/img/flag/' . $nation_flag . '.png'))
+                        // TODO: Make a function for dynamic ubication of assets
+                        if (file_exists('../assets/img/flag/' . $nation_flag . '.png'))
                             $flag = $nation_flag;
                         else
                             $flag = 'missing';
@@ -919,10 +925,9 @@
         // For specific hour: 'today 17:20pm'
         $datetime = 'tomorrow midnight';
 
-        $now = time();
         $midnight = strtotime($datetime);
 
-        return $midnight - $now;
+        return $midnight;
     }
 
     /**
@@ -1167,4 +1172,36 @@
                 return " show active";
             else
                 return "";
+    }
+
+    /**
+     * DEV: Get type of request from CRON
+     *
+     * @param $request_type
+     * @return void
+     */
+    function getRequest($request_type)
+    {
+        $request_string = "Unknown";
+
+        if($request_type == 1)
+        {
+            $request_string = "Midnight update";
+        }
+        if($request_type == 2)
+        {
+            $request_string = "Check inside update hour";
+        }
+        if($request_type == 3)
+        {
+            $request_string = "Check outside update hour";
+        }
+        if(empty($request_type))
+        {
+            $request_string = 'No request';
+            $request_type = 'null';
+        }
+
+        echo "Type of request: $request_string ($request_type)";
+
     }

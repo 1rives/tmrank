@@ -19,7 +19,8 @@
     $ladder_name = strtoupper($php_script_name[0]); // WORLD
     $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; // REDIS_VARIABLE_WORLD
 
-
+//echo getTimeUntilMidnight();
+//exit;
     // Data
     if(isset($login)){
         $world = getWorldInfo($login);
@@ -27,6 +28,36 @@
     else{
         $world = getCacheData($redis_name);
     }
+
+    getRequest($_SESSION['request']);
+
+    $host = $_ENV['REDIS_HOST'];
+    $port = $_ENV['REDIS_PORT'];
+
+    $timeout = getTimeUntilMidnight();
+
+    //$sas = getWorldInfo($login);
+
+    // Database connection
+
+    $test = call_user_func('getWorldInfo', '');
+    var_dump($test);
+
+    $redis = new Redis();
+    $redis->connect($host, $port);
+
+    $ses = $redis->get($redis_name);
+    echo $ses;
+    //echo $sas;
+    $sos = getTimeUntilMidnight();
+
+    $sas = $redis->ttl('world');
+    echo $sas;
+
+    $redis->close();
+
+
+
 
 ?>
 
@@ -46,12 +77,12 @@
     <!-- CSS styles -->
     <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
     <link href='assets/css_old/main.css' rel='stylesheet'>
-    <style>
-        a[disabled] {
-            pointer-events: none;
-        }
 
-    </style>
+    <script>
+        if ( window.history.replaceState ) {
+            window.history.replaceState( null, null, window.location.href );
+        }
+    </script>
 
 
 </head>
