@@ -4,8 +4,6 @@
 
     include_once('../functions/php/functions.php');
 
-    $_SESSION['request'] = $_GET['request'];
-
     // Update
     if($_GET['request'] == 1 || $_GET['request'] == 2 || $_GET['request'] == 3)
     {
@@ -17,6 +15,9 @@
 
         foreach ($redis_array as $request)
         {
+            // Save data request type and date
+            saveCacheData('Type of request: ' . $_GET['request'] . ' at '. date('d/m/y H:i.s'), $request . 'request');
+
             // Generate function name and get data
             $redis_request = 'get' . ucwords($request) . 'Info';
 
@@ -37,6 +38,7 @@
                 if(function_exists($redis_request))
                 {
                     $redis_data = call_user_func($redis_request, '');
+
                     saveCacheData($redis_data, $request);
                 }
 

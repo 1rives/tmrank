@@ -57,6 +57,7 @@
 
         $redis->connect($host, $port);
         $data = decodeCacheData($redis->get($key));
+
         $redis->close();
 
         // For objects
@@ -442,6 +443,10 @@
         {
             var_dump($e->getHTTPStatusCode(), $e->getHTTPStatusMessage(), $e->getMessage());
             $_SESSION['errorMessage'] = $e->getMessage();;
+
+            if (strcmp($_SESSION['errorMessage'], 'Unkown player') == 0) {
+                $_SESSION['errorMessage'] = 'Player not found';
+            }
         }
     }
 
@@ -622,7 +627,8 @@
 
         if(!$data)
         {
-            echo "<p class='text-danger'>Couldn't get the top 10 for every environment, try later.</p>";
+            if(!isset($_SESSION['errorMessage']))
+                echo "<p class='text-danger'>Couldn't get the top 10 for every environment, try later.</p>";
         }
         else
         {
@@ -727,8 +733,8 @@
 
         if(!$data)
         {
-
-            echo "<p class='text-danger'>Couldn't get all zones data, try later.</p>";
+            if(!isset($_SESSION['errorMessage']))
+                echo "<p class='text-danger'>Couldn't get all zones data, try later.</p>";
         }
         else
         {
@@ -1196,11 +1202,11 @@
         {
             $request_string = "Check outside update hour";
         }
-        if(empty($request_type))
-        {
-            $request_string = 'No request';
-            $request_type = 'null';
-        }
+//        if(empty($request_type))
+//        {
+//            $request_string = 'No request';
+//            $request_type = 'null';
+//        }
 
         echo "Type of request: $request_string ($request_type)";
 

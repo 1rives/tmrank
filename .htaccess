@@ -1,14 +1,14 @@
 #ErrorDocument 404 /tmrank/templates/error.php
 
-#<Files *.php>
-#    Order Deny,Allow
-#    Deny from all
-#    Allow from 127.0.0.1
-#    Allow from redis
-#</Files>
-#
-#<FilesMatch "index\.php|player\.php|world\.php|zones\.php|faq\.php|about\.php">
-#    Order Allow,Deny
-#    Allow from all
-#</FilesMatch>
+<Files *.php>
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+    Allow from redis
+</Files>
+
+<FilesMatch "index\.php|player\.php|world\.php|zones\.php|faq\.php|about\.php">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
 

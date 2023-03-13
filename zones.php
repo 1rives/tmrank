@@ -2,8 +2,6 @@
 
     session_start();
 
-
-
     include_once('functions/php/functions.php'); // General functions
 
     if(!isset($_POST['submit']))
@@ -17,11 +15,6 @@
         $login = $_POST['login'];
     }
 
-$host = $_ENV['REDIS_HOST'];
-$port = $_ENV['REDIS_PORT'];
-
-$timeout = getTimeUntilMidnight();
-
     // Redis key name to get data 
     $php_script_name = explode(".", basename($_SERVER['PHP_SELF']));
     $ladder_name = strtoupper($php_script_name[0]); 
@@ -29,21 +22,9 @@ $timeout = getTimeUntilMidnight();
 
     // Data
     $zones = getCacheData($redis_name);
-    //deleteCacheData('zones');
 
-    $redis = new Redis();
-    $redis->connect($host, $port);
-
-    $ses = $redis->get('zones');
-    var_dump(decodeCacheData($ses));
-    //echo $sas;
-    $sos = getTimeUntilMidnight();
-
-    $sas = $redis->ttl($redis_name);
-    echo $sas . " - " . $sos;
-
-    $redis->close();
-
+    
+    
 ?>
 <!doctype html>
 <html lang="en" data-bs-theme='dark'>
