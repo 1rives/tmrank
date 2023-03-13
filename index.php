@@ -8,7 +8,7 @@
         unset($_SESSION['errorMessage']);
     }
 
-    var_dump(getCacheData('world'));
+    //var_dump(getCacheData('world'));
     // deleteCacheData('world');
 
 ?>

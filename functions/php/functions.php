@@ -614,10 +614,16 @@
         $nation_text = 'Country';
         $ladderpoints_text = 'Ladder Points';
 
-        if(isset($login))
+        if(!$data)
         {
-            // First part
-            echo "<div class='tab-pane fade show active' id='". $environments[0] ."' role='tabpanel' aria-labelledby='". $environments[0] ."-leaderboard'>
+            echo "<p class='text-danger'>Couldn't get the top 10 for every environment, try later.</p>";
+        }
+        else
+        {
+            if(isset($login))
+            {
+                // First part
+                echo "<div class='tab-pane fade show active' id='". $environments[0] ."' role='tabpanel' aria-labelledby='". $environments[0] ."-leaderboard'>
                         <table class='table table-bordered table-hover'>
                             <thead>
                                 <tr>
@@ -629,54 +635,14 @@
                             </thead>
                         <tbody>";
 
-            // Content
-            for ($x = 0; $x < 10; $x++)
-            {
-                // Data structure differs for player submitted
-                $world_rank = number_format($data[$x]->rank , 0, ',', '.');
-                $world_nickname = $data[$x]->nickname;
-                $world_country = $data[$x]->nation;
-                $world_ladderpoints = $data[$x]->points;
-
-                echo "
-                            <tr>
-                                <td>$world_rank</td>
-                                <td>$world_nickname</td>
-                                <td>$world_country</td>
-                                <td>$world_ladderpoints</td>
-                            </tr>";
-            }
-
-            // End of table
-            echo ' </tbody>
-                </table>
-                </div>';
-        }
-        else
-        {
-            for ($i = 0; $i < count($environments); $i++)
-            {
-                $activeTabs = activeTabs($i);
-
-                // First part
-                echo "<div class='tab-pane fade". $activeTabs . "' id='".strtolower($environments[$i])."' role='tabpanel' aria-labelledby='".strtolower($environments[$i])."-leaderboard'>
-                        <table class='table table-bordered table-hover'>
-                            <thead>
-                                <tr>
-                                    <th class='fixedrank'>$rank_text</th>
-                                    <th class='fixednickname'>$nickname_text</th>
-                                    <th class='fixednation'>$nation_text</th>
-                                    <th class='fixedlp'>$ladderpoints_text</th>
-                                </tr>
-                            </thead>
-                        <tbody>";
-
-                foreach ($data[$environments[$i]] as $player)
+                // Content
+                for ($x = 0; $x < 10; $x++)
                 {
-                    $world_rank = number_format($player['rank'] , 0, ',', '.');
-                    $world_nickname = $player['nickname'];
-                    $world_country = $player['nation'];
-                    $world_ladderpoints = $player['points'];
+                    // Data structure differs for player submitted
+                    $world_rank = number_format($data[$x]->rank , 0, ',', '.');
+                    $world_nickname = $data[$x]->nickname;
+                    $world_country = $data[$x]->nation;
+                    $world_ladderpoints = $data[$x]->points;
 
                     echo "
                             <tr>
@@ -688,9 +654,51 @@
                 }
 
                 // End of table
-                echo '</tbody>
+                echo ' </tbody>
                 </table>
                 </div>';
+            }
+            else
+            {
+                for ($i = 0; $i < count($environments); $i++)
+                {
+                    // Sets the Merge table active
+                    $activeTabs = activeTabs($i);
+
+                    // First part
+                    echo "<div class='tab-pane fade". $activeTabs . "' id='".strtolower($environments[$i])."' role='tabpanel' aria-labelledby='".strtolower($environments[$i])."-leaderboard'>
+                        <table class='table table-bordered table-hover'>
+                            <thead>
+                                <tr>
+                                    <th class='fixedrank'>$rank_text</th>
+                                    <th class='fixednickname'>$nickname_text</th>
+                                    <th class='fixednation'>$nation_text</th>
+                                    <th class='fixedlp'>$ladderpoints_text</th>
+                                </tr>
+                            </thead>
+                        <tbody>";
+
+                    foreach ($data['leaderboard'][$environments[$i]] as $player)
+                    {
+                        $world_rank = number_format($player['rank'] , 0, ',', '.');
+                        $world_nickname = $player['nickname'];
+                        $world_country = $player['nation'];
+                        $world_ladderpoints = $player['points'];
+
+                        echo "
+                            <tr>
+                                <td>$world_rank</td>
+                                <td>$world_nickname</td>
+                                <td>$world_country</td>
+                                <td>$world_ladderpoints</td>
+                            </tr>";
+                    }
+
+                    // End of table
+                    echo '</tbody>
+                </table>
+                </div>';
+                }
             }
         }
     }
@@ -710,8 +718,16 @@
         $nation_text = 'Country';
         $ladderpoints_text = 'Ladder Points';
 
-        // First part
-        echo "<table id='datatable' class='display'>
+
+        if(!$data)
+        {
+
+            echo "<p class='text-danger'>Couldn't get all zones data, try later.</p>";
+        }
+        else
+        {
+            // First part
+            echo "<table id='datatable' class='display'>
                     <thead class='table-light'>
                         <tr>
                             <th class='fixedrank' scope='col'>$rank_text</th>
@@ -722,25 +738,26 @@
                 <tbody>";
 
 
-        foreach ($data[$array_search] as $zone)
-        {
-            // Data structure differs for player submitted
-            $zones_rank = number_format($zone['rank'] , 0, ',', '.');
-            $zones_nation = $zone['name'];
-            $zones_flag = $zone['flag'];
-            $zones_ladderpoints = $zone['points'];
+            foreach ($data[$array_search] as $zone)
+            {
+                // Data structure differs for player submitted
+                $zones_rank = number_format($zone['rank'] , 0, ',', '.');
+                $zones_nation = $zone['name'];
+                $zones_flag = $zone['flag'];
+                $zones_ladderpoints = $zone['points'];
 
-            echo "                                                                                                                           
+                echo "                                                                                                                           
                  <tr>                                                                                                                     
                      <td>$zones_rank</td>                                                                                                 
                      <td><img src='assets/img/flag/$zones_flag.png' alt='$zones_nation flag' width='3%'>    " . $zones_nation . "</td>    
                      <td>$zones_ladderpoints</td>                                                                                         
              </tr>";
-        }
+            }
 
-        // End of table
-        echo ' </tbody>
+            // End of table
+            echo ' </tbody>
             </table>';
+        }
 
     }
 

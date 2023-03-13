@@ -26,7 +26,6 @@
     $zones = getCacheData($redis_name);
 
 ?>
-
 <!doctype html>
 <html lang="en" data-bs-theme='dark'>
 <head>
@@ -83,7 +82,6 @@
         <?php showZonesTable($zones); ?>
     </main>
 </div>
-
 
 
 

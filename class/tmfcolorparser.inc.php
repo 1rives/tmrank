@@ -9,7 +9,7 @@ class TMFColorParser{
 	var $forceDarken, $forceBrighten;
 	var $alwaysDrawFontShadows;
 
-	function TMFColorParser($autoContrastToBackgroundColor = ''){
+	function ColorParser($autoContrastToBackgroundColor = ''){
 		$this->autoContrastColor($autoContrastToBackgroundColor);
 		$this->forceDarken = false;
 		$this->forceBrighten = false;
@@ -196,7 +196,7 @@ class TMFColorParser{
 
 	}
 
-	function toHTML($str, $stripColors = false, $stripLinks = false, $stripTags = ''){
+	function toHTML($str, $stripColors = false, $stripLinks = true, $stripTags = ''){
 		$col = false;
 		$wide = false;
 		$narrow = false;
@@ -404,7 +404,6 @@ class TMFColorParser{
 
 	/**
      * draws a TMN color coded string onto the given picture
-	 * Edited to support different horizontal text alignments by svens (webmaster_AT_svenstucki.ch)
      *
      * @param imageHandle $src_img The picture to be drawn on
      * @param int $size	The fontsize
@@ -421,9 +420,8 @@ class TMFColorParser{
      * @param String $text The TMN color coded Text you want to display
      * @param boolean $stripColors Strip out the colors or not.
      * @param String $stripTags
-	 * @param String $alignment Possible values are "left", "center" and "right". The alignment is relative to the given x position.
      */
-	function drawStyledString($src_img,$size, $x, $y , $color, $font, $text, $stripColors = false, $stripTags = '', $alignment = 'left'){
+	function drawStyledString($src_img,$size, $x, $y , $color, $font, $text, $stripColors = false, $stripTags = ''){
 
 		if (strtolower($stripTags) == 'all') $stripTags = 'iwonstmgaxz';
 		for ($i=0; $i<strlen($stripTags); $i++){
@@ -432,37 +430,12 @@ class TMFColorParser{
 		}
 
 		$chunks = $this->toArray($text);
-		$black = imagecolorallocate($src_img, 50,50,50);
-		
-		// Calculate x offset to match alignment
+		//var_dump($text);
 		$x_offset = 0;
-		if( $alignment != "left" ) {
-			
-			// Calculate total width of text when drawn
-			$totalw = 0;
-			for( $i=0; $i<count($chunks); $i++ ) {
-				$cf = "./".$font;
-				if( $chunks[$i]["wide"] )
-					$cf .= "wd";
-				if( $chunks[$i]["italic"] )
-					$cf .= "it";
-				if( $chunks[$i]["caps"] )
-					$chunks[$i]["text"] = strtoupper($chunks[$i]["text"]);
-				$cf .= ".ttf";
-				$b = imagettfbbox( $size, 0, $cf, $chunks[$i]["text"] );
-				$totalw += $b[2] + 2;
-			}
-			$totalw = $totalw<0? 0:$totalw;
-			
-			// New x offset
-			if( $alignment == "right" )
-				$x_offset = -1 * $totalw; // text end will be at given x position
-			if( $alignment == "center" )
-				$x_offset = -1 * floor($totalw/2); // text end will be at given x postion + half of the length, in case of odd length the text will be a bit more on the left
-			
-		}
+		$black = imagecolorallocate($src_img, 50,50,50);
 
 		for ($i = 0; $i < count ($chunks); $i++){
+
 
 			$fontUsed = "./".$font;
 			if ($chunks[$i]["wide"]) $fontUsed .= "wd";
@@ -486,11 +459,7 @@ class TMFColorParser{
 			$x_offset += $bbox[2]+2;
 
 		}
-		
-		return $x_offset;
-		
 	}
-	
 
 	function forceDarkerColors(){
 		$this->forceDarken = true;

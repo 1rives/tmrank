@@ -19,6 +19,7 @@
     $ladder_name = strtoupper($php_script_name[0]); // WORLD
     $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; // REDIS_VARIABLE_WORLD
 
+
     // Data
     if(isset($login)){
         $world = getWorldInfo($login);
@@ -26,7 +27,6 @@
     else{
         $world = getCacheData($redis_name);
     }
-
 
 ?>
 
@@ -46,6 +46,12 @@
     <!-- CSS styles -->
     <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
     <link href='assets/css_old/main.css' rel='stylesheet'>
+    <style>
+        a[disabled] {
+            pointer-events: none;
+        }
+
+    </style>
 
 
 </head>
@@ -80,12 +86,12 @@
             <div class="form-floating mb-3 d-flex">
                 <input required type="text" name="login" class="form-control" id="floatingInput" placeholder=""
                        maxlength="20">
-                <label for="floatingInput">Player login</label>
+                <label for="floatingInput" class="text-secondary">Player login</label>
                 <button class="btn btn-primary" name="submit" type="submit">Search</button>
             </div>
         </form>
 
-        <ul class='nav nav-tabs justify-content-center ' id='myTab' role='tablist'>
+        <ul class='nav nav-tabs justify-content-center' id='myTab' role='tablist' <?php if(!$world) echo 'hidden'; ?>>
             <li class='nav-item' role='presentation'>
                 <button class='nav-link active' id='merge-leaderboard' data-bs-toggle='tab' data-bs-target='#merge' type='button'
                         role='tab' aria-controls='merge' aria-selected='true'>General
