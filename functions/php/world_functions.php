@@ -11,7 +11,8 @@
     ///
 
     /**
-     * Loads current top 10 based on Ladder Points.
+     * Get current top 10 based on Ladder Points and
+     * load to an object.
      *
      * Submitting a valid login will show the position of
      * the player via $offset on request.
@@ -37,8 +38,8 @@
 
             // Initialize
             $colorparser = new \TMFColorParser(); // Color parser
-            $worldinfo = new stdClass();
-            $varname = getVariableName($worldinfo);
+            $worldInfo = new stdClass();
+            $varname = getVariableName($worldInfo);
 
             // Connections
             $zones = new \TrackMania\WebServices\Players($apiuser, $apipw);
@@ -62,17 +63,20 @@
 
             if(isset($login))
             {
-                if(validateLogin($login) != 0)
+                try 
                 {
-                    // RIP
-                }
-                else
-                {
-                    // Get the current rank of the player for later
-                    $zones_rank = $zones->getMultiplayerRankingForEnvironment($login, $environments[0]);
+                    if(validateLogin($login) == 0)
+                    {
+                        // Get the current rank of the player for later
+                        $zones_rank = $zones->getMultiplayerRankingForEnvironment($login, $environments[0]);
 
-                    // Convert ranking to offset replacing last number for 0
-                    $offset = substr_replace($zones_rank->ranks[0]->rank, '0', -1);
+                        // Convert ranking to offset replacing last number for 0
+                        $offset = substr_replace($zones_rank->ranks[0]->rank, '0', -1);
+                    }
+                } 
+                catch (Exception $e) 
+                {
+                    $_SESSION['errorMessage'] = $e->getMessage();
                 }
 
             }
@@ -85,7 +89,7 @@
             if($_SERVER['REQUEST_METHOD'] == 'POST')
             {
                 // General ranking data
-                $worldinfo = $world->getPlayerRanking($path, $environments[0], $offset);
+                $worldInfo = $world->getPlayerRanking($path, $environments[0], $offset);
 
                 for ($x = 0; $x < 10; $x++)
                 {
@@ -99,14 +103,14 @@
 
                     // Current rank
                     ${$varname . $environments[0]}[$x]->rank =
-                        $worldinfo->players[$x]->rank;
+                        $worldInfo->players[$x]->rank;
 
                     // Nickname parsed to HTML
                     ${$varname . $environments[0]}[$x]->nickname =
-                        $colorparser->toHTML($worldinfo->players[$x]->player->nickname);
+                        $colorparser->toHTML($worldInfo->players[$x]->player->nickname);
 
                     // Nation
-                    $temp = explode('|', $worldinfo->players[$x]->player->path); // Explode path
+                    $temp = explode('|', $worldInfo->players[$x]->player->path); // Explode path
 
                     ${$varname . $environments[0]}[$x]->nation =
                         $temp[1];
@@ -128,7 +132,7 @@
 
                     // Ladder Points
                     ${$varname . $environments[0]}[$x]->points =
-                        number_format($worldinfo->players[$x]->points) . ' LP';
+                        number_format($worldInfo->players[$x]->points) . ' LP';
 
                 }
 
@@ -140,12 +144,12 @@
             {
 
                 // Declare array for data return
-                $worldinfoAll = new stdClass();
+                $worldInfoAll = new stdClass();
 
                 // Getting all the data
                 for ($i = 0; $i < count($environments); $i++)
                 {
-                    $worldinfo = $world->getPlayerRanking($path , $environments[$i], $offset);
+                    $worldInfo = $world->getPlayerRanking($path , $environments[$i], $offset);
 
                     for ($x = 0; $x < 10; $x++)
                     {
@@ -158,15 +162,15 @@
 
                         // Current rank
                         ${$varname . $environments[$i]}[$x]->rank =
-                            $worldinfo->players[$x]->rank;
+                            $worldInfo->players[$x]->rank;
 
                         // Nickname parsed to HTML
 
                         ${$varname . $environments[$i]}[$x]->nickname =
-                            $colorparser->toHTML($worldinfo->players[$x]->player->nickname);
+                            $colorparser->toHTML($worldInfo->players[$x]->player->nickname);
 
                         // Nation
-                        $temp = explode('|', $worldinfo->players[$x]->player->path); // Explode path
+                        $temp = explode('|', $worldInfo->players[$x]->player->path); // Explode path
 
                         ${$varname . $environments[$i]}[$x]->nation =
                             $temp[1];
@@ -188,21 +192,20 @@
 
                         // Ladder Points
                         ${$varname . $environments[$i]}[$x]->points =
-                            number_format($worldinfo->players[$x]->points) . ' LP';
+                            number_format($worldInfo->players[$x]->points) . ' LP';
                     }
 
-                    $worldinfoAll->leaderboard[$environments[$i]] = ${$varname . $environments[$i]};
+                    $worldInfoAll->leaderboard[$environments[$i]] = ${$varname . $environments[$i]};
                 }
 
-                // Return all data
-                return $worldinfoAll;
+                return $worldInfoAll;
 
             }
 
         }
         catch (\TrackMania\WebServices\Exception $e)
         {
-            var_dump($e->getHTTPStatusCode(), $e->getHTTPStatusMessage(), $e->getMessage());
+            // var_dump($e->getHTTPStatusCode(), $e->getHTTPStatusMessage(), $e->getMessage());
             $_SESSION['errorMessage'] = $e->getMessage();;
 
             if (strcmp($_SESSION['errorMessage'], 'Unkown player') == 0) {

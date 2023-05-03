@@ -2,32 +2,61 @@
 
 session_start();
 
+include 'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
+
 // Page created with the purpose of debugging data
 
-include_once('functions/php/functions.php');
+// include_once('functions/php/functions.php');
+// header('Content-Type: application/json');
 
-header('Content-Type: application/json');
-
-// Init
-$apiuser = $_ENV['TMFWEBSERVICE_USER']; 
+$apiuser = $_ENV['TMFWEBSERVICE_USER'];
 $apipw = $_ENV['TMFWEBSERVICE_PASSWORD'];
+$login = "dragsterboy01";
 
-$colorparser = new \TMFColorParser(); // Color parser
-$zonesinfo = new stdClass();
+$accept = 'application/json';
+$contentType = 'application/json';
 
-// Param
-$param = "World|Germany|Lower Saxony";
+// Set up the HTTP client with a base URI
+$client = new Client([
+    'base_uri' => 'http://ws.trackmania.com',
+    'auth' => [ 
+        $apiuser, $apipw 
+    ],
+    'headers' => [
+        'accept' => $accept,
+        'Content-Type' => $contentType,
+    ],
+    'verify' => false, // Insecure
+    'protocol' => 1.0, // Insecure
+    'timeout' => 10.0,
+]);
 
-// Conn
-// $request = new \TrackMania\WebServices\MultiplayerRankings($apiuser, $apipw);
+$playerURI = sprintf('/tmf/players/%s/', $login);
+$multirankURI = sprintf('/tmf/players/%s/rankings/multiplayer/', $login);
+$solorankURI = sprintf('/tmf/players/%s/rankings/solo/', $login);
 
-// $data = $request->getZoneRanking($param, 0 , 10); 
+try 
+{
+    $promises = [
+        'player'    => $client->getAsync($playerURI),
+        'multirank' => $client->getAsync($multirankURI),
+        'solorank'  => $client->getAsync($solorankURI),
+    ];
+    $results = Promise\Utils::unwrap($promises);
 
-$request = new \TrackMania\WebServices\Zones($apiuser, $apipw);
+    // Get the responses
+    $body1 = $results['player']->getBody();
+    $body2 = $results['multirank']->getBody();
+    $body3 = $results['solorank']->getBody();
 
-$data = $request->getAll(0 , 100); 
-
-//print_r($data);                           // Object
-echo json_encode($data, JSON_PRETTY_PRINT); // JSON 
-
-exit;
+    echo $body1;
+    echo $body2;
+    echo $body3;
+} 
+catch (Exception $e) 
+{
+    echo 'Caught exception: ',  $e->getMessage(), "\n";
+}
