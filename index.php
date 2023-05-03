@@ -2,7 +2,7 @@
 
     session_start();
 
-    include_once('functions/php/functions.php'); // General functions
+    include_once('functions/php/general_functions.php'); // General functions
 
     if (!isset($_POST['submit'])) {
         unset($_SESSION['errorMessage']);

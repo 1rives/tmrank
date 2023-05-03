@@ -2,7 +2,7 @@
 
     session_start();
 
-    include_once('functions/php/functions.php'); // General functions
+    include_once('functions/php/zone_functions.php');
 
     if(!isset($_POST['submit']))
     {
@@ -23,6 +23,8 @@
     // Data
     $zones = getCacheData($redis_name);
 
+    // Delete key for DEBUG
+    //deleteCacheData($redis_name);
     
     
 ?>

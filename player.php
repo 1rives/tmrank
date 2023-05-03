@@ -2,7 +2,7 @@
 
     session_start();
 
-    include_once('functions/php/functions.php'); // General functions
+    include_once('functions/php/player_functions.php');
 
     if(!isset($_POST['submit']))
     {

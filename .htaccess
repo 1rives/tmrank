@@ -7,7 +7,7 @@
     Allow from redis
 </Files>
 
-<FilesMatch "index\.php|player\.php|world\.php|zones\.php|faq\.php|about\.php">
+<FilesMatch "index\.php|player\.php|world\.php|zones\.php|faq\.php|about\.php|dev\.php">
     Order Allow,Deny
     Allow from all
 </FilesMatch>

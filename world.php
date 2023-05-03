@@ -2,7 +2,7 @@
 
     session_start();
 
-    include_once('functions/php/functions.php'); // General functions
+    include_once('functions/php/world_functions.php');
 
     if(!isset($_POST['submit']))
     {
@@ -30,6 +30,8 @@
     $test = getCacheData($redis_name.'request');
     echo "<h5>" . $test . "</h5>";
 
+    // Delete key for DEBUG
+    //deleteCacheData($redis_name);
 
 ?>
 
@@ -95,7 +97,7 @@
             </div>
         </form>
 
-        <ul class='nav nav-tabs justify-content-center' id='myTab' role='tablist' <?php if(!$world) echo 'hidden'; ?>>
+        <ul class='nav nav-tabs justify-content-center' id='myTab' role='tablist' <?php if(!$world) echo ' hidden'; ?>>
             <li class='nav-item' role='presentation'>
                 <button class='nav-link active' id='merge-leaderboard' data-bs-toggle='tab' data-bs-target='#merge' type='button'
                         role='tab' aria-controls='merge' aria-selected='true'>General
@@ -131,7 +133,7 @@
                         role='tab' aria-controls='bay' aria-selected='false' <?php playerDisableButton($login); ?>>Bay
                 </button>
             </li>
-            <li class='nav-item' role='presentation'>
+            <li class='nav-item bg' role='presentation'>
                 <button class='nav-link' id='snow-leaderboard' data-bs-toggle='tab' data-bs-target='#snow' type='button'
                         role='tab' aria-controls='snow' aria-selected='false' <?php playerDisableButton($login); ?>>Snow
                 </button>
