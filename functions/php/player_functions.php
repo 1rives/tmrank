@@ -4,10 +4,6 @@
     require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php'); // Nickname parser
     require_once('/var/www/html/tmrank/functions/php/general_functions.php'); // General functions
 
-    /////////////////////////////////////
-    ///
-    ///  PLAYER FUNCTIONS
-    ///
 
     /**
      * Get all player data from API and save it
@@ -35,7 +31,7 @@
 
                     // Requests
                     $player = new \TrackMania\WebServices\Players($apiuser, $apipw);
-                    
+
                     $dataPlayer = $player->get($login); // Player info
                     $dataMultirank = $player->getMultiplayerRanking($login);
                     $dataSolorank = $player->getSoloRanking($login);
@@ -66,7 +62,6 @@
                 }
                 catch (\TrackMania\WebServices\Exception $e)
                 {
-                    //var_dump($e->getHTTPStatusCode(), $e->getHTTPStatusMessage(), $e->getMessage());
                     $_SESSION['errorMessage'] = $e->getMessage();
 
                     if (strcmp($_SESSION['errorMessage'], "Unkown player") == 0)
