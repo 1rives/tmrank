@@ -12,15 +12,15 @@
     ///
 
     /**
-         * Get all zones from the API and save it
-         * to an object
-         *
-         * Cached data should be updated every midnight.
-         *
-         * @param string $login TMF player login
-         *
-         * @return object Player data
-         */
+     * Get all zones from the API and save it
+     * to an object
+     *
+     * Cached data should be updated every midnight.
+     *
+     * @param string $login TMF player login
+     *
+     * @return object Player data
+     */
     function getZonesInfo()
     {
         try

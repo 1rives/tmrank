@@ -36,29 +36,8 @@
                     $dataMultirank = $player->getMultiplayerRanking($login);
                     $dataSolorank = $player->getSoloRanking($login);
                     
-                    /////////////////////////////////////
-                    // Parse data
-                    /////////////////////////////////////
-
-                    // Initialize
-                    $colorParser = new \TMFColorParser(); // Color parser
-                    $playerInfo = new stdClass();
-
-                    // Player info
-                    $playerInfo->nickname = $colorParser->toHTML($dataPlayer->nickname);
-                    $playerInfo->account = $dataPlayer->united;
-                    $playerInfo->nation = str_replace('World|', '', $dataPlayer->path);
-
-                    // Multiplayer Ladder Points
-                    $playerInfo->multiPoints = number_format($dataMultirank->points);
-                    $playerInfo->multiWorld = number_format($dataMultirank->ranks[0]->rank);
-                    $playerInfo->multiZone = number_format($dataMultirank->ranks[1]->rank);
-
-                    // Campaign Ladder Points
-                    $playerInfo->soloPoints = 'Skill Points: '.number_format($dataSolorank->points);
-                    $playerInfo->soloWorld = 'World ranking: '.number_format($dataSolorank->ranks[0]->rank);
-
-                    return $playerInfo;
+                    return assignPlayerInfo($dataPlayer, $dataMultirank, $dataSolorank);
+                    
                 }
                 catch (\TrackMania\WebServices\Exception $e)
                 {
@@ -73,5 +52,34 @@
 
             }
         }
+    }
+
+    /**
+     * Validate and saves the data to an object
+     *
+     * @param string $login TMF player login
+     *
+     * @return object Curated player data
+     */
+    function assignPlayerInfo($player, $multirank, $solorank) 
+    {
+        $colorParser = new \TMFColorParser(); // Color parser
+        $playerInfo = new stdClass();
+
+        // Player info
+        $playerInfo->nickname = $colorParser->toHTML($player->nickname);
+        $playerInfo->account = $player->united;
+        $playerInfo->nation = str_replace('World|', '', $player->path);
+
+        // Multiplayer Ladder Points
+        $playerInfo->multiPoints = number_format($multirank->points);
+        $playerInfo->multiWorld = number_format($multirank->ranks[0]->rank);
+        $playerInfo->multiZone = number_format($multirank->ranks[1]->rank);
+
+        // Campaign Ladder Points
+        $playerInfo->soloPoints = 'Skill Points: '.number_format($solorank->points);
+        $playerInfo->soloWorld = 'World ranking: '.number_format($solorank->ranks[0]->rank);
+
+        return $playerInfo;
     }
 
