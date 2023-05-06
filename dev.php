@@ -1,11 +1,16 @@
 <?php
 
+include_once('class/TMRank/Players.php');
+
+
 session_start();
+
+use TMrank\Players;
 
 include 'vendor/autoload.php';
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
+//use GuzzleHttp\Client;
+//use GuzzleHttp\Promise;
 
 // Page created with the purpose of debugging data
 
@@ -13,15 +18,6 @@ use GuzzleHttp\Promise;
 // header('Content-Type: application/json');
 $body = array();
 
-/**
- * undocumented function summary
- *
- * Undocumented function long description
- *
- * @param Type $var Description
- * @return type
- * @throws conditon
- **/
 function requestData(array $params) {
     // Username and password generated from
     // http://developers.trackmania.com
@@ -39,10 +35,7 @@ function requestData(array $params) {
         'auth' => [ 
             $apiuser, $apipw 
         ],
-        'headers' => [
-            'accept' => $accept,
-            'Content-Type' => $contentType,
-        ],
+       
         'timeout' => 10.0,
     ]);
 
@@ -65,21 +58,20 @@ function requestData(array $params) {
 
         // Create all asynchronous requests
         foreach($params as $param) {
-            array_push($promises, $client->getAsync($param));
+            $promises[] = $client->getAsync($param);
         }
         
         $results = Promise\Utils::unwrap($promises);
 
         // Get every body of $results
         foreach($results as $result) {
-            array_push($body, $result->getBody());
+            $body[] = $result->getBody();
         }
-
         return $body;
     } 
-    catch (Exception $e) 
-    {
-        echo 'Caught exception: ',  $e->getMessage(), "\n";
+    catch (GuzzleHttp\Exception\ClientException $e) {
+        echo Psr7\Message::toString($e->getRequest());
+        echo Psr7\Message::toString($e->getResponse());
     }
   }
 
@@ -110,11 +102,11 @@ function requestData(array $params) {
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
   if(isset($_POST['login']) && $_POST['searchtype'] == 'player') {
-     $body = requestData([$player_infoURI, $player_multirankURI, $player_solorankURI]);
+     $body = TMRankClient\Players::getAll($login);
   }
 
   if(isset($_POST['login']) && $_POST['searchtype'] == 'world') {
-    $body = requestData([$world_playerURI]);
+    
  }
 
 }
