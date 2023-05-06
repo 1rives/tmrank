@@ -2,7 +2,10 @@
 
     session_start();
 
-    include_once('../functions/php/functions.php');
+    include_once('../functions/php/database_functions.php');
+    include_once('../functions/php/general_functions.php');
+
+    include_once('../functions/php/world_functions.php');
 
     // Update
     if($_GET['request'] == 1 || $_GET['request'] == 2 || $_GET['request'] == 3)

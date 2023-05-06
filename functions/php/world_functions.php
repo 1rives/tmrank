@@ -61,6 +61,8 @@
             //    Get player rank for $offset     //
             ////////////////////////////////////////
 
+            // TODO: Refactor into a function called checkWorldLogin
+
             if(isset($login))
             {
                 try 

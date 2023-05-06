@@ -13,9 +13,9 @@ namespace TMRank;
 class Players extends TMRankClient
 {
     /**
-     * Get the player data from the server.
+     * Get the player data from the API.
      *
-     * Passes three different requests to the client
+     * Passes three different URL requests to the client
      *
      * @param string $login Player login
      * 
