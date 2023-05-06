@@ -6,25 +6,34 @@
  * @author noiszia
  */
 namespace TMRank;
+
 /**
  * Access to public players data
  */
-class Players extends TMRankClient 
+class Players extends TMRankClient
 {
+    /**
+     * Get the player data from the server.
+     *
+     * Passes three different requests to the client
+     *
+     * @param string $login Player login
+     * 
+     * @return Array Array containing URL paths
+     * @throws \GuzzleHttp\Exception\ClientException
+     **/
+    public function getAll($login) 
+    {
+        $playerInfoURL = sprintf('/tmf/players/%s/', $login);
+        $playerMultirankURL = sprintf('/tmf/players/%s/rankings/multiplayer/', $login);
+        $playerSolorankURL = sprintf('/tmf/players/%s/rankings/solo/', $login);
 
-    public function getAll($login) {
-
-        $player_infoURI = sprintf('/tmf/players/%s/', $login);
-        $player_multirankURI = sprintf('/tmf/players/%s/rankings/multiplayer/', $login);
-        $player_solorankURI = sprintf('/tmf/players/%s/rankings/solo/', $login);
-
-        return $this->requestData([ 
-            $player_infoURI,
-            $player_multirankURI,
-            $player_solorankURI
+        return $this->request([ 
+            $playerInfoURL,
+            $playerMultirankURL,
+            $playerSolorankURL
         ]);
     }
-
 }
 
 ?>

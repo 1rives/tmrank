@@ -1,24 +1,21 @@
 <?php
 
-include_once('class/TMRank/Players.php');
-
+require_once('/var/www/html/tmrank/class/autoload.php'); // API
 
 session_start();
 
-use TMrank\Players;
 
-include 'vendor/autoload.php';
+
+
+// include 'vendor/autoload.php';
 
 //use GuzzleHttp\Client;
 //use GuzzleHttp\Promise;
 
 // Page created with the purpose of debugging data
 
-// include_once('functions/php/functions.php');
-// header('Content-Type: application/json');
-$body = array();
-
-function requestData(array $params) {
+// TEST VERSION
+/* function requestData(array $params) {
     // Username and password generated from
     // http://developers.trackmania.com
     $apiuser = $_ENV['TMFWEBSERVICE_USER'];
@@ -73,21 +70,22 @@ function requestData(array $params) {
         echo Psr7\Message::toString($e->getRequest());
         echo Psr7\Message::toString($e->getResponse());
     }
-  }
+  } */
 
-// All available and necessary requests 
+    //////////////////////////////////////////
+    // All available and necessary requests 
 
     $login = $_POST['login'];
 
-    //// Player data
-    $player_infoURI = sprintf('/tmf/players/%s/', $login);
-    $player_multirankURI = sprintf('/tmf/players/%s/rankings/multiplayer/', $login);
-    $player_solorankURI = sprintf('/tmf/players/%s/rankings/solo/', $login);
 
+    //// Player data
+    /*     $player_infoURI = sprintf('/tmf/players/%s/', $login);
+        $player_multirankURI = sprintf('/tmf/players/%s/rankings/multiplayer/', $login);
+        $player_solorankURI = sprintf('/tmf/players/%s/rankings/solo/', $login);
+    */
     //// World data
 
     // getPlayerRank()
-    // Used for: player's world ranking - all environment's top 10 on the world.
     $world_environment_rankingURI = sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s&length=10', $path, $environments, $offset);
     // getMultiplayerRankingForEnvironment()
     $world_playerURI = sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $environments[0]);
@@ -102,11 +100,26 @@ function requestData(array $params) {
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
   if(isset($_POST['login']) && $_POST['searchtype'] == 'player') {
-     $body = TMRankClient\Players::getAll($login);
+    
+     $player = new \TMRank\Players();
+     $body = $player->getAll($login);
   }
 
-  if(isset($_POST['login']) && $_POST['searchtype'] == 'world') {
-    
+  if($_POST['searchtype'] == 'world') {
+
+    if(!$_POST['login'])
+    {
+        $player = new \TMRank\Players();
+        $body = $player->getAll($login);
+    }
+    else
+    {
+        $player = new \TMRank\Players();
+        $body = $player->getAll($login);
+    }
+
+    $player = new \TMRank\Players();
+     $body = $player->getAll($login);
  }
 
 }

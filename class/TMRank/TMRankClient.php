@@ -7,9 +7,11 @@
  */
 namespace TMRank;
 
+require 'vendor/autoload.php';
+
 use GuzzleHttp\Client;
-use GuzzleHttp\Promise;
-use GuzzleHttp\Psr7;
+use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Exception\ClientException;
 
 /**
@@ -21,7 +23,8 @@ use GuzzleHttp\Exception\ClientException;
  * 
  * For more about the API in general, go to: https://forum.maniaplanet.com/viewforum.php?f=206
  */
-abstract class TMRankClient {
+abstract class TMRankClient 
+{
 
     /**
 	 * URL of the public Trackmania public API
@@ -40,12 +43,13 @@ abstract class TMRankClient {
      * @return mixed Unserialized API response
      * @throws \GuzzleHttp\Exception\ClientException 
      **/
-    protected function requestData(array $userRequests) {
+    protected function request(array $userRequests) 
+    {
 
         $apiURL = $this->apiURL;
 
         // Client configuration
-        $client = new Client([
+        $guzzleClient = new Client([
             'base_uri' => $apiURL,
             'auth' => [ 
                 getenv('TMFWEBSERVICE_USER'), 
@@ -59,10 +63,10 @@ abstract class TMRankClient {
             // Create all asynchronous requests
             foreach($userRequests as $userRequest) 
             {
-                $promises[] = $client->getAsync($userRequest);
+                $promises[] = $guzzleClient->getAsync($userRequest);
             }
 
-            $requestResults = Promise\Utils::unwrap($promises);
+            $requestResults = Utils::unwrap($promises);
 
             foreach($requestResults as $requestResult) 
             {
@@ -74,8 +78,8 @@ abstract class TMRankClient {
         } 
         catch(ClientException $e) 
         {
-            echo Psr7\Message::toString($e->getRequest());
-            echo Psr7\Message::toString($e->getResponse());
+            echo Message::toString($e->getRequest());
+            echo Message::toString($e->getResponse());
         }
   }
 
