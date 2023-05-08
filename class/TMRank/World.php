@@ -29,6 +29,8 @@ class World extends TMRankClient {
         'Snow'
     );
 
+    
+
     /**
      * Get the world data from the API.
      *
@@ -46,7 +48,7 @@ class World extends TMRankClient {
             return self::getLoginRanking($login);
         }
         else{
-            return self::getWorldRanking();
+            return \TMRank\TMRankClient::request(self::getWorldRanking());
         }
     }
     
@@ -60,18 +62,9 @@ class World extends TMRankClient {
      * @return array Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
-    protected function getLoginRanking($login) 
+    protected function getLoginRanking2($login) 
     {
-        $environments = array(
-            'Merge', // General ranking
-            'Stadium',
-            'Desert',
-            'Island',
-            'Rally',
-            'Coast',
-            'Bay',
-            'Snow'
-        );
+        $environmentList = $this->environments;
 
         $array = [];
 
@@ -100,26 +93,24 @@ class World extends TMRankClient {
     }
 
     /**
-     * Get the world data from the API.
+     * Get the global world data from the API.
      *
-     * Passes different URLs for every environment top 10
-     *
-     * @param string $login Player login
+     * Passes URLs for every top 10 in the World per environment
      * 
      * @return array Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     protected function getWorldRanking() 
     {
-        $array = [];
+        $path = 'World';
+        $offset = 0;
+        $envList = $this->environments;
 
-        for ($i = 0; $i < count($environments); $i++)
+        for ($i = 0; $i < count((array)$envList); $i++)
         {
-            $array[] = ;
+            $array[$i] = sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[$i], $offset);
         }
-
         return $array;
-
     }
 
 

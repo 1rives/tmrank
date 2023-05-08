@@ -124,6 +124,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 }
 
+    $world = new \TMRank\World();
+    $body = $world->getAll($login);
+
 ?>
 
 <!DOCTYPE html>
