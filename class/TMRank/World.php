@@ -6,6 +6,16 @@
  * @author noiszia
  */
 namespace TMRank;
+use TMFColorParser;
+
+require 'vendor/autoload.php';
+require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
+
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Psr7\Message;
+use GuzzleHttp\Exception\ClientException;
+
 
 /**
  * Access to public world ranking data
@@ -29,8 +39,6 @@ class World extends TMRankClient {
         'Snow'
     );
 
-    
-
     /**
      * Get the world data from the API.
      *
@@ -48,9 +56,11 @@ class World extends TMRankClient {
             return self::getLoginRanking($login);
         }
         else{
-            return self::getWorldRanking();
+            
         }
+        return self::getWorldRanking();
     }
+    
     
     /**
      * Get the world data from the API.
@@ -59,12 +69,25 @@ class World extends TMRankClient {
      *
      * @param string $login Player login
      * 
-     * @return array Array containing URL paths
+     * @return \stdClass Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     protected function getLoginRanking($login) 
     {
-        // START THIS !!!!
+        $validate = new \TMRank\Utils();
+
+        if($validate->validateLogin($login) == 0)
+        {
+            $path = 'World';
+            $playerOffset = self::getPlayerOffset($login);
+            $envList = $this->environments;
+
+            $playerData = \TMRank\TMRankClient::request([
+                sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[0], $playerOffset)
+            ]);
+
+            return self::assignPlayerInfo($playerData);
+        }
     }
 
     /**
@@ -77,7 +100,6 @@ class World extends TMRankClient {
      **/
     protected function getWorldRanking() 
     {
-
         $path = 'World';
         $offset = 0;
         $envList = $this->environments;
@@ -86,42 +108,112 @@ class World extends TMRankClient {
 
         for ($i = 0; $i < count((array)$envList); $i++)
         {
+            // TODO: Create and implement assignWorldInfo();
             $array[] = sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[$i], $offset);
         }
 
         return \TMRank\TMRankClient::request($array);
     }
 
-    protected function getPlayerOffset($login)
+    /**
+     * Sanitizes and format the data to an object.
+     * 
+     * Obtains the 10 players taking in consideration the ranking of the player.
+     *
+     * @param object $playerData Player public info
+     * @return \stdClass Organized player data
+     */
+    protected function assignPlayerInfo($playerData) 
     {
-        // FIX THIS !!!!
-        $envList = $this->environments;
+        $colorparser = new TMFColorParser();
 
-        $array = [];
-
-        if(isset($login))
+        for ($x = 0; $x < 10; $x++)
         {
-            try 
-            {
-                if(validateLogin($login) == 0)
-                {
-                    // Get the current rank of the player for later
-                    $zones_rank = $zones->getMultiplayerRankingForEnvironment($login, $environments[0]);
+            $worldMerge[] = new \stdClass();
 
-                    // Convert ranking to offset replacing last number for 0
-                    $offset = substr_replace($zones_rank->ranks[0]->rank, '0', -1);
-                }
-            } 
-            catch (Exception $e) 
-            {
-                $_SESSION['errorMessage'] = $e->getMessage();
-            }
+            // Get player country via array deferencing
+            $playerCountry = explode('|', $playerData[0]->players[$x]->player->path)[1];
 
+            $worldMerge[$x]->rank = $playerData[0]->players[$x]->rank;
+            $worldMerge[$x]->nickname = $colorparser->toHTML($playerData[0]->players[$x]->player->nickname);
+            $worldMerge[$x]->nation = $playerCountry;
+            $worldMerge[$x]->flag = self::getPlayerFlag($playerCountry);
+            $worldMerge[$x]->points = number_format($playerData[0]->players[$x]->points) . ' LP';
         }
 
-        return $array;
+        return $worldMerge;
 
     }
+
+    /**
+     * Sanitizes and format the data to an object.
+     * 
+     * Obtains the top 10 players for every environment.
+     *
+     * @param object $worldData Top 10 players for every environment
+     * @return \stdClass Organized world data
+     */
+    protected function assignWorldInfo($worldData) 
+    {
+        
+        // It feels empty here...
+
+    }
+
+     /**
+     * Returns the player position in the Merge ladder
+     *
+     * Makes a request to get the page position of the player,
+     * replacing the last value to 0.
+     * 
+     * @return array Array containing URL paths
+     * @throws \GuzzleHttp\Exception\ClientException
+     **/
+    protected function getPlayerOffset($login)
+    {
+        $envList = $this->environments;
+
+        try 
+        {
+            $requestOffset = \TMRank\TMRankClient::request([sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $envList[0])]);
+        } 
+        catch (\Exception $e) 
+        {
+            $_SESSION['errorMessage'] = $e->getMessage();
+        }
+    
+        // Replace last number
+        $offset = substr_replace($requestOffset[0]->ranks[0]->rank, '0', -1);
+
+        return $offset;
+
+    }
+
+    /**
+     * Returns flag name of the player country
+     *
+     * If the flag image doesn't exist, returns "default"
+     * 
+     * @param string $playerCountry Player country
+     *
+     * @return string Flag abbreviation
+     */
+    protected function getPlayerFlag($playerCountry)
+    {
+        $defaultFlag = 'default';
+
+        $utils = new \TMRank\Utils();
+        $flag = $utils->getFlagAbbreviation($playerCountry);
+
+        // TODO: Possible useless function, remove if possible
+        if (!file_exists('../../assets/img/flag/' . $flag . '.png')) 
+        {
+            $flag = $defaultFlag;
+        }    
+
+        return $flag;
+    }
+    
 }
 
 ?>

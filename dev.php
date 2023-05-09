@@ -107,12 +107,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
   if($_POST['searchtype'] == 'world') {
 
-    $world = new \TMRank\World();
-    $body = $world->getData($login);
+    
  }
 
 }
-
+$world = new \TMRank\World();
+    $body = $world->getData($login);
     /* $world = new \TMRank\World();
     $body = $world->getAll($login); */
 
@@ -126,13 +126,21 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://classless.de/classless-tiny.css">
     <title>Tests</title>
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
 <form action="" method="post">
     <h1>TMRank</h1>
     <br>
-    <label for="login">Player login</label>
-    <br>
+    
+    <?php if ($_SESSION['errorMessage']) echo '<div class="error">'.$_SESSION['errorMessage']."</div>"; else echo ""; ?></p>
+    <label for="login">Player login</label><br>
+    
+    
     <input type="text" name="login" id="login">
     <input type="submit" value="submit">
     
@@ -146,7 +154,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 </form>
 <br>
 <div><?php if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
-<div><?php foreach($body as $b) {echo $b . "<br>";}?></div>
+<div><?php //foreach($body as $b) {echo $b. "<br>";}
+            print_r($body);?></div>
 
 </body>
 </html>
+
+<?php $_SESSION['errorMessage'] = ""; ?>

@@ -54,7 +54,7 @@ class Players extends TMRankClient
         $colorParser = new \TMFColorParser(); // Color parser
         $playerInfo = new \stdClass;
 
-        // Player info[]
+        // Player info
         $playerInfo->nickname = $colorParser->toHTML($playerData[0]->nickname);
         $playerInfo->account = ($playerData[0]->united) ? 'United account' : 'Forever account' ;
         $playerInfo->nation = str_replace('|',', ', str_replace('World|', '', $playerData[0]->path));

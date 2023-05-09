@@ -32,10 +32,12 @@
     /**
      * Verifies that the entered input is correct.
      *
-     * The login doesn't need to be sanitized; the function sanitizes $login for good measure
+     * The login doesn't need to be sanitized since the function does it.
      *
      * Returns 0 for valid login.
      *
+     * TODO: Replace by library
+     * 
      * @param string $login TMF player login
      *
      * @return Int
@@ -43,13 +45,13 @@
     function validateLogin($login)
     {
         // For good measure - Sanitize login
-        $login_clear = sanitizeLogin($login);
+        $clearLogin = sanitizeLogin($login);
 
         $error = 0;
 
         try
         {
-            if (empty($login_clear) && $error == 0)
+            if (empty($clearLogin) && $error == 0)
             {
                 $_SESSION['errorMessage'] = 'Player login cant be empty';
                 $error = 1;
@@ -57,7 +59,7 @@
 
             }
 
-            if (strlen($login_clear) > 20 && $error == 0)
+            if (strlen($clearLogin) > 20 && $error == 0)
             {
                 $_SESSION['errorMessage'] = 'Length of login is not correct';
                 $error = 2;
@@ -65,7 +67,7 @@
 
             }
 
-            if (!preg_match('/^[a-z0-9_]*$/', $login_clear) && $error == 0)
+            if (!preg_match('/^[a-z0-9_]*$/', $clearLogin) && $error == 0)
             {
                 $_SESSION['errorMessage'] = 'Not a valid player login';
                 $error = 3;
@@ -123,9 +125,11 @@
     }
 
     /**
+     * ALREADY IMPLEMENTED IN DATABASE.PHP
+     * 
      * Generates the time left in seconds for
      * the cache to expire.
-     *
+     * 
      * @return int Unix timestamp
      */
     function getTimeUntilMidnight()
@@ -348,6 +352,8 @@
     }
 
     /**
+     * REMOVE
+     * 
      * Returns the name of entered variable.
      *
      * @param var $var
@@ -367,6 +373,8 @@
     }
 
     /**
+     * REPLACE W/JAVASCRIPT
+     * 
      * Returns CSS properties for default tab (First)
      *
      * @param $number Position
@@ -384,24 +392,24 @@
     /**
      * DEV: Get type of request from CRON
      *
-     * @param $request_type
+     * @param $requestType
      * @return void
      */
-    function getRequest($request_type)
+    function getRequest($requestType)
     {
-        $request_string = "Unknown";
+        $requestString = "Unknown";
 
-        if($request_type == 1)
+        if($requestType == 1)
         {
-            $request_string = "Midnight update";
+            $requestString = "Midnight update";
         }
-        if($request_type == 2)
+        if($requestType == 2)
         {
-            $request_string = "Check inside update hour";
+            $requestString = "Check inside update hour";
         }
-        if($request_type == 3)
+        if($requestType == 3)
         {
-            $request_string = "Check outside update hour";
+            $requestString = "Check outside update hour";
         }
 //        if(empty($request_type))
 //        {
@@ -409,6 +417,6 @@
 //            $request_type = 'null';
 //        }
 
-        echo "Type of request: $request_string ($request_type)";
+        echo "Type of request: $requestString ($requestType)";
 
     }
