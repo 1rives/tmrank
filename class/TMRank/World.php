@@ -42,13 +42,13 @@ class World extends TMRankClient {
      * @return array Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
-    public function getAll($login) 
+    public function getData($login) 
     {
         if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['login'])){
             return self::getLoginRanking($login);
         }
         else{
-            return \TMRank\TMRankClient::request(self::getWorldRanking());
+            return self::getWorldRanking();
         }
     }
     
@@ -62,9 +62,40 @@ class World extends TMRankClient {
      * @return array Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
-    protected function getLoginRanking2($login) 
+    protected function getLoginRanking($login) 
     {
-        $environmentList = $this->environments;
+        // START THIS !!!!
+    }
+
+    /**
+     * Get the global world data from the API.
+     *
+     * Passes URLs for every top 10 in the World per environment
+     * 
+     * @return array Array containing URL paths
+     * @throws \GuzzleHttp\Exception\ClientException
+     **/
+    protected function getWorldRanking() 
+    {
+
+        $path = 'World';
+        $offset = 0;
+        $envList = $this->environments;
+
+        $array = [];
+
+        for ($i = 0; $i < count((array)$envList); $i++)
+        {
+            $array[] = sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[$i], $offset);
+        }
+
+        return \TMRank\TMRankClient::request($array);
+    }
+
+    protected function getPlayerOffset($login)
+    {
+        // FIX THIS !!!!
+        $envList = $this->environments;
 
         $array = [];
 
@@ -91,35 +122,6 @@ class World extends TMRankClient {
         return $array;
 
     }
-
-    /**
-     * Get the global world data from the API.
-     *
-     * Passes URLs for every top 10 in the World per environment
-     * 
-     * @return array Array containing URL paths
-     * @throws \GuzzleHttp\Exception\ClientException
-     **/
-    protected function getWorldRanking() 
-    {
-        $path = 'World';
-        $offset = 0;
-        $envList = $this->environments;
-
-        for ($i = 0; $i < count((array)$envList); $i++)
-        {
-            $array[$i] = sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[$i], $offset);
-        }
-        return $array;
-    }
-
-
-
-
 }
-
-
-    
-
 
 ?>

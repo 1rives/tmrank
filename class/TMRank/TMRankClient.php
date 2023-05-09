@@ -38,12 +38,12 @@ abstract class TMRankClient
      *
      * Makes an asynchronous request using Guzzle promises
      *
-     * @param array $userRequests Single or multiples request paths 
+     * @param array $requestArray Single or multiples request paths 
      * 
      * @return mixed Unserialized API response
      * @throws \GuzzleHttp\Exception\ClientException 
      **/
-    protected function request(array $userRequests) 
+    protected function request(array $requestArray) 
     {
 
         $apiURL = $this->apiURL;
@@ -55,24 +55,28 @@ abstract class TMRankClient
                 getenv('TMFWEBSERVICE_USER'), 
                 getenv('TMFWEBSERVICE_PASSWORD') 
             ],
+            'stream' => false,
+            'decode_content' => false,
             'timeout' => 10.0,
         ]);
 
         try 
         {
             // Create all asynchronous requests
-            foreach($userRequests as $userRequest) 
+            foreach($requestArray as $requestString) 
             {
-                $promises[] = $guzzleClient->getAsync($userRequest);
+                $promises[] = $guzzleClient->getAsync($requestString);
             }
 
             $requestResults = Utils::unwrap($promises);
 
             foreach($requestResults as $requestResult) 
             {
-                $requestBodies[] = $requestResult->getBody();
+                // Array to object
+                $requestBodies[] = 
+                    json_decode($requestResult->getBody()->getContents());
             }
-            
+
             return $requestBodies;
 
         } 

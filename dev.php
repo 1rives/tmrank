@@ -102,30 +102,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   if(isset($_POST['login']) && $_POST['searchtype'] == 'player') {
     
      $player = new \TMRank\Players();
-     $body = $player->getAll($login);
+     $body = $player->getData($login);
   }
 
   if($_POST['searchtype'] == 'world') {
 
-    if(!$_POST['login'])
-    {
-        $player = new \TMRank\Players();
-        $body = $player->getAll($login);
-    }
-    else
-    {
-        $player = new \TMRank\Players();
-        $body = $player->getAll($login);
-    }
-
-    $player = new \TMRank\Players();
-     $body = $player->getAll($login);
+    $world = new \TMRank\World();
+    $body = $world->getData($login);
  }
 
 }
 
-    $world = new \TMRank\World();
-    $body = $world->getAll($login);
+    /* $world = new \TMRank\World();
+    $body = $world->getAll($login); */
 
 ?>
 
@@ -156,7 +145,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <label for="zone">Zones</label>
 </form>
 <br>
-<div><?php foreach($body as $b) {echo $b;}?></div>
+<div><?php if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
+<div><?php foreach($body as $b) {echo $b . "<br>";}?></div>
 
 </body>
 </html>
