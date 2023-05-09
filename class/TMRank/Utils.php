@@ -213,12 +213,13 @@ class Utils extends TMRankClient
     );
 
    /**
-     * Returns the country's flag
+     * Returns the country abbreviated name
      *
      * @author https://www.xaseco.org/
+     * 
      * @param string Country name
      * 
-     * @return string Flag name for inputted country
+     * @return string Abbreviated country name
      */
     public function getFlagAbbreviation($country)
     {
@@ -232,6 +233,30 @@ class Utils extends TMRankClient
         {
             $flag = false;
         }
+        return $flag;
+    }
+
+     /**
+     * Returns flag name of the entered country
+     *
+     * If the flag image doesn't exist, returns "default"
+     * 
+     * @param string $country Country
+     *
+     * @return string Flag abbreviation or default
+     */
+    protected function getFlag($country)
+    {
+        $defaultFlag = 'default';
+
+        $flag = self::getFlagAbbreviation($country);
+
+        // TODO: Possible useless function, remove if possible
+        if (!file_exists('../../assets/img/flag/' . $flag . '.png')) 
+        {
+            $flag = $defaultFlag;
+        }    
+
         return $flag;
     }
 

@@ -159,6 +159,8 @@ class World extends TMRankClient {
     {
         $colorparser = new TMFColorParser();
         $worldInfoAll = new \stdClass();
+        $utils = new \TMRank\Utils();
+        
         $envList = $this->environments;
 
         for ($i = 0;$i < count((array)$envList); $i++) 
@@ -173,7 +175,7 @@ class World extends TMRankClient {
                 ${$envList[$i]}[$x]->rank = $worldData[$i]->players[$x]->rank;
                 ${$envList[$i]}[$x]->nickname = $colorparser->toHTML($worldData[$i]->players[$x]->player->nickname);
                 ${$envList[$i]}[$x]->nation = $playerCountry;
-                ${$envList[$i]}[$x]->flag = self::getPlayerFlag($playerCountry);
+                ${$envList[$i]}[$x]->flag = $utils->getFlag($playerCountry);
                 ${$envList[$i]}[$x]->points = number_format($worldData[$i]->players[$x]->points) . ' LP';
                 
             }
@@ -185,10 +187,12 @@ class World extends TMRankClient {
     }
 
      /**
-     * Returns the player position in the Merge ladder
+     * Returns the player position in the world Merge ladder
      *
      * Makes a request to get the page position of the player,
      * replacing the last value to 0.
+     * 
+     * Ex.: Rank 86 = Offset 80
      * 
      * @return array Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
@@ -213,30 +217,7 @@ class World extends TMRankClient {
 
     }
 
-    /**
-     * Returns flag name of the player country
-     *
-     * If the flag image doesn't exist, returns "default"
-     * 
-     * @param string $playerCountry Player country
-     *
-     * @return string Flag abbreviation
-     */
-    protected function getPlayerFlag($playerCountry)
-    {
-        $defaultFlag = 'default';
-
-        $utils = new \TMRank\Utils();
-        $flag = $utils->getFlagAbbreviation($playerCountry);
-
-        // TODO: Possible useless function, remove if possible
-        if (!file_exists('../../assets/img/flag/' . $flag . '.png')) 
-        {
-            $flag = $defaultFlag;
-        }    
-
-        return $flag;
-    }
+   
     
 }
 

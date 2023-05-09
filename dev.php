@@ -111,10 +111,14 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
  }
 
 }
-$world = new \TMRank\World();
-    $body = $world->getData($login);
+    // General world data
     /* $world = new \TMRank\World();
-    $body = $world->getAll($login); */
+    $body = $world->getData($login); */
+
+    // General zones data
+    $zones = new \TMRank\Zones();
+    $body = $zones->getData();
+ 
 
 ?>
 
