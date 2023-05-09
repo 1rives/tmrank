@@ -47,7 +47,7 @@ class World extends TMRankClient {
      *      
      * @param string $login Player login
      * 
-     * @return array Array containing URL paths
+     * @return array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     public function getData($login) 
@@ -56,9 +56,8 @@ class World extends TMRankClient {
             return self::getLoginRanking($login);
         }
         else{
-            
+            return self::updateWorldRanking();
         }
-        return self::getWorldRanking();
     }
     
     
@@ -69,7 +68,7 @@ class World extends TMRankClient {
      *
      * @param string $login Player login
      * 
-     * @return \stdClass Array containing URL paths
+     * @return object Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     protected function getLoginRanking($login) 
@@ -94,11 +93,12 @@ class World extends TMRankClient {
      * Get the global world data from the API.
      *
      * Passes URLs for every top 10 in the World per environment
+     * for database updates
      * 
-     * @return array Array containing URL paths
+     * @return object Unprocessed data
      * @throws \GuzzleHttp\Exception\ClientException
      **/
-    protected function getWorldRanking() 
+    protected function updateWorldRanking() 
     {
         $path = 'World';
         $offset = 0;
@@ -112,7 +112,9 @@ class World extends TMRankClient {
             $array[] = sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[$i], $offset);
         }
 
-        return \TMRank\TMRankClient::request($array);
+        $worldData = \TMRank\TMRankClient::request($array);
+
+        return self::assignWorldInfo($worldData);
     }
 
     /**
@@ -155,9 +157,31 @@ class World extends TMRankClient {
      */
     protected function assignWorldInfo($worldData) 
     {
-        
-        // It feels empty here...
+        $colorparser = new TMFColorParser();
+        $worldInfoAll = new \stdClass();
+        $envList = $this->environments;
 
+        for ($i = 0;$i < count((array)$envList); $i++) 
+        { 
+            for ($x = 0; $x < 10; $x++)
+            {
+                ${$envList[$i]}[] = new \stdClass();
+
+                // Get player country via array deferencing
+                $playerCountry = explode('|', $worldData[0]->players[$x]->player->path)[1];
+
+                ${$envList[$i]}[$x]->rank = $worldData[$i]->players[$x]->rank;
+                ${$envList[$i]}[$x]->nickname = $colorparser->toHTML($worldData[$i]->players[$x]->player->nickname);
+                ${$envList[$i]}[$x]->nation = $playerCountry;
+                ${$envList[$i]}[$x]->flag = self::getPlayerFlag($playerCountry);
+                ${$envList[$i]}[$x]->points = number_format($worldData[$i]->players[$x]->points) . ' LP';
+                
+            }
+            $worldInfoAll->{strtolower($envList[$i])} = ${$envList[$i]};
+        }
+
+        return $worldInfoAll;
+    
     }
 
      /**
