@@ -14,10 +14,28 @@ require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
  */
 class Players extends TMRankClient
 {
+
+    /**
+	 * Every Trackmania Forever environment including
+     * merge: a general ranking taking in consideration all envs.
+	 * 
+	 * @var string
+	 */
+    protected $environments = array(
+        'Merge',
+        'Stadium',
+        'Desert',
+        'Island',
+        'Rally',
+        'Coast',
+        'Bay',
+        'Snow'
+    );
+
     /**
      * Get the player data from the API.
      *
-     * Passes three different URL requests to the client
+     * Passes all the available player data.
      *
      * @param string $login Player login
      * 
@@ -26,59 +44,131 @@ class Players extends TMRankClient
      **/
     public function getData($login) 
     {
-        $playerInfoURL = sprintf('/tmf/players/%s/', $login);
-        $playerMultirankURL = sprintf('/tmf/players/%s/rankings/multiplayer/', $login);
-        $playerSolorankURL = sprintf('/tmf/players/%s/rankings/solo/', $login);
+        // Get the environments list
+        $envList = $this->environments;
 
+        for($i = 0; $i < count((array)$envList); $i++) 
+        { 
+            $array[] = sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $envList[$i]);
+        }
+
+        // Player public & solo data
+        $array[] = sprintf('/tmf/players/%s/', $login);
+        $array[] = sprintf('/tmf/players/%s/rankings/solo/', $login);
+        
         return self::assignPlayerInfo(
-            $this->request([ 
-                $playerInfoURL,
-                $playerMultirankURL,
-                $playerSolorankURL
-            ])  
+            $this->request($array)  
         );
     }
 
     /**
      * Sanitizes and format the data to an object.
      * 
-     * After requesting all the player's data from the API, processes the result for
-     * a better accesibility on an object.
-     *
-     * @param object $playerData Player public info, multiplayer and solo rankings
+     * After requesting all the player's data from the API, processes the result to a 
+     * new object.
+     * 
+     * @param object $rawData Player public info, multiplayer and solo rankings
      *
      * @return \stdClass Organized player data
      */
-    protected function assignPlayerInfo($playerData) 
+    protected function assignPlayerInfo($rawData) 
     {
+        // Create a player object
+        $outputData = new \stdClass;
+
+        self::assignPlayerData($rawData[8], $outputData);
+        self::assignMultiplayerData($rawData, $outputData);
+        self::assignSoloData($rawData, $outputData);
+
+        return $outputData;
+    }
+
+    /**
+     * Assign public player data to the player information
+     * 
+     * @param array $rawData
+     * @param object $outputData
+     * @return void
+     */
+    protected function assignPlayerData($rawData, $outputData)
+    {
+        // Create a color parser instance
         $colorParser = new \TMFColorParser();
-        $playerInfo = new \stdClass;
 
-        // Player info
-        $playerInfo->nickname = $colorParser->toHTML($playerData[0]->nickname);
-        $playerInfo->account = ($playerData[0]->united) ? 'United account' : 'Forever account' ;
-        $playerInfo->nation = str_replace('|',', ', str_replace('World|', '', $playerData[0]->path));
+        $outputData->nickname = $colorParser->toHTML($rawData->nickname);
+        $outputData->accountType = ($rawData->united) ? 'United' : 'Forever' ;
+        $outputData->nation = str_replace('|',', ', str_replace('World|', '', $rawData->path));
+        
+    }
 
-        // Multiplayer Ladder Points
-        $playerInfo->multiPoints = number_format($playerData[1]->points);
-        $playerInfo->multiWorld = number_format($playerData[1]->ranks[0]->rank);
-        $playerInfo->multiZone = number_format($playerData[1]->ranks[1]->rank);
+    /**
+     * Assign all environments data to the player information
+     *
+     * United accounts have access to all environments, meanwhile Forever
+     * accounts only can access Merge and Stadium.
+     * 
+     * TODO: Refactor this function to filter the environments on getAll()
+     * TODO: Return "Unranked" when the ranking is 0
+     * 
+     * @param object $rawData
+     * @param object $outputData
+     * 
+     * @return void
+     */
+    protected function assignMultiplayerData($rawData, $outputData)
+    {
+        // Get the environments list
+        $envList = $this->environments;
 
-        // Campaign Ladder Points
-        // TODO: Check if an Forever account can have solo points/ranking.
-        if($playerInfo->soloPoints == 0 && $playerInfo->soloWorld == 0) 
+        // Sets loop for account type
+        $rawData[8]->united ? 
+            $count = count((array)$envList) : 
+            $count = 2;
+
+        for ($i = 0; $i < $count; $i++)
         {
-            ($playerData[0]->united == 1) ?
-            $playerInfo->soloPoints = $playerInfo->soloWorld = "Account is not currently ranked." :
-            $playerInfo->soloPoints = $playerInfo->soloWorld = "Not an United account.";
-        } 
-        else 
-        {
-            $playerInfo->soloPoints = number_format($playerData[2]->points);
-            $playerInfo->soloWorld = number_format($playerData[2]->ranks[0]->rank);
+            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$i]->points);
+            $outputData->{strtolower($envList[$i]).'WorldRanking'} = number_format($rawData[$i]->ranks[0]->rank);
+            $outputData->{strtolower($envList[$i]).'ZoneRanking'} = number_format($rawData[$i]->ranks[1]->rank);
         }
+        
+    }
 
-        return $playerInfo;
+    /**
+     * Assign solo points and rank to the player information
+     *
+     * Checks the account type and assign the corresponding data
+     * 
+     * @param object $rawData
+     * @param object $outputData
+     * 
+     * @return void
+     */
+    protected function assignSoloData($rawData, $outputData)
+    {
+        $accountType = $rawData[8]->united;
+        $points = $rawData[9]->points;
+        $ranking = $rawData[9]->ranks[0]->rank;
+
+        if($accountType == 1)
+        {
+            // Account is not ranked
+            if ($points == 0) 
+            {
+                $outputData->soloPoints = $outputData->soloWorld = "Unranked";
+            } 
+            // Account is ranked
+            else 
+            {
+                $outputData->soloPoints = number_format($points);
+                $outputData->soloWorld = number_format($ranking);
+            }
+        }
+        else
+        {
+            $outputData->soloPoints = $outputData->soloWorld = "Not an United account";
+        }
+        
     }
 
 }

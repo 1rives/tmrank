@@ -64,11 +64,9 @@ class Zones extends TMRankClient {
      */
     protected function assignZonesInfo($zonesData) 
     {
-
-        $zoneRank = 1;
-
-        $saveStart = 0; // Used for saving data
-        $saveEnd = 10; // Used for saving data
+        $zoneRank = 1; // Used for saving data, zone ranking
+        $savePositionStart = 0; // Used for saving data, starting point
+        $savePositionEnd = 10; // Used for saving data, end of cycle
 
         // Initialize
         $zonesInfoAll = new \stdClass();
@@ -79,11 +77,12 @@ class Zones extends TMRankClient {
             $pos = 0;
 
             // Defines the position where to save
-            for ($x = $saveStart; $x < $saveEnd; $x++)
+            for ($x = $savePositionStart; $x < $savePositionEnd; $x++)
             {
                 // Returns when no data is found
                 if(empty($zonesData[$i]->zones[$pos]->zone->name))
                 {
+                    
                     return $zonesInfoAll;
                 }
             
@@ -103,8 +102,8 @@ class Zones extends TMRankClient {
                 $pos++;
             }
 
-            $saveStart += 10;
-            $saveEnd += 10;
+            $savePositionStart += 10;
+            $savePositionEnd += 10;
         }
 
         return $zonesInfoAll;

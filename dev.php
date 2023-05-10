@@ -96,30 +96,39 @@ session_start();
     $zone_infoURI = sprintf('/tmf/players/%s/rankings/solo/', $login);
 
 
-// Request types, for now: Player and World
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-  if(isset($_POST['login']) && $_POST['searchtype'] == 'player') {
     
-     $player = new \TMRank\Players();
-     $body = $player->getData($login);
-  }
 
-  if($_POST['searchtype'] == 'world') {
 
-    
- }
+    // Request types, for now: Player and World
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
-}
-    // General world data
-    /* $world = new \TMRank\World();
-    $body = $world->getData($login); */
+        if(isset($login) && $_POST['searchtype'] == 'player') 
+        {
+            $player = new \TMRank\Players();
+            $body = $player->getData($login);
+            print_r($body);
+        }
 
-    // General zones data
-    $zones = new \TMRank\Zones();
-    $body = $zones->getData();
+        if($_POST['searchtype'] == 'world1') 
+        {
+            $world = new \TMRank\World();
+            $body = $world->getData($login);
+            
+        }
+
+        
+        if($_POST['searchtype'] == 'zone') 
+        {
+            $zones = new \TMRank\Zones();
+            $body = $zones->getData();
+        }
+
+    }
+
  
-
+        $world = new \TMRank\World();
+        $body = $world->getData(null);   
+    
 ?>
 
 <!DOCTYPE html>
@@ -151,15 +160,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     <h4>Select search parameter</h4>
     <input type="radio" id="searchtype" name="searchtype" value="player">
     <label for="player">Player</label><br>
-    <input type="radio" id="searchtype" name="searchtype" value="world">
-    <label for="world">World (Empty login for all data)</label><br>
+    <input type="radio" id="searchtype" name="searchtype" value="world1">
+    <label for="world">World - Player position</label><br>
+    <input type="radio" id="searchtype" name="searchtype" value="world2">
+    <label for="world">World - All top 10s</label><br>
     <input type="radio" id="searchtype" name="searchtype" value="zone">
     <label for="zone">Zones</label>
 </form>
 <br>
 <div><?php if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
 <div><?php //foreach($body as $b) {echo $b. "<br>";}
-            print_r($body);?></div>
+            print_r($body->$nickname);?></div>
 
 </body>
 </html>

@@ -129,6 +129,7 @@ class World extends TMRankClient {
 
         for ($x = 0; $x < 10; $x++)
         {
+            $utils = new \TMRank\Utils();
             $worldMerge[] = new \stdClass();
 
             // Get player country via array deferencing
@@ -137,7 +138,7 @@ class World extends TMRankClient {
             $worldMerge[$x]->rank = $playerData[0]->players[$x]->rank;
             $worldMerge[$x]->nickname = $colorparser->toHTML($playerData[0]->players[$x]->player->nickname);
             $worldMerge[$x]->nation = $playerCountry;
-            $worldMerge[$x]->flag = getFlag($playerCountry);
+            $worldMerge[$x]->flag = $utils->getFlag($playerCountry);
             $worldMerge[$x]->points = number_format($playerData[0]->players[$x]->points) . ' LP';
         }
 
