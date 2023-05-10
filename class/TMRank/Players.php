@@ -56,7 +56,7 @@ class Players extends TMRankClient
         $array[] = sprintf('/tmf/players/%s/', $login);
         $array[] = sprintf('/tmf/players/%s/rankings/solo/', $login);
         
-        return self::assignPlayerInfo(
+        return self::getProcessedDataOutput(
             $this->request($array)  
         );
     }
@@ -71,7 +71,7 @@ class Players extends TMRankClient
      *
      * @return \stdClass Organized player data
      */
-    protected function assignPlayerInfo($rawData) 
+    protected function getProcessedDataOutput($rawData) 
     {
         // Create a player object
         $outputData = new \stdClass;
@@ -85,6 +85,8 @@ class Players extends TMRankClient
 
     /**
      * Assign public player data to the player information
+     * 
+     * Public information of the player available on the API
      * 
      * @param array $rawData
      * @param object $outputData
