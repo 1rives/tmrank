@@ -212,52 +212,35 @@ class Utils extends TMRankClient
         'Zimbabwe' => 'ZIM'
     );
 
-   /**
-     * Returns the country abbreviated name
-     *
-     * @author https://www.xaseco.org/
-     * 
-     * @param string Country name
-     * 
-     * @return string Abbreviated country name
-     */
-    public function getFlagAbbreviation($country)
-    {
-        $nationsArray = $this->nations;
-
-        if (array_key_exists($country, $nationsArray))
-        {
-            $flag = $nationsArray[$country];
-        }
-        else
-        {
-            $flag = false;
-        }
-        return $flag;
-    }
-
      /**
      * Returns flag name of the entered country
      *
      * If the flag image doesn't exist, returns "default"
      * 
-     * @param string $country Country
+     * @param string $country Country full name or abbreviation
      *
      * @return string Flag abbreviation or default
      */
-    protected function getFlag($country)
+    public function getFlag($country)
     {
-        $defaultFlag = 'default';
+        // TODO: Add word validation if needed
+        return self::getCountryAbbreviation($country);
+    }
 
-        $flag = self::getFlagAbbreviation($country);
-
-        // TODO: Possible useless function, remove if possible
-        if (!file_exists('../../assets/img/flag/' . $flag . '.png')) 
-        {
-            $flag = $defaultFlag;
-        }    
-
-        return $flag;
+    /**
+     * Returns the country abbreviated name
+     *
+     * Used on getFlag()
+     * 
+     * @author https://www.xaseco.org/
+     * 
+     * @param string $country Country name
+     * 
+     * @return string Abbreviated country name
+     */
+    public function getCountryAbbreviation($country)
+    {
+        return $this->nations[$country];
     }
 
     /**
@@ -312,13 +295,13 @@ class Utils extends TMRankClient
     /**
      * Sanitize TMF player login
      * 
-     * Used exclusively in validateLogin()
+     * Used in validateLogin()
      *
      * @param string $login TMF player login
      *
      * @return string Sanitized value
      */
-    protected function sanitizeLogin($login)
+    public function sanitizeLogin($login)
     {
         $regexRemoveAllSpaces = "'/\s+/'";
 

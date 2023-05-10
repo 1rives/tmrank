@@ -51,7 +51,7 @@ class Players extends TMRankClient
      */
     protected function assignPlayerInfo($playerData) 
     {
-        $colorParser = new \TMFColorParser(); // Color parser
+        $colorParser = new \TMFColorParser();
         $playerInfo = new \stdClass;
 
         // Player info

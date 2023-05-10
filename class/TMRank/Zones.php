@@ -20,7 +20,7 @@ class Zones extends TMRankClient {
      *
      * Obtains the zones world ranking
      * 
-     * @return array containing URL paths
+     * @return object Zones ranking data
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     public function getData() 
@@ -41,8 +41,6 @@ class Zones extends TMRankClient {
     {
         $path = 'World';
         $offset = 0;
-
-        $array = [];
 
         // Since the results are always 92, ten cycles is enough
         for ($i = 0; $i < 10; $i++)
@@ -67,44 +65,49 @@ class Zones extends TMRankClient {
     protected function assignZonesInfo($zonesData) 
     {
 
-        // TODO: Implement the complete function in zone_functions
-
-        $utils = new \TMRank\Utils();
-
         $zoneRank = 1;
-        $pos = 0;
 
         $saveStart = 0; // Used for saving data
         $saveEnd = 10; // Used for saving data
 
         // Initialize
-        $zonesinfoAll = new stdClass();
-
+        $zonesInfoAll = new \stdClass();
+        $utils = new \TMRank\Utils();
 
         for ($i = 0; $i < 10; $i++)
         {
-            $zoneFlag = $utils->getFlag($zoneCountry);
-            $zonesLadder[] = new \stdClass();
+            $pos = 0;
 
+            // Defines the position where to save
+            for ($x = $saveStart; $x < $saveEnd; $x++)
+            {
+                // Returns when no data is found
+                if(empty($zonesData[$i]->zones[$pos]->zone->name))
+                {
+                    return $zonesInfoAll;
+                }
+            
+                $zonesLadder[$x] = new \stdClass();
 
-            // Get player country via array deferencing
-            $zoneCountry = explode('|', $zonesData[0]->players[$i]->player->path)[1];
+                // Get player country via array deferencing
+                $zoneFlag = $utils->getFlag($zonesData[$i]->zones[$pos]->zone->name);
 
-            $zonesLadder[$i]->rank = $zoneRank;
-            $zonesLadder[$i]->name = $zonesData[$i]->zones[$pos]->zone->name;
-            $zonesLadder[$i]->flag = getZoneFlag($zoneCountry);
-            $zonesLadder[$i]->points =$zonesData[$i]->zones[$pos]->points . ' LP';
+                $zonesLadder[$x]->rank = $zoneRank;
+                $zonesLadder[$x]->name = $zonesData[$i]->zones[$pos]->zone->name;
+                $zonesLadder[$x]->flag = $zoneFlag;
+                $zonesLadder[$x]->points = $zonesData[$i]->zones[$pos]->points;
+                
+                $zonesInfoAll->ladder[$x] = $zonesLadder[$x];
 
+                $zoneRank++;
+                $pos++;
+            }
 
-            // Save obtained data
-            $zonesinfoAll->ladder[$i] = $zonesLadder[$i];
-
-            $zoneRank++;
-            $pos++;
-
+            $saveStart += 10;
+            $saveEnd += 10;
         }
 
-        return $zonesLadder;
+        return $zonesInfoAll;
 
     }
 

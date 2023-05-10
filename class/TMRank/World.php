@@ -47,7 +47,7 @@ class World extends TMRankClient {
      *      
      * @param string $login Player login
      * 
-     * @return array containing URL paths
+     * @return object API dataformatted
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     public function getData($login) 
@@ -104,8 +104,6 @@ class World extends TMRankClient {
         $offset = 0;
         $envList = $this->environments;
 
-        $array = [];
-
         for ($i = 0; $i < count((array)$envList); $i++)
         {
             // TODO: Create and implement assignWorldInfo();
@@ -139,7 +137,7 @@ class World extends TMRankClient {
             $worldMerge[$x]->rank = $playerData[0]->players[$x]->rank;
             $worldMerge[$x]->nickname = $colorparser->toHTML($playerData[0]->players[$x]->player->nickname);
             $worldMerge[$x]->nation = $playerCountry;
-            $worldMerge[$x]->flag = self::getPlayerFlag($playerCountry);
+            $worldMerge[$x]->flag = getFlag($playerCountry);
             $worldMerge[$x]->points = number_format($playerData[0]->players[$x]->points) . ' LP';
         }
 
@@ -160,7 +158,7 @@ class World extends TMRankClient {
         $colorparser = new TMFColorParser();
         $worldInfoAll = new \stdClass();
         $utils = new \TMRank\Utils();
-        
+
         $envList = $this->environments;
 
         for ($i = 0;$i < count((array)$envList); $i++) 
