@@ -305,11 +305,11 @@ class Utils extends TMRankClient
     {
         $regexRemoveAllSpaces = "'/\s+/'";
 
-        $login = stripslashes(htmlspecialchars($login));
-        preg_replace($regexRemoveAllSpaces, '', $login); 
-        $login = strtolower($login); 
+        $sanitizedLogin = stripslashes(htmlspecialchars($login));
+        preg_replace($regexRemoveAllSpaces, '', $sanitizedLogin); 
+        $sanitizedLogin = strtolower($sanitizedLogin); 
         
-        return $login;
+        return $sanitizedLogin;
     }
 }
 

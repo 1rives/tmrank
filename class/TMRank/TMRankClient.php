@@ -43,17 +43,19 @@ abstract class TMRankClient
      * @return mixed Unserialized API response
      * @throws \GuzzleHttp\Exception\ClientException 
      **/
-    protected function request(array $requestArray) 
+    protected function request(array $requestArray, $requestType) 
     {
 
         $apiURL = $this->apiURL;
+
+        
 
         // Client configuration
         $guzzleClient = new Client([
             'base_uri' => $apiURL,
             'auth' => [ 
-                getenv('TMFWEBSERVICE_USER'), 
-                getenv('TMFWEBSERVICE_PASSWORD') 
+                getenv('TMFWEBSERVICE_FETCHER_USER'), 
+                getenv('TMFWEBSERVICE_FETCHER_PASSWORD') 
             ],
             'stream' => false,
             'decode_content' => false,
@@ -85,7 +87,7 @@ abstract class TMRankClient
             echo Message::toString($e->getRequest());
             echo Message::toString($e->getResponse());
         }
-  }
+    }
 
 }
 

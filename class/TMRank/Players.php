@@ -7,7 +7,7 @@
  */
 namespace TMRank;
 
-require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
+use TMFColorParser;
 
 /**
  * Access to public players data
@@ -95,11 +95,18 @@ class Players extends TMRankClient
     protected function assignPlayerData($rawData, $outputData)
     {
         // Create a color parser instance
-        $colorParser = new \TMFColorParser();
+        $colorParser = new TMFColorParser();
+
+        // Create a color parser instance
+        $utils = new \TMRank\Utils();
+
+        // Get player country via array deferencing
+        $playerCountry = explode('|', $rawData->path)[1];
 
         $outputData->nickname = $colorParser->toHTML($rawData->nickname);
         $outputData->accountType = ($rawData->united) ? 'United' : 'Forever' ;
-        $outputData->nation = str_replace('|',', ', str_replace('World|', '', $rawData->path));
+        $outputData->nation = $playerCountry;
+        $outputData->flag = $utils->getFlag($playerCountry);
         
     }
 
