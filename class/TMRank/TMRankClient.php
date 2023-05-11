@@ -25,7 +25,6 @@ use GuzzleHttp\Exception\ClientException;
  */
 abstract class TMRankClient 
 {
-
     /**
 	 * URL of the public Trackmania public API
 	 * 
@@ -43,19 +42,17 @@ abstract class TMRankClient
      * @return mixed Unserialized API response
      * @throws \GuzzleHttp\Exception\ClientException 
      **/
-    protected function request(array $requestArray, $requestType) 
+    protected function request(array $requestArray) 
     {
 
         $apiURL = $this->apiURL;
-
-        
 
         // Client configuration
         $guzzleClient = new Client([
             'base_uri' => $apiURL,
             'auth' => [ 
-                getenv('TMFWEBSERVICE_FETCHER_USER'), 
-                getenv('TMFWEBSERVICE_FETCHER_PASSWORD') 
+                getenv('TMFWEBSERVICE_USER_1'), 
+                getenv('TMFWEBSERVICE_PASSWORD') 
             ],
             'stream' => false,
             'decode_content' => false,

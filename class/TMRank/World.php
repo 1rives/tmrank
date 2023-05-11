@@ -7,12 +7,10 @@
  */
 namespace TMRank;
 
-require 'vendor/autoload.php';
-require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
-
-use TMFColorParser;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Exception\ClientException;
+use TMRank\Utils;
+use TMRank\TMFColorParser;
 
 /**
  * Access to public world ranking data
@@ -73,9 +71,9 @@ class World extends TMRankClient {
     protected function getLoginRanking($login) 
     {
         // Create a utils instance
-        $validate = new \TMRank\Utils();
+        $utils = new Utils();
 
-        if(!$validate->validateLogin($login))
+        if(!$utils->validateLogin($login))
         {
             // Get the environments list
             $envList = $this->environments;
@@ -164,7 +162,7 @@ class World extends TMRankClient {
         $colorParser = new TMFColorParser();
 
         // Create a utils instance
-        $utils = new \TMRank\Utils();
+        $utils = new Utils();
 
         for ($x = 0; $x < 10; $x++)
         {
@@ -196,8 +194,8 @@ class World extends TMRankClient {
         // Create a color parser instance
         $colorparser = new TMFColorParser();
 
-        // Create a color parser instance
-        $utils = new \TMRank\Utils();
+        // Create a utils instance
+        $utils = new Utils();
 
         // Create a new object for world data
         $worldOutputData = new \stdClass();

@@ -7,7 +7,7 @@
  */
 namespace TMRank;
 
-require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
+use TMRank\Utils;
 
 /**
  * Access to public zones ranking data
@@ -49,9 +49,9 @@ class Zones extends TMRankClient {
             $offset += 10;
         }
 
-        $zonesData = \TMRank\TMRankClient::request($array);
+        $rawZonesData = \TMRank\TMRankClient::request($array);
 
-        return self::assignZonesInfo($zonesData);
+        return self::getProcessedDataOutput($rawZonesData);
     }
 
     /**
@@ -59,19 +59,35 @@ class Zones extends TMRankClient {
      * 
      * Obtains all the zones in the ladder.
      *
-     * @param object $zonesData Player public info
-     * @return \stdClass Organized player data
+     * @param object $rawZonesData Zones data
+     * @return \stdClass Organized zones data
      */
-    protected function assignZonesInfo($zonesData) 
+    protected function getProcessedDataOutput($rawZonesData) 
+    {
+        return self::assignZonesData($rawZonesData);
+
+    }
+
+     /**
+     * Assign zones data to the zones information
+     * 
+     * All the zones available in the API
+     *
+     * @param object $rawZonesData Zones info
+     * @return \stdClass Organized zones data
+     */
+    protected function assignZonesData($rawZonesData) 
     {
         $zoneRank = 1; // Used for saving data, zone ranking
         $savePositionStart = 0; // Used for saving data, starting point
         $savePositionEnd = 10; // Used for saving data, end of cycle
 
-        // Initialize
-        $zonesInfoAll = new \stdClass();
-        $utils = new \TMRank\Utils();
-
+        // Create a utils instance
+        $utils = new Utils();
+        
+        // Create new Zones object 
+        $zonesOutputData = new \stdClass();
+        
         for ($i = 0; $i < 10; $i++)
         {
             $pos = 0;
@@ -80,23 +96,23 @@ class Zones extends TMRankClient {
             for ($x = $savePositionStart; $x < $savePositionEnd; $x++)
             {
                 // Returns when no data is found
-                if(empty($zonesData[$i]->zones[$pos]->zone->name))
+                if(empty($rawZonesData[$i]->zones[$pos]->zone->name))
                 {
-                    
-                    return $zonesInfoAll;
+                    return $zonesOutputData;
                 }
-            
-                $zonesLadder[$x] = new \stdClass();
+
+                $zonesTempData[] = new \stdClass();
+                
 
                 // Get player country via array deferencing
-                $zoneFlag = $utils->getFlag($zonesData[$i]->zones[$pos]->zone->name);
+                $zoneFlag = $utils->getFlag($rawZonesData[$i]->zones[$pos]->zone->name);
 
-                $zonesLadder[$x]->rank = $zoneRank;
-                $zonesLadder[$x]->name = $zonesData[$i]->zones[$pos]->zone->name;
-                $zonesLadder[$x]->flag = $zoneFlag;
-                $zonesLadder[$x]->points = $zonesData[$i]->zones[$pos]->points;
-                
-                $zonesInfoAll->ladder[$x] = $zonesLadder[$x];
+                $zonesTempData[$x]->rank = $zoneRank;
+                $zonesTempData[$x]->name = $rawZonesData[$i]->zones[$pos]->zone->name;
+                $zonesTempData[$x]->flag = $zoneFlag;
+                $zonesTempData[$x]->points = $rawZonesData[$i]->zones[$pos]->points;
+
+                $zonesOutputData->ladder[$x] = $zonesTempData[$x];
 
                 $zoneRank++;
                 $pos++;
@@ -106,7 +122,7 @@ class Zones extends TMRankClient {
             $savePositionEnd += 10;
         }
 
-        return $zonesInfoAll;
+        return $zonesOutputData;
 
     }
 

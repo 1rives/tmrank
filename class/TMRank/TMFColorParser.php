@@ -1,7 +1,16 @@
 <?php
+
+/**
+ * Guzzle HTTP client for the Trackmania Web Services API.
+ *
+ * @author noiszia
+ */
+namespace TMRank;
+
 /**
  * TMFColorParser v1.3c by oorf|fuckfish (fish@stabb.de)
  *
+ * 
  */
 class TMFColorParser{
 

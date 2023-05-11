@@ -7,8 +7,6 @@
  */
 namespace TMRank;
 
-require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
-
 /**
  * General-use functions, used in multiple classes.
  */

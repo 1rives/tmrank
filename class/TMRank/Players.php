@@ -7,7 +7,8 @@
  */
 namespace TMRank;
 
-use TMFColorParser;
+use TMRank\TMFColorParser;
+use TMRank\Utils;
 
 /**
  * Access to public players data
@@ -96,9 +97,9 @@ class Players extends TMRankClient
     {
         // Create a color parser instance
         $colorParser = new TMFColorParser();
-
-        // Create a color parser instance
-        $utils = new \TMRank\Utils();
+        
+        // Create a utils instance
+        $utils = new Utils();
 
         // Get player country via array deferencing
         $playerCountry = explode('|', $rawData->path)[1];
