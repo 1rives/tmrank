@@ -7,6 +7,8 @@
  */
 namespace TMRank;
 
+use TMRank\Players;
+
 /**
  * General-use functions, used in multiple classes.
  */
@@ -284,8 +286,8 @@ class Utils extends TMRankClient
         }
         catch (\Exception $e)
         {
-            $_SESSION['errorMessage'] = $e->getMessage();
-            return $error;
+            echo $e->getMessage();
+            exit;
         }
 
     }

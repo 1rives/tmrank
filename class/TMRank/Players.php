@@ -48,6 +48,11 @@ class Players extends TMRankClient
         // Get the environments list
         $envList = $this->environments;
 
+        // Create a utils instance
+        $utils = new Utils();
+
+        $utils->validateLogin($login);
+
         for($i = 0; $i < count((array)$envList); $i++) 
         { 
             $array[] = sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $envList[$i]);
@@ -57,9 +62,11 @@ class Players extends TMRankClient
         $array[] = sprintf('/tmf/players/%s/', $login);
         $array[] = sprintf('/tmf/players/%s/rankings/solo/', $login);
         
-        return self::getProcessedDataOutput(
+        $response = self::getProcessedDataOutput(
             $this->request($array)  
         );
+
+        echo json_encode($response);
     }
 
     /**

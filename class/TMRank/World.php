@@ -53,7 +53,7 @@ class World extends TMRankClient {
         }
         else
         {
-            return self::updateWorldRanking();
+            echo json_encode(self::updateWorldRanking());
         }
     }
     
@@ -103,7 +103,7 @@ class World extends TMRankClient {
      * @return object Unprocessed data
      * @throws \GuzzleHttp\Exception\ClientException
      **/
-    protected function updateWorldRanking() 
+    public function updateWorldRanking() 
     {
         // Get the environments list
         $envList = $this->environments;

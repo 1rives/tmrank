@@ -37,7 +37,7 @@ class Zones extends TMRankClient {
      * @return object Unprocessed data
      * @throws \GuzzleHttp\Exception\ClientException
      **/
-    protected function updateZonesRanking() 
+    public function updateZonesRanking() 
     {
         $path = 'World';
         $offset = 0;

@@ -9,6 +9,8 @@
     use TMRank\Players;
     use TMRank\Zones;
     use TMRank\World;
+    use TMRank\Utils;
+
 
     // Disable errors
     error_reporting(E_ERROR);
@@ -16,7 +18,7 @@
     
     
 
-    if($_SERVER['REQUEST_METHOD'] == 'GET'){
+    /* if($_SERVER['REQUEST_METHOD'] == 'GET'){
         
         $login = $_GET['login'];
         // player: All player public information
@@ -89,7 +91,7 @@
         }
 
     }
-
+ */
  
         
     
@@ -101,7 +103,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://classless.de/classless-tiny.css">
+    <link defer rel="stylesheet" href="https://classless.de/classless-tiny.css">
     <!-- Include Animate.css library -->
     <link
     rel="stylesheet"
@@ -128,59 +130,6 @@
     </style>
     <script src="assets/jquery/jquery-3.3.1.min.js"></script>
     <script>
-        // Tinkering with jQuery's AJAX
-        // TODO: Implement error handling.
-        $(document).ready(function() {
-            $('#playerForm').submit(function(event) {
-                event.preventDefault(); // prevent form from submitting normally
-                $('#response').addClass('animate__animated animate__fadeOutUp animate__faster');
-                // get form data
-                var loginVar = $('#loginTest').val();
-                console.log('BEFORE ' + loginVar);
-                // send AJAX request
-                $.ajax({
-                type: 'GET',
-                url: '/tmrank/test.php',
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                data: {
-                    login: loginVar
-                },
-                success: function(response, xhr) {
-                    //$('#loginTest').val("");
-                    console.log(response.nickname);
-                    
-                    //$('#response').remove();
-
-                    $('#response').remove();
-
-                    if(response.nickname == null)
-                    {
-                        $('#testDiv').append("<div id='response'>" + xhr.responseText + "</div>");
-                    }
-                    else
-                    {
-                        $('#testDiv').append("<div id='response'>" + response.nickname + "</div>");
-                    }
-                    
-                    // Add animation to response div
-                    $('#response').addClass('animate__animated animate__fadeInUp animate__faster');
-                    
-                    // Remove animation classes after animation is complete
-                    setTimeout(function() {
-                    $('#response').removeClass('animate__animated animate__fadeInUp animate__faster');
-                    }, 10000);
-                   
-                },
-                error:  function( jqXHR, textStatus, errorThrown ) {
-                    console.log(textStatus);
-                }
-                });
-            });
-        });
-    </script>
-
-    <script>
         function myFunction() {
             var element = document.body;
             element.classList.toggle("dark-mode");
@@ -188,42 +137,41 @@
     </script>
 </head>
 <body>
-<form action="" method="post">
-    <h1>TMRank</h1>
+    <form action="worldForm" method="post">
+        <h1>TMRank</h1>
+        <br>
+        
+        <!-- <?php if ($_SESSION['errorMessage']) echo '<div class="error">'.$_SESSION['errorMessage']."</div>"; else echo ""; ?></p>
+        <label for="login">Player login</label><br>
+        
+        <input type="text" name="login" id="login">
+        <input type="submit" value="submit">
+        
+        <h4>Select search parameter</h4>
+        <input type="radio" id="searchtype" name="searchtype" value="world1">
+        <label for="world">World - Player position</label><br>
+        <input type="radio" id="searchtype" name="searchtype" value="world2">
+        <label for="world">World - All top 10s</label><br>
+        <input type="radio" id="searchtype" name="searchtype" value="zone">
+        <label for="zone">Zones</label>
+        <br> -->
+    </form>
+
+    <form id="playerForm">
+    <code onclick="myFunction()">Dark mode</code>
+        <h4>Player login</h4>
+        
+        <input type="text" name="login" id="loginTest">
+        <input type="submit" value="submit">
+    </form>
     <br>
-    
-    <!-- <?php if ($_SESSION['errorMessage']) echo '<div class="error">'.$_SESSION['errorMessage']."</div>"; else echo ""; ?></p>
-    <label for="login">Player login</label><br>
-    
-    
-    <input type="text" name="login" id="login">
-    <input type="submit" value="submit">
-    
-    <h4>Select search parameter</h4>
-    <input type="radio" id="searchtype" name="searchtype" value="world1">
-    <label for="world">World - Player position</label><br>
-    <input type="radio" id="searchtype" name="searchtype" value="world2">
-    <label for="world">World - All top 10s</label><br>
-    <input type="radio" id="searchtype" name="searchtype" value="zone">
-    <label for="zone">Zones</label>
-    <br> -->
-</form>
 
-<div class="animate__animated animate__hinge animate__delay-2s">hola</div>
+    <div id="testDiv"></div>
+    <div><?php if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
+    <div><?php //foreach($body as $b) {echo $b. "<br>";}
+                //print_r($body);?></div>
 
-<form id="playerForm">
-<code onclick="myFunction()">Dark mode</code>
-    <h4>Player login</h4>
-    
-    <input type="text" name="login" id="loginTest">
-    <input type="submit" value="submit">
-</form>
-<br>
-
-<div id="testDiv"></div>
-<div><?php if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
-<div><?php //foreach($body as $b) {echo $b. "<br>";}
-            //print_r($body);?></div>
+    <script src="assets/js/ajax.js"></script>
 
 </body>
 </html>

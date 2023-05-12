@@ -9,6 +9,11 @@ use TMRank\Players;
 use TMRank\Zones;
 use TMRank\World;
 
+
+// 
+// Created for AJAX request testing
+//
+
 // Disable errors
 error_reporting(E_ERROR);
 
@@ -17,9 +22,9 @@ $login = $_GET['login'];
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
         
-    $login = $_GET['login'];
     // player: All player public information
-    $body = "Insert an option.";
+
+    $login = $_GET['login'];
 
     if(empty($login))
     {
@@ -42,18 +47,16 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     // zone: All zones ranking
     $login = $_POST['login'];
 
-    $body = "Insert an option.";
-
     if($_POST['searchtype'] == 'player') 
     {
         if(empty($login))
         {
-            return "Insert a login";
+            echo json_encode("Insert a login");
         }
         else
         {
             $player = new Players();
-            return $player->getData($login);
+            echo json_encode($player->getData($login));
             //print_r($body);
         }
     }
@@ -61,7 +64,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     if($_POST['searchtype'] == 'world2') 
     {
         $world = new World();
-        return $world->getData(null);   
+        echo json_encode($world->getData(null));   
         //print_r($body);
         
     }
@@ -69,12 +72,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     {
         if(empty($login))
         {
-            return $body = "Insert a login";
+            echo json_encode($body = "Insert a login");
         }
         else
         {
             $world = new World();
-            return $world->getData($login);   
+            echo json_encode($world->getData($login));   
             //print_r($body);
         }
         
@@ -83,7 +86,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     if($_POST['searchtype'] == 'zone') 
     {
         $zones = new Zones();
-        return $zones->getData();
+        echo json_encode($zones->getData());
     }
 
 }

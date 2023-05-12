@@ -7,12 +7,14 @@
  */
 namespace TMRank;
 
-require 'vendor/autoload.php';
+require '/var/www/html/tmrank/vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Utils;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\BadResponseException;
 
 /**
  * HTTP client used to make asynchronous requests on the TrackMania Web Services API.
@@ -73,16 +75,18 @@ abstract class TMRankClient
             {
                 // Array to object
                 $requestBodies[] = 
-                    json_decode($requestResult->getBody()->getContents());
+                    json_decode($requestResult->getBody());
             }
 
             return $requestBodies;
 
         } 
-        catch(ClientException $e) 
+        catch(BadResponseException $e) 
         {
-            echo Message::toString($e->getRequest());
-            echo Message::toString($e->getResponse());
+            $response = $e->getResponse()->getBody()->getContents();
+            echo $response;
+            exit;
+            //echo Message::toString($e->getMessage());
         }
     }
 

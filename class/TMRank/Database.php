@@ -7,7 +7,9 @@
  */
 namespace TMRank;
 
-require_once('/var/www/html/tmrank/class/tmfcolorparser.inc.php');
+
+
+// TODO: Fix Redis instancing not working
 
 /**
  * General access to Redis database
@@ -20,14 +22,14 @@ class Database extends TMRankClient
      * @param string $dataToSave Processed data to save
      * @param string $key Name of key for the data
      *
-     * @throws RedisException
+     * @throws \RedisException
      */
     public function saveCacheData($dataToSave, $key)
     {
         $redisHost = $_ENV['REDIS_HOST'];
         $redisPort = $_ENV['REDIS_PORT'];
 
-        $redis = new Redis();
+        $redis = new \Redis();
         $redis->connect($redisHost, $redisPort);
 
         $redis->set($key, encodeCacheData($dataToSave));
@@ -43,14 +45,14 @@ class Database extends TMRankClient
      * @param string $key Name of key for the data
      *
      * @return stdClass Data obtained from redis
-     * @throws RedisException
+     * @throws \RedisException
      */
     public function getCacheData($key)
     {
         $redisHost = $_ENV['REDIS_HOST'];
         $redisPort = $_ENV['REDIS_PORT'];
 
-        $redis = new Redis();
+        $redis = new \Redis();
         $redis->connect($redisHost, $redisPort);
 
         $databaseData = decodeCacheData($redis->get($key));
@@ -81,7 +83,7 @@ class Database extends TMRankClient
         $redisHost = $_ENV['REDIS_HOST'];
         $redisPort = $_ENV['REDIS_PORT'];
 
-        $redis = new Redis();
+        $redis = new \Redis();
         $redis->connect($redisHost, $redisPort);
 
         $contentLengthOfKey = $redis->strLen($key);
@@ -108,7 +110,7 @@ class Database extends TMRankClient
 
         $result = "The key '$key' ";
 
-        $redis = new Redis();
+        $redis = new \Redis();
         $redis->connect($redisHost, $redisPort);
 
         if($redis->exists($key))
