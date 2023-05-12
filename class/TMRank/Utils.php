@@ -311,6 +311,21 @@ class Utils extends TMRankClient
         
         return $sanitizedLogin;
     }
+
+    /**
+     * Generates the time left in seconds for
+     * the cache to expire.
+     *
+     * @return int Unix timestamp
+     */
+    public function getTimeUntilMidnight()
+    {
+        $expirationTime = 'tomorrow midnight';
+
+        $timeUntilMidnight = strtotime($expirationTime);
+
+        return $timeUntilMidnight;
+    }
 }
 
 ?>

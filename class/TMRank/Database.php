@@ -7,9 +7,7 @@
  */
 namespace TMRank;
 
-
-
-// TODO: Fix Redis instancing not working
+use TMRank\Utils;
 
 /**
  * General access to Redis database
@@ -26,14 +24,17 @@ class Database extends TMRankClient
      */
     public function saveCacheData($dataToSave, $key)
     {
+        // Declare a Utils instance
+        $utils = new Utils();
+
         $redisHost = $_ENV['REDIS_HOST'];
         $redisPort = $_ENV['REDIS_PORT'];
 
         $redis = new \Redis();
         $redis->connect($redisHost, $redisPort);
 
-        $redis->set($key, encodeCacheData($dataToSave));
-        $keyTimeout = getTimeUntilMidnight();
+        $redis->set($key, self::encodeCacheData($dataToSave));
+        $keyTimeout = $utils->getTimeUntilMidnight();
         $redis->expireAt($key, $keyTimeout);
 
         $redis->close();
@@ -55,7 +56,7 @@ class Database extends TMRankClient
         $redis = new \Redis();
         $redis->connect($redisHost, $redisPort);
 
-        $databaseData = decodeCacheData($redis->get($key));
+        $databaseData = self::decodeCacheData($redis->get($key));
 
         $redis->close();
 
@@ -128,21 +129,6 @@ class Database extends TMRankClient
 
         return $result;
 
-    }
-
-    /**
-     * Generates the time left in seconds for
-     * the cache to expire.
-     *
-     * @return int Unix timestamp
-     */
-    protected function getTimeUntilMidnight()
-    {
-        $expirationTime = 'tomorrow midnight';
-
-        $timeUntilMidnight = strtotime($expirationTime);
-
-        return $timeUntilMidnight;
     }
 
     /**

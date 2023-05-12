@@ -1,6 +1,7 @@
 $(document).ready(function() {
     $('#playerForm').submit(function(event) {
         event.preventDefault(); 
+
         // Default values
         var login = $('#loginTest').val();
         var url = '/tmrank/test.php';
@@ -8,6 +9,10 @@ $(document).ready(function() {
             type: 'GET',
             url: url,
             contentType: "application/json; charset=utf-8",
+            headers: {
+                'Cache-Control': "max-age=" + 10,
+                // For legacy browsers
+            },
             data: {
                 login: login
             },
@@ -31,10 +36,10 @@ $(document).ready(function() {
         event.preventDefault(); 
 
         // Default values
-        var loginVar = $('#loginTest').val();
-        var url = '/tmrank/test.php';
+        var loginVar = $('#login').val();
+        var url = '/tmrank/shells/ajax/ajax_requests.php';
         
-        $.ajax({
+        $.ajaxPreFilter({
             type: 'GET',
             url: url,
             contentType: "application/json; charset=utf-8",
@@ -53,7 +58,12 @@ $(document).ready(function() {
         },
         error:  function( jqXHR, textStatus, errorThrown ) {
             console.log(textStatus);
+        },
+        beforeSend: function(xhr) {
+          const secondsLeft = 10;
+          xhr.setRequestHeader("Cache-Control", "max-age=" + secondsLeft);
         }
+
         });
     });
 });

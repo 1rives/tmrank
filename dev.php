@@ -1,7 +1,7 @@
 <?php
 
     
-
+    session_cache_limiter('private');
     session_start();
 
     require_once('class/autoload.php'); // API
@@ -135,6 +135,14 @@
             element.classList.toggle("dark-mode");
             }
     </script>
+    <script>
+        function secondsUntil23() {
+            const now = new Date();
+            const millisUntil23 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 0, 0, 0) - now;
+            const secondsUntil23 = Math.floor(millisUntil23 / 1000);
+            console.log(secondsUntil23);
+        }
+    </script>
 </head>
 <body>
     <form action="worldForm" method="post">
@@ -156,6 +164,8 @@
         <label for="zone">Zones</label>
         <br> -->
     </form>
+
+    <code onclick="secondsUntil23()">LOl?</code>
 
     <form id="playerForm">
     <code onclick="myFunction()">Dark mode</code>

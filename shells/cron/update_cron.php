@@ -59,10 +59,11 @@
             {
                 if(!$db->getCacheDataLength($redisKey))
                 {
+                    
                     if(method_exists($classInstance, $classFunction)) 
                     {     
                         $dataForUpdate = call_user_func(array($classInstance, $classFunction));
-
+                        
                         // TODO: Fix "Call to undefined function TMRank\encodeCacheData() in /var/www/html/tmrank/class/TMRank/Database.php:35"
                         $db->saveCacheData($dataForUpdate, $redisKey);
                     }
@@ -72,7 +73,7 @@
             {
                 if(method_exists($classInstance, $classFunction))
                 {
-                    $dataForUpdate = call_user_func($classInstance->$classFunction, '');
+                    $dataForUpdate = call_user_func(array($classInstance, $classFunction));
 
                     // TODO: Fix "Call to undefined function TMRank\encodeCacheData() in /var/www/html/tmrank/class/TMRank/Database.php:35"
                     $db->saveCacheData($dataForUpdate, $redisKey);

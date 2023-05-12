@@ -1,13 +1,34 @@
 <?php 
 
 
-session_start();
+//session_start();
 
 require_once('class/autoload.php'); // API
 
 use TMRank\Players;
 use TMRank\Zones;
 use TMRank\World;
+use TMRank\Utils;
+
+// DATA CACHING
+// Todo: Cache is saved in browser, refreshing page shouldn't be deleting it.
+
+$timeUntilCacheExpire = strtotime('tomorrow midnight') - strtotime('now');
+header('Cache-Control: max-age=' . $timeUntilCacheExpire . ', private');
+
+// Set the last-modified time
+$lastModified = time();
+
+// Set the last-modified header
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
+
+// Check if the page has been modified since the last time it was requested
+// if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $lastModified) 
+// {
+//     // The page has not been modified since the last time it was requested, so send a 304 Not Modified response and exit
+//     header('HTTP/1.1 304 Not Modified');
+//     exit;
+// }
 
 
 // 
@@ -19,6 +40,10 @@ error_reporting(E_ERROR);
 
 $login = $_GET['login'];
 
+
+
+// Used for caching data
+$utils = new Utils();
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
         
