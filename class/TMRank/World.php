@@ -10,6 +10,7 @@ namespace TMRank;
 use GuzzleHttp\Psr7\Message;
 use GuzzleHttp\Exception\ClientException;
 use TMRank\Utils;
+use TMRank\Database;
 use TMRank\TMFColorParser;
 
 /**
@@ -49,11 +50,11 @@ class World extends TMRankClient {
     {
         if($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['login']))
         {
-            return self::getLoginRanking($login);
+            echo json_encode(self::getLoginRanking($login));
         }
         else
         {
-            echo json_encode(self::updateWorldRanking());
+            return self::updateWorldRanking();
         }
     }
     
@@ -73,25 +74,20 @@ class World extends TMRankClient {
         // Create a utils instance
         $utils = new Utils();
 
-        if(!$utils->validateLogin($login))
-        {
-            // Get the environments list
-            $envList = $this->environments;
+        $utils->validateLogin($login);
 
-            // Default options
-            $path = 'World';
-            $offset = self::getPlayerOffset($login);
+        // Get the environments list
+        $envList = $this->environments;
 
-            $playerData = \TMRank\TMRankClient::request([
-                sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[0], $offset)
-            ]);
+        // Default options
+        $path = 'World';
+        $offset = self::getPlayerOffset($login);
 
-            return self::getProcessedPlayerData($playerData);
-        }
-        else
-        {
-            // ...
-        }
+        $playerData = \TMRank\TMRankClient::request([
+            sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[0], $offset)
+        ]);
+
+        return self::getProcessedPlayerData($playerData);
     }
 
     /**
@@ -171,7 +167,7 @@ class World extends TMRankClient {
 
             $playerOutputData[] = new \stdClass();
 
-            $playerOutputData[$x]->rank = $rawPlayerData[0]->players[$x]->rank;
+            $playerOutputData[$x]->rank = number_format($rawPlayerData[0]->players[$x]->rank);
             $playerOutputData[$x]->nickname = $colorParser->toHTML($rawPlayerData[0]->players[$x]->player->nickname);
             $playerOutputData[$x]->nation = $playerCountry;
             $playerOutputData[$x]->flag = $utils->getFlag($playerCountry);
@@ -212,7 +208,7 @@ class World extends TMRankClient {
                 // Get player country via array deferencing
                 $playerCountry = explode('|', $rawWorldData[0]->players[$x]->player->path)[1];
 
-                ${$envList[$i]}[$x]->rank = $rawWorldData[$i]->players[$x]->rank;
+                ${$envList[$i]}[$x]->rank = number_format($rawWorldData[$i]->players[$x]->rank);
                 ${$envList[$i]}[$x]->nickname = $colorparser->toHTML($rawWorldData[$i]->players[$x]->player->nickname);
                 ${$envList[$i]}[$x]->nation = $playerCountry;
                 ${$envList[$i]}[$x]->flag = $utils->getFlag($playerCountry);

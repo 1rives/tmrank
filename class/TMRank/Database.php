@@ -45,7 +45,7 @@ class Database extends TMRankClient
      *
      * @param string $key Name of key for the data
      *
-     * @return stdClass Data obtained from redis
+     * @return \stdClass Data obtained from redis
      * @throws \RedisException
      */
     public function getCacheData($key)

@@ -98,6 +98,7 @@ class Players extends TMRankClient
      * 
      * @param array $rawData
      * @param object $outputData
+     * 
      * @return void
      */
     protected function assignPlayerData($rawData, $outputData)
@@ -137,7 +138,8 @@ class Players extends TMRankClient
         // Get the environments list
         $envList = $this->environments;
 
-        // Sets loop for account type
+        // Sets loop for account type since Forever accounts only have
+        // Merge and Stadium rank (Mostly Stadium)
         $rawData[8]->united ? 
             $count = count((array)$envList) : 
             $count = 2;

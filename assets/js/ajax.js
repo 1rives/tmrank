@@ -1,30 +1,31 @@
 $(document).ready(function() {
+    var url = '/tmrank/test.php';
+
     $('#playerForm').submit(function(event) {
         event.preventDefault(); 
 
         // Default values
-        var login = $('#loginTest').val();
-        var url = '/tmrank/test.php';
+        var login = $('#playerLogin').val();
+        
+        if(validateLogin(login)) return;
+
         $.ajax({
-            type: 'GET',
+            method: "GET",
             url: url,
             contentType: "application/json; charset=utf-8",
-            headers: {
-                'Cache-Control': "max-age=" + 10,
-                // For legacy browsers
-            },
+            cache: false,
             data: {
                 login: login
             },
         success: function(response) {
-            // Fix null at end error
-            let nullFix = response.slice(0, -4);
-
-            let data = JSON.parse(nullFix);
-
-            console.log(data);
-            alert(data.nickname);
-
+            if(!response.includes('{')) {
+                alert(response);
+            } 
+            else {
+                // null EOF fix with slice
+                let data = JSON.parse(response.slice(0, -4));
+                console.log(data);
+            }
         },
         error:  function( jqXHR, textStatus, errorThrown ) {
             console.log(textStatus);
@@ -36,34 +37,58 @@ $(document).ready(function() {
         event.preventDefault(); 
 
         // Default values
-        var loginVar = $('#login').val();
-        var url = '/tmrank/shells/ajax/ajax_requests.php';
+        var login = $('#worldLogin').val();
         
-        $.ajaxPreFilter({
-            type: 'GET',
+        if(validateLogin(login)) return;
+
+        $.ajax({
+            method: "POST",
             url: url,
-            contentType: "application/json; charset=utf-8",
+            //contentType: "application/json; charset=utf-8",
             data: {
                 login: login
             },
         success: function(response) {
-            // Fix null at end error
-            let nullFix = response.slice(0, -4);
-
-            let data = JSON.parse(nullFix);
-
-            console.log(data);
-            alert(data.nickname);
-
+            if(!response.includes('{')) {
+                alert(response);
+            } 
+            else {
+                // null EOF fix with slice
+                let data = JSON.parse(response.slice(0, -4));
+                console.log(data);
+            }
         },
         error:  function( jqXHR, textStatus, errorThrown ) {
             console.log(textStatus);
-        },
-        beforeSend: function(xhr) {
-          const secondsLeft = 10;
-          xhr.setRequestHeader("Cache-Control", "max-age=" + secondsLeft);
         }
-
         });
     });
 });
+
+// TODO: Implement encryption for identifiers
+
+// PHP function converted to Javascript
+// @author 1rives
+function validateLogin(login) {
+    let error = 0;
+  
+    if (!login) {
+      error = 1;
+      alert('Please enter a login');
+      return error;
+    }
+  
+    if (login.length > 20 || login.length < 3) {
+      error = 2;
+      alert('Length is not correct');
+      return error;
+    }
+  
+    if (!/^[a-z0-9_]*$/.test(login)) {
+      error = 3;
+      alert('Not a valid player login');
+      return error;
+    }
+  
+    return error;
+  }

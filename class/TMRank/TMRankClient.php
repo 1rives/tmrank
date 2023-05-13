@@ -19,9 +19,9 @@ use GuzzleHttp\Exception\BadResponseException;
 /**
  * HTTP client used to make asynchronous requests on the TrackMania Web Services API.
  * 
- * Created as an alternative to 'Trackmania Web Services SDK for PHP'.
+ * Created as an alternative to the 'Trackmania Web Services SDK for PHP' client.
  * 
- * Bear in mind, to use the client an API account is needed, get yours here: http://developers.trackmania.com
+ * Bear in mind, to use the client an TMF account is needed, get yours here: http://developers.trackmania.com
  * 
  * For more about the API in general, go to: https://forum.maniaplanet.com/viewforum.php?f=206
  */
@@ -48,6 +48,10 @@ abstract class TMRankClient
     {
 
         $apiURL = $this->apiURL;
+
+        // TODO: Thanks to limit of 360 requests per hour, multiple users has been created to change
+        // when the current user has reached its limit. 
+        // Every user has a numeral prefix at the end (From 1 to 10) with the same password.
 
         // Client configuration
         $guzzleClient = new Client([
@@ -78,16 +82,23 @@ abstract class TMRankClient
                     json_decode($requestResult->getBody());
             }
 
-            return $requestBodies;
-
         } 
         catch(BadResponseException $e) 
         {
             $response = $e->getResponse()->getBody()->getContents();
-            echo $response;
+
+            // TODO: Find a way to 
+            if(str_contains($response, 'Unkown player'))
+            {
+                $response = 'Player does not exist';
+            }
+
+            echo json_encode($response);
             exit;
-            //echo Message::toString($e->getMessage());
         }
+        
+
+        return $requestBodies;
     }
 
 }

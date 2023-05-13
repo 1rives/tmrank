@@ -15,84 +15,6 @@
     // Disable errors
     error_reporting(E_ERROR);
 
-    
-    
-
-    /* if($_SERVER['REQUEST_METHOD'] == 'GET'){
-        
-        $login = $_GET['login'];
-        // player: All player public information
-
-        $body = "Insert an option.";
-
-        if(empty($login))
-        {
-            $body = "Insert a login";
-        }
-        else
-        {
-            $player = new Players();
-            $body = $player->getData($login);
-            //print_r($body);
-        }
-        
-    }
-
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-
-  
-        // world1: Every environment top 10
-        // world2: Player position in Merge ladder
-        // zone: All zones ranking
-        $login = $_POST['login'];
-
-        $body = "Insert an option.";
-
-        if($_POST['searchtype'] == 'player') 
-        {
-            if(empty($login))
-            {
-                $body = "Insert a login";
-            }
-            else
-            {
-                $player = new Players();
-                $body = $player->getData($login);
-                //print_r($body);
-            }
-        }
-
-        if($_POST['searchtype'] == 'world2') 
-        {
-            $world = new World();
-            $body = $world->getData(null);   
-            //print_r($body);
-            
-        }
-        if($_POST['searchtype'] == 'world1')
-        {
-            if(empty($login))
-            {
-                $body = "Insert a login";
-            }
-            else
-            {
-                $world = new World();
-                $body = $world->getData($login);   
-                //print_r($body);
-            }
-            
-        }
-        
-        if($_POST['searchtype'] == 'zone') 
-        {
-            $zones = new Zones();
-            $body = $zones->getData();
-        }
-
-    }
- */
- 
         
     
 ?>
@@ -145,39 +67,35 @@
     </script>
 </head>
 <body>
-    <form action="worldForm" method="post">
+    <div>
         <h1>TMRank</h1>
         <br>
+        <button onclick="myFunction()"><em>night</em></button>
         
-        <!-- <?php if ($_SESSION['errorMessage']) echo '<div class="error">'.$_SESSION['errorMessage']."</div>"; else echo ""; ?></p>
-        <label for="login">Player login</label><br>
-        
-        <input type="text" name="login" id="login">
-        <input type="submit" value="submit">
-        
-        <h4>Select search parameter</h4>
-        <input type="radio" id="searchtype" name="searchtype" value="world1">
-        <label for="world">World - Player position</label><br>
-        <input type="radio" id="searchtype" name="searchtype" value="world2">
-        <label for="world">World - All top 10s</label><br>
-        <input type="radio" id="searchtype" name="searchtype" value="zone">
-        <label for="zone">Zones</label>
-        <br> -->
-    </form>
+    </div>
+    <p>Obtained data is shown on the console</p>
+    <div>
+        <form id="worldForm">
+            <h4>World login</h4>
+            
+            <input type="text" name="login" id="worldLogin">
+            <input type="submit" value="submit">
+            
+        </form>
+    </div>
 
-    <code onclick="secondsUntil23()">LOl?</code>
+    <div>
+        <form id="playerForm">
+            <h4>Player login</h4>
+            
+            <input type="text" name="login" id="playerLogin">
+            <input type="submit" value="submit">
+        </form>
+    </div>
+    
 
-    <form id="playerForm">
-    <code onclick="myFunction()">Dark mode</code>
-        <h4>Player login</h4>
-        
-        <input type="text" name="login" id="loginTest">
-        <input type="submit" value="submit">
-    </form>
-    <br>
-
-    <div id="testDiv"></div>
-    <div><?php if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
+    <!-- <div id="testDiv"></div> -->
+    <div><?php //if($_POST['searchtype']) echo "<h3>" . ucfirst($_POST['searchtype']) . "</h3><br>";?></div>
     <div><?php //foreach($body as $b) {echo $b. "<br>";}
                 //print_r($body);?></div>
 

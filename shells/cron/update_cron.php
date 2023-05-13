@@ -40,6 +40,10 @@
             getenv('REDIS_VARIABLE_ZONES')
         );
 
+        // Delete all stored players since by the time
+        // this executes, the data is outdated
+        // TODO: Create function to delete Redis keys via prefix
+        //$db->
 
         foreach ($classesToUpdate as $className)
         {

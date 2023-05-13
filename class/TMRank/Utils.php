@@ -265,11 +265,11 @@ class Utils extends TMRankClient
             if (empty($clearLogin))
             {
                 $error = 1;
-                throw new \Exception("Player login cant be empty");
+                throw new \Exception('Please enter a login');
             }
 
             // TODO: Research TMF login maximum length
-            if (strlen($clearLogin) > 20 || strlen($clearLogin) < 2)
+            if (strlen($clearLogin) > 20 || strlen($clearLogin) < 3)
             {
                 $error = 2;
                 throw new \Exception('Length of login is not correct');
@@ -278,7 +278,7 @@ class Utils extends TMRankClient
             if (!preg_match('/^[a-z0-9_]*$/', $clearLogin))
             {
                 $error = 3;
-                throw new \Exception("Not a valid player login");
+                throw new \Exception('Not a valid player login');
             }
 
             return $error;

@@ -6,30 +6,8 @@
 require_once('class/autoload.php'); // API
 
 use TMRank\Players;
-use TMRank\Zones;
 use TMRank\World;
 use TMRank\Utils;
-
-// DATA CACHING
-// Todo: Cache is saved in browser, refreshing page shouldn't be deleting it.
-
-$timeUntilCacheExpire = strtotime('tomorrow midnight') - strtotime('now');
-header('Cache-Control: max-age=' . $timeUntilCacheExpire . ', private');
-
-// Set the last-modified time
-$lastModified = time();
-
-// Set the last-modified header
-header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
-
-// Check if the page has been modified since the last time it was requested
-// if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $lastModified) 
-// {
-//     // The page has not been modified since the last time it was requested, so send a 304 Not Modified response and exit
-//     header('HTTP/1.1 304 Not Modified');
-//     exit;
-// }
-
 
 // 
 // Created for AJAX request testing
@@ -38,81 +16,64 @@ header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $lastModified) . ' GMT');
 // Disable errors
 error_reporting(E_ERROR);
 
-$login = $_GET['login'];
+
+// Retrieve all keys for deletion
+//
+/* $redis = new Redis();
+$redis->connect('127.0.0.1', 6379);
+
+// Initialize the cursor to 0
+$cursor = 0;
+
+// Retrieve all keys with the prefix "Player."
+$keys = array();
+do {
+  // Scan for keys with the prefix "Player." and a cursor position of $cursor
+  // The SCAN command returns an array with the new cursor position and an array of matching keys
+  $result = $redis->scan($cursor, 'MATCH', 'Player.*');
+
+  // Update the cursor position
+  $cursor = $result[0];
+
+  // Add the matching keys to the $keys array
+  $keys = array_merge($keys, $result[1]);
+} while ($cursor != 0);
+
+// Print the names of the matching keys
+foreach ($keys as $key) {
+  echo $key . "\n";
+}
+
+// Close the Redis connection
+$redis->close(); */
 
 
 
 // Used for caching data
 $utils = new Utils();
 
-if($_SERVER['REQUEST_METHOD'] == 'GET'){
-        
-    // player: All player public information
+
+if($_SERVER['REQUEST_METHOD'] == 'GET')
+{
+    // players: All player public information
 
     $login = $_GET['login'];
+    $utils->validateLogin($login);
 
-    if(empty($login))
-    {
-        echo json_encode("Insert a login");
-    }
-    else
-    {
-        $player = new Players();
-        echo json_encode($player->getData($login));
-        //print_r($body);
-    }
-    
+    $player = new Players();
+    echo json_encode($player->getData($login));
+ 
 }
 
-if($_SERVER['REQUEST_METHOD'] == 'POST'){
+if($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+    // world: Player position in Merge ladder
 
-
-    // world1: Every environment top 10
-    // world2: Player position in Merge ladder
-    // zone: All zones ranking
     $login = $_POST['login'];
+    $utils->validateLogin($login);
 
-    if($_POST['searchtype'] == 'player') 
-    {
-        if(empty($login))
-        {
-            echo json_encode("Insert a login");
-        }
-        else
-        {
-            $player = new Players();
-            echo json_encode($player->getData($login));
-            //print_r($body);
-        }
-    }
-
-    if($_POST['searchtype'] == 'world2') 
-    {
-        $world = new World();
-        echo json_encode($world->getData(null));   
-        //print_r($body);
-        
-    }
-    if($_POST['searchtype'] == 'world1')
-    {
-        if(empty($login))
-        {
-            echo json_encode($body = "Insert a login");
-        }
-        else
-        {
-            $world = new World();
-            echo json_encode($world->getData($login));   
-            //print_r($body);
-        }
-        
-    }
-    
-    if($_POST['searchtype'] == 'zone') 
-    {
-        $zones = new Zones();
-        echo json_encode($zones->getData());
-    }
+    $world = new World();
+    echo json_encode($world->getData($login));   
 
 }
 
