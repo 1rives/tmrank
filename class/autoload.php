@@ -1,6 +1,6 @@
 <?php
 /**
- * TrackMania Web Services SDK for PHP v2.0 
+ * Autoloader from TrackMania Web Services SDK for PHP v2.0 
  * http://code.google.com/p/trackmania-ws-sdk/
  *
  * @copyright   Copyright (c) 2009-2011 NADEO (http://www.nadeo.com)

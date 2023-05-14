@@ -4,6 +4,7 @@
  * Guzzle HTTP client for the Trackmania Web Services API.
  *
  * @author noiszia
+ * @link https://github.com/1rives
  */
 namespace TMRank;
 
@@ -14,30 +15,66 @@ use TMRank\Utils;
  */
 class Database extends TMRankClient
 {
+
+    /** 
+     * Check existing login data on Redis.
+     * 
+     * Checks if data exists in the database with the class prefix and login, if is
+     * empty then return
+     *
+     * Example of full key: Players.username777
+     *
+     * @param string $loginKey Player login for Redis key
+     * @param string $classPrefix Class name for key prefix, ex.: "World" or "Players"
+     *
+     * @return bool true for success, false for existing data
+     * @throws \RedisException
+     */
+    public function checkForLoginData($loginKey, $classPrefix)
+    {
+        $keyWithLogin = $classPrefix . '.' . $loginKey;
+
+        return (!self::getCacheDataLength($keyWithLogin)) ? false : false;
+    }
+
     /** 
      * Save data to redis.
      *
      * @param string $dataToSave Processed data to save
      * @param string $key Name of key for the data
-     *
+     * 
+     * @return bool True for successful data update
      * @throws \RedisException
      */
     public function saveCacheData($dataToSave, $key)
     {
-        // Declare a Utils instance
-        $utils = new Utils();
+        try 
+        {
+            // Declare a Utils instance
+            $utils = new Utils();
 
-        $redisHost = $_ENV['REDIS_HOST'];
-        $redisPort = $_ENV['REDIS_PORT'];
+            $redisHost = $_ENV['REDIS_HOST'];
+            $redisPort = $_ENV['REDIS_PORT'];
 
-        $redis = new \Redis();
-        $redis->connect($redisHost, $redisPort);
+            $redis = new \Redis();
+            $redis->connect($redisHost, $redisPort);
 
-        $redis->set($key, self::encodeCacheData($dataToSave));
-        $keyTimeout = $utils->getTimeUntilMidnight();
-        $redis->expireAt($key, $keyTimeout);
+            $redis->set($key, self::encodeCacheData($dataToSave));
+            $keyTimeout = $utils->getTimeUntilMidnight();
+            $redis->expireAt($key, $keyTimeout);
 
-        $redis->close();
+            $redis->close();
+
+            return true;
+        } 
+        catch (\RedisException $e) 
+        {
+            return $e->getMessage();
+        }
+        finally
+        {
+            $redis->close();
+        }
     }
 
     /**
@@ -50,48 +87,69 @@ class Database extends TMRankClient
      */
     public function getCacheData($key)
     {
-        $redisHost = $_ENV['REDIS_HOST'];
-        $redisPort = $_ENV['REDIS_PORT'];
+        try
+        {
+            $redisHost = $_ENV['REDIS_HOST'];
+            $redisPort = $_ENV['REDIS_PORT'];
 
-        $redis = new \Redis();
-        $redis->connect($redisHost, $redisPort);
+            $redis = new \Redis();
+            $redis->connect($redisHost, $redisPort);
 
-        $databaseData = self::decodeCacheData($redis->get($key));
+            $databaseData = self::decodeCacheData($redis->get($key));
 
-        $redis->close();
+            $redis->close();
 
-        // For objects
-        // if(strpos($data, 'stdClass'))
-        //      $data = (object) $data;
+            // For objects
+            // if(strpos($data, 'stdClass'))
+            //      $data = (object) $data;
 
-        return $databaseData;
-
+            return $databaseData;
+        }
+        catch (\RedisException $e) 
+        {
+            return $e->getMessage();
+        }
+        finally
+        {
+            $redis->close();
+        }
     }
+    
 
     /**
      * Get data length from redis.
      *
-     * Use to ensure that the 
-     * key is not empty.
+     * Use to ensure that the key is not empty.
      * 
      * @param string $key Name of key for the data
      *
      * @return int Length of key content
-     * @throws RedisException 
+     * @throws \RedisException 
      */
     public function getCacheDataLength($key)
     {
-        $redisHost = $_ENV['REDIS_HOST'];
-        $redisPort = $_ENV['REDIS_PORT'];
+        try
+        {
+            $redisHost = $_ENV['REDIS_HOST'];
+            $redisPort = $_ENV['REDIS_PORT'];
 
-        $redis = new \Redis();
-        $redis->connect($redisHost, $redisPort);
+            $redis = new \Redis();
+            $redis->connect($redisHost, $redisPort);
 
-        $contentLengthOfKey = $redis->strLen($key);
+            $contentLengthOfKey = $redis->strLen($key);
 
-        $redis->close();
+            $redis->close();
 
-        return $contentLengthOfKey;
+            return $contentLengthOfKey;
+        }
+        catch (\RedisException $e) 
+        {
+            return $e->getMessage();
+        }
+        finally
+        {
+            $redis->close();
+        }
     }
 
     /**
@@ -106,30 +164,78 @@ class Database extends TMRankClient
      */
     public function deleteCacheData($key)
     {
-        $redisHost = $_ENV['REDIS_HOST'];
-        $redisPort = $_ENV['REDIS_PORT'];
-
-        $result = "The key '$key' ";
-
-        $redis = new \Redis();
-        $redis->connect($redisHost, $redisPort);
-
-        if($redis->exists($key))
+        try
         {
-            $redis->del($key);
+            $redisHost = $_ENV['REDIS_HOST'];
+            $redisPort = $_ENV['REDIS_PORT'];
 
-            $result += "has been successfully deleted."; 
+            $result = "The key '$key' ";
+
+            $redis = new \Redis();
+            $redis->connect($redisHost, $redisPort);
+
+            if($redis->exists($key))
+            {
+                $redis->del($key);
+
+                $result += "has been successfully deleted."; 
+            }
+            else 
+            {
+                $result += "hasn't been found or doesn't have any content."; 
+            }
+
+            $redis->close();
+
+            return $result;
+
         }
-        else 
+        catch (\RedisException $e) 
         {
-            $result += "hasn't been found or doesn't have any content."; 
+            return $e->getMessage();
         }
-
-        $redis->close();
-
-        return $result;
+        finally
+        {
+            $redis->close();
+        }
 
     }
+
+     /**
+     * ONLY FOR DEVELOPMENT PURPOSES
+     * 
+     * Delete all data from database
+     *
+     * @return bool True for success
+     */
+    public function deleteAllCache()
+    {
+        try
+        {
+            $redisHost = $_ENV['REDIS_HOST'];
+            $redisPort = $_ENV['REDIS_PORT'];
+
+            $redis = new \Redis();
+            $redis->connect($redisHost, $redisPort);
+
+            $redis->flushAll();
+
+            $redis->close();
+
+            return true;
+
+        }
+        catch (\RedisException $e) 
+        {
+            return $e->getMessage();
+        }
+        finally
+        {
+            $redis->close();
+        }
+
+    }
+    
 
     /**
      * Encodes data for caching

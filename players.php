@@ -56,10 +56,8 @@
 
 
     // Disable errors
-    error_reporting(E_ERROR);
+    //error_reporting(E_ERROR);
 
-        
-    
 ?>
 
 <!DOCTYPE html>
@@ -114,24 +112,19 @@
         <h1>TMRank</h1>
         <br>
         <button onclick="myFunction()"><em>night</em></button>
+        <a href="/tmrank/world.php">
+            <button>World</button>
+        </a>
+
         
     </div>
     <p>Obtained data is shown on the console</p>
-    <div>
-        <form id="worldForm">
-            <h4>World login</h4>
-            
-            <input type="text" name="login" id="worldLogin">
-            <input type="submit" value="submit">
-            
-        </form>
-    </div>
 
     <div>
-        <form id="playerForm">
+        <form id="loginForm">
             <h4>Player login</h4>
             
-            <input type="text" name="login" id="playerLogin">
+            <input type="text" name="login" id="login">
             <input type="submit" value="submit">
         </form>
     </div>

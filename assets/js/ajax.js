@@ -1,73 +1,48 @@
+// TODO: Add an anti-spam measure
+//       Investigate about Honey Pots
+
+// TODO 2: Add and autoloading AJAX request to get data for Zones
+// and World
+//
+// document.addEventListener('DOMContentLoaded', function() {
+//     ADD FUNCTION HERE ! ! ! !
+// }, false);
+
+
+
 $(document).ready(function() {
-    var url = '/tmrank/test.php';
+    var url = `/tmrank/shells/ajax/${pageFileName}.php`;
 
-    $('#playerForm').submit(function(event) {
+    $('#loginForm').submit(function(event) {
         event.preventDefault(); 
 
-        // Default values
-        var login = $('#playerLogin').val();
-        
-        if(validateLogin(login)) return;
+        var login = $('#login').val();
 
-        $.ajax({
-            method: "GET",
-            url: url,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            data: {
-                login: login
-            },
-        success: function(response) {
-            if(!response.includes('{')) {
-                alert(response);
-            } 
-            else {
-                // null EOF fix with slice
-                let data = JSON.parse(response.slice(0, -4));
-                console.log(data);
-            }
-        },
-        error:  function( jqXHR, textStatus, errorThrown ) {
-            console.log(textStatus);
+        if(!validateLogin(login)){
+            submitForm(url, login, extraOptions);
         }
-        });
-    });
-
-    $('#worldForm').submit(function(event) {
-        event.preventDefault(); 
-
-        // Default values
-        var login = $('#worldLogin').val();
-        
-        if(validateLogin(login)) return;
-
-        $.ajax({
-            method: "POST",
-            url: url,
-            //contentType: "application/json; charset=utf-8",
-            data: {
-                login: login
-            },
-        success: function(response) {
-            if(!response.includes('{')) {
-                alert(response);
-            } 
-            else {
-                // null EOF fix with slice
-                let data = JSON.parse(response.slice(0, -4));
-                console.log(data);
-            }
-        },
-        error:  function( jqXHR, textStatus, errorThrown ) {
-            console.log(textStatus);
-        }
-        });
     });
 });
 
-// TODO: Implement encryption for identifiers
 
-// PHP function converted to Javascript
+
+// Get the current name of the page without the extension
+const pageFileName = window.location.pathname.split('/').pop().split('.')[0]
+
+// Add extra AJAX options for specific classes
+const extraOptions = () => {
+    switch (pageFileName) {
+        case 'world':
+            return 'contentType: application/json; charset=utf-8';
+
+        default:
+            break;
+    }
+}
+
+
+
+// Original PHP function converted to Javascript
 // @author 1rives
 function validateLogin(login) {
     let error = 0;
@@ -78,17 +53,42 @@ function validateLogin(login) {
       return error;
     }
   
-    if (login.length > 20 || login.length < 3) {
+    if (login.length > 25 || login.length < 3) {
       error = 2;
       alert('Length is not correct');
       return error;
     }
   
-    if (!/^[a-z0-9_]*$/.test(login)) {
+    if (!/^[a-zA-Z0-9_]*$/.test(login)) {
       error = 3;
       alert('Not a valid player login');
       return error;
     }
   
     return error;
-  }
+}
+
+// General use AJAX form
+// @author 1rives
+function submitForm(url, login, extraOption) {
+    $.ajax({
+        method: "GET",
+        url: url,
+        data: {
+            login: login
+        },
+        extraOption,
+        success: function(response) {
+            if(!response.includes('{')) {
+                alert(response);
+            } 
+            else {
+
+                console.log(JSON.parse(response));
+            }
+        },
+        error:  function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.errorThrown);
+        }
+    });
+}

@@ -1,155 +1,100 @@
 <?php
 
+    
+    //session_cache_limiter('private');
     session_start();
 
-    include_once('functions/php/world_functions.php');
+    require_once('class/autoload.php'); // API
 
-    if(!isset($_POST['submit']))
-    {
-        unset($_SESSION['errorMessage']);
-    }
+    use TMRank\Database;
+    use TMRank\Utils;
+    use TMRank\Players;
 
-    if (isset($_POST['submit']) && isset($_POST['login']))
-    {
-        $login = $_POST['login'];
-    }
+    $db = new Database();
 
-    // Redis key name to get data
-    $php_script_name = explode(".", basename($_SERVER['PHP_SELF'])); // world.php
-    $ladder_name = strtoupper($php_script_name[0]); // WORLD
-    $redis_name = $_ENV["REDIS_VARIABLE_$ladder_name"]; // REDIS_VARIABLE_WORLD
+    // DEV ONLY
+    //
+    // $db->deleteAllCache();
+    // exit;
 
-    // Data
-    if(isset($login)){
-        $world = getWorldInfo($login);
-    }
-    else{
-        $world = getCacheData($redis_name);
-    }
-
-    $test = getCacheData($redis_name.'request');
-    echo "<h5>" . $test . "</h5>";
-
-    // Delete key for DEBUG
-    //deleteCacheData($redis_name);
-
+    // Disable errors
+    error_reporting(E_ERROR);
+    
 ?>
 
-
-<!doctype html>
-<html lang="en" data-bs-theme='dark'>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.84.0">
-    <title>Search a player</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link defer rel="stylesheet" href="https://classless.de/classless-tiny.css">
+    <!-- Include Animate.css library -->
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+  />
+    <title>Tests</title>
+    <style>
+        .error {
+            color: red;
+        }
+        body {
+        padding: 25px;
+        background-color: lightsteelblue;
+        transition: 0.3s;
+        color: black;
+        font-size: 25px;
+        }
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/pricing/">
-
-
-    <!-- CSS styles -->
-    <link href='assets/bootstrap/css/bootstrap.min.css' rel='stylesheet'>
-    <link href='assets/css_old/main.css' rel='stylesheet'>
-
+        .dark-mode {
+        background-color: #1c1c25;
+        transition: 0.3s;
+        color: white;
+        }
+    </style>
+    <script src="assets/jquery/jquery-3.3.1.min.js"></script>
     <script>
-        if ( window.history.replaceState ) {
-            window.history.replaceState( null, null, window.location.href );
+        function myFunction() {
+            var element = document.body;
+            element.classList.toggle("dark-mode");
+            }
+    </script>
+    <script>
+        function secondsUntil23() {
+            const now = new Date();
+            const millisUntil23 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 0, 0, 0) - now;
+            const secondsUntil23 = Math.floor(millisUntil23 / 1000);
+            console.log(secondsUntil23);
         }
     </script>
-
-
 </head>
-
-
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-    <symbol id="check" viewBox="0 0 16 16">
-        <title>Check</title>
-        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
-    </symbol>
-</svg>
-
-
-<?php include_once "templates/navbar.php" ?>
-
 <body>
+    <div>
+        <h1>TMRank</h1>
+        <br>
+        <button onclick="myFunction()"><em>night</em></button>
+        <a href="/tmrank/players.php">
+            <button>Players</button>
+        </a>
 
-<div class="container py-3">
-
-
-    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
-        <h1 class="display-4 fw-normal">World ranking</h1>
+        
     </div>
-
-    <br>
-    <main class='w-100 mx-at py-3'>
-        <form action='' method='POST'>
-            <span class='fw-bold mb-0' style='color: red'>
-              <?php if ($_SESSION['errorMessage']) echo $_SESSION['errorMessage']; else echo ''; ?>
-            </span>
-
-            <div class="form-floating mb-3 d-flex">
-                <input required type="text" name="login" class="form-control" id="floatingInput" placeholder=""
-                       maxlength="20">
-                <label for="floatingInput" class="text-secondary">Player login</label>
-                <button class="btn btn-primary" name="submit" type="submit">Search</button>
-            </div>
+    <p>Obtained data is shown on the console</p>
+    <div>
+        <form id="loginForm">
+            <h4>World login</h4>
+            
+            <input type="text" name="login" id="login">
+            <input type="submit" value="submit">
+            
         </form>
+    </div>
+    
 
-        <ul class='nav nav-tabs justify-content-center' id='myTab' role='tablist' <?php if(!$world) echo ' hidden'; ?>>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link active' id='merge-leaderboard' data-bs-toggle='tab' data-bs-target='#merge' type='button'
-                        role='tab' aria-controls='merge' aria-selected='true'>General
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='stadium-leaderboard' data-bs-toggle='tab' data-bs-target='#stadium' type='button'
-                        role='tab' aria-controls='stadium' aria-selected='false' <?php playerDisableButton($login); ?>>Stadium
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='island-leaderboard' data-bs-toggle='tab' data-bs-target='#island' type='button'
-                        role='tab' aria-controls='island' aria-selected='false' <?php playerDisableButton($login); ?>>Island
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='desert-leaderboard' data-bs-toggle='tab' data-bs-target='#desert' type='button'
-                        role='tab' aria-controls='desert' aria-selected='false' <?php playerDisableButton($login); ?>>Desert
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='coast-leaderboard' data-bs-toggle='tab' data-bs-target='#coast' type='button'
-                        role='tab' aria-controls='coast' aria-selected='false' <?php playerDisableButton($login); ?>>Coast
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='rally-leaderboard' data-bs-toggle='tab' data-bs-target='#rally' type='button'
-                        role='tab' aria-controls='rally' aria-selected='false' <?php playerDisableButton($login); ?>>Rally
-                </button>
-            </li>
-            <li class='nav-item' role='presentation'>
-                <button class='nav-link' id='bay-leaderboard' data-bs-toggle='tab' data-bs-target='#bay' type='button'
-                        role='tab' aria-controls='bay' aria-selected='false' <?php playerDisableButton($login); ?>>Bay
-                </button>
-            </li>
-            <li class='nav-item bg' role='presentation'>
-                <button class='nav-link' id='snow-leaderboard' data-bs-toggle='tab' data-bs-target='#snow' type='button'
-                        role='tab' aria-controls='snow' aria-selected='false' <?php playerDisableButton($login); ?>>Snow
-                </button>
-            </li>
-        </ul>
-        <div class='tab-content' id='myTabContent'>
-            <?php showWorldTable($login, $world); ?>
-        </div>
-    </main>
-
-</div>
-
-<script src='assets/bootstrap/js/bootstrap.bundle.min.js'></script>
-<script src='assets/jquery/jquery-3.3.1.min.js'></script>
+    <script src="assets/js/ajax.js"></script>
 
 </body>
-<?php include_once "templates/footer.php" ?>
 </html>
 
+<?php $_SESSION['errorMessage'] = ""; ?>

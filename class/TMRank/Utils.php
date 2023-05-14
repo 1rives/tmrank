@@ -4,6 +4,7 @@
  * Guzzle HTTP client for the Trackmania Web Services API.
  *
  * @author noiszia
+ * @link https://github.com/1rives
  */
 namespace TMRank;
 
@@ -269,13 +270,13 @@ class Utils extends TMRankClient
             }
 
             // TODO: Research TMF login maximum length
-            if (strlen($clearLogin) > 20 || strlen($clearLogin) < 3)
+            if (strlen($clearLogin) > 25 || strlen($clearLogin) < 3)
             {
                 $error = 2;
                 throw new \Exception('Length of login is not correct');
             }
 
-            if (!preg_match('/^[a-z0-9_]*$/', $clearLogin))
+            if (!preg_match('/^[a-zA-Z0-9_]*$/', $clearLogin))
             {
                 $error = 3;
                 throw new \Exception('Not a valid player login');

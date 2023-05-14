@@ -4,6 +4,7 @@
  * Guzzle HTTP client for the Trackmania Web Services API.
  *
  * @author noiszia
+ * @link https://github.com/1rives
  */
 namespace TMRank;
 
@@ -43,14 +44,14 @@ class World extends TMRankClient {
      *      
      * @param string $login Player login
      * 
-     * @return mixed dataformatted
+     * @return object
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     public function getData($login) 
     {
-        if($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_POST['login']))
+        if($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['login']))
         {
-            echo json_encode(self::getLoginRanking($login));
+            return self::getLoginRanking($login);
         }
         else
         {
@@ -66,21 +67,18 @@ class World extends TMRankClient {
      *
      * @param string $login Player login
      * 
-     * @return array Array containing URL paths
+     * @return \stdClass 
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     protected function getLoginRanking($login) 
     {
-        // Create a utils instance
-        $utils = new Utils();
-
-        $utils->validateLogin($login);
-
         // Get the environments list
         $envList = $this->environments;
 
         // Default options
         $path = 'World';
+
+        // TODO: Refactor or change function, makes request 2 times slower
         $offset = self::getPlayerOffset($login);
 
         $playerData = \TMRank\TMRankClient::request([
@@ -239,9 +237,11 @@ class World extends TMRankClient {
     {
         $envList = $this->environments;
 
+        $utils = new Utils;
+
         try 
         {
-            $requestOffset = \TMRank\TMRankClient::request([sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $envList[0])]);
+            $requestOffset = \TMRank\TMRankClient::request([sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $utils->sanitizeLogin($login), $envList[0])]);
         } 
         catch(ClientException $e) 
         {

@@ -4,6 +4,7 @@
  * Guzzle HTTP client for the Trackmania Web Services API.
  *
  * @author noiszia
+ * @link https://github.com/1rives
  */
 namespace TMRank;
 

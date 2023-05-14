@@ -4,6 +4,7 @@
  * Guzzle HTTP client for the Trackmania Web Services API.
  *
  * @author noiszia
+ * @link https://github.com/1rives
  */
 namespace TMRank;
 
@@ -32,7 +33,7 @@ class Players extends TMRankClient
         'Bay',
         'Snow'
     );
-
+    
     /**
      * Get the player data from the API.
      *
@@ -48,25 +49,37 @@ class Players extends TMRankClient
         // Get the environments list
         $envList = $this->environments;
 
-        // Create a utils instance
-        $utils = new Utils();
+        // Default quantity of environments
+        $multiplayerLoop = 2;
+        
+        // Player public data
+        $array[] = sprintf('/tmf/players/%s/', $login);
 
-        $utils->validateLogin($login);
+        /// Free account validation
+        $accountType = $this->request($array);
 
-        for($i = 0; $i < count((array)$envList); $i++) 
+        if($accountType[0]->united == 1) 
+        {
+            $array[] = sprintf('/tmf/players/%s/rankings/solo/', $login);
+            $multiplayerLoop = count((array)$envList);
+        }
+        else
+        {
+            // No solo ranking
+        }
+      
+        // Multiplayer data
+        for($i = 0; $i < $multiplayerLoop; $i++) 
         { 
             $array[] = sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $envList[$i]);
         }
 
-        // Player public & solo data
-        $array[] = sprintf('/tmf/players/%s/', $login);
-        $array[] = sprintf('/tmf/players/%s/rankings/solo/', $login);
         
-        $response = self::getProcessedDataOutput(
+        return self::getProcessedDataOutput(
             $this->request($array)  
         );
 
-        echo json_encode($response);
+        //echo json_encode($response);
     }
 
     /**
@@ -84,9 +97,11 @@ class Players extends TMRankClient
         // Create a player object
         $outputData = new \stdClass;
 
-        self::assignPlayerData($rawData[8], $outputData);
+        self::assignPlayerData($rawData[0], $outputData);
         self::assignMultiplayerData($rawData, $outputData);
-        self::assignSoloData($rawData, $outputData);
+
+        if($rawData[0]->united) 
+            self::assignSoloData($rawData, $outputData);
 
         return $outputData;
     }
@@ -112,6 +127,8 @@ class Players extends TMRankClient
         // Get player country via array deferencing
         $playerCountry = explode('|', $rawData->path)[1];
 
+        // Instead of -login to save data, -id should be used.
+        $outputData->login = $rawData->login;
         $outputData->nickname = $colorParser->toHTML($rawData->nickname);
         $outputData->accountType = ($rawData->united) ? 'United' : 'Forever' ;
         $outputData->nation = $playerCountry;
@@ -138,17 +155,25 @@ class Players extends TMRankClient
         // Get the environments list
         $envList = $this->environments;
 
-        // Sets loop for account type since Forever accounts only have
+        // Sets cycle values for account type since Forever accounts only have
         // Merge and Stadium rank (Mostly Stadium)
-        $rawData[8]->united ? 
-            $count = count((array)$envList) : 
-            $count = 2;
-
-        for ($i = 0; $i < $count; $i++)
+        if($rawData[0]->united)
         {
-            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$i]->points);
-            $outputData->{strtolower($envList[$i]).'WorldRanking'} = number_format($rawData[$i]->ranks[0]->rank);
-            $outputData->{strtolower($envList[$i]).'ZoneRanking'} = number_format($rawData[$i]->ranks[1]->rank);
+            $playerEnvCount = count((array)$envList);
+            $startIndex = 2;
+        }
+        else
+        {
+            $playerEnvCount = 2;
+            $startIndex = 1;
+        }
+            
+        for ($i = 0; $i < $playerEnvCount; $i++)
+        {
+            $rawDataIndex = $startIndex + $i;
+            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$rawDataIndex]->points);
+            $outputData->{strtolower($envList[$i]).'WorldRanking'} = number_format($rawData[$rawDataIndex]->ranks[0]->rank);
+            $outputData->{strtolower($envList[$i]).'ZoneRanking'} = number_format($rawData[$rawDataIndex]->ranks[1]->rank);
         }
         
     }
@@ -156,7 +181,8 @@ class Players extends TMRankClient
     /**
      * Assign solo points and rank to the player information
      *
-     * Checks the account type and assign the corresponding data
+     * Checks the account type and assign the corresponding data, this only
+     * should be called when the player's account is United
      * 
      * @param object $rawData
      * @param object $outputData
@@ -165,9 +191,9 @@ class Players extends TMRankClient
      */
     protected function assignSoloData($rawData, $outputData)
     {
-        $accountType = $rawData[8]->united;
-        $points = $rawData[9]->points;
-        $ranking = $rawData[9]->ranks[0]->rank;
+        $accountType = $rawData[0]->united;
+        $points = $rawData[1]->points;
+        $ranking = $rawData[1]->ranks[0]->rank;
 
         if($accountType == 1)
         {
