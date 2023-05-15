@@ -235,13 +235,15 @@ class World extends TMRankClient {
      **/
     protected function getPlayerOffset($login)
     {
-        $envList = $this->environments;
+        $mergeEnv = $this->environments[0];
 
         $utils = new Utils;
 
         try 
         {
-            $requestOffset = \TMRank\TMRankClient::request([sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $utils->sanitizeLogin($login), $envList[0])]);
+            $requestOffset = \TMRank\TMRankClient::request([sprintf('/tmf/players/%s/rankings/multiplayer/%s/', 
+                $utils->sanitizeLogin($login), 
+                $mergeEnv)]);
         } 
         catch(ClientException $e) 
         {

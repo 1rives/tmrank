@@ -6,16 +6,15 @@ const pageFileName = window.location.pathname.split('/').pop().split('.')[0]
 
 const url = `/tmrank/shells/ajax/${pageFileName}.php`;
 
-const loginId = '#login';
-
 const formId = '#loginForm';
+
+const loginId = '#login';
 
 // jQuery AJAX function call
 document.addEventListener('DOMContentLoaded', function() {
     if(!pageFileName.includes('players')) 
         getGeneralTable(url);
 }, false);
-
 
 // jQuery AJAX function call
 $(document).ready(function() {
@@ -39,7 +38,6 @@ function submitForm(url, login, extraOption) {
         data: {
             login: login
         },
-        cache: false,
         extraOption,
         success: function(response) {
             if(!response.includes('{')) {
@@ -79,7 +77,7 @@ function getGeneralTable(url, extraOption) {
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
-            console.log('rip');
+            console.log(jqXHR.errorThrown);
         }
     });
 }
