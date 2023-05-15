@@ -4,37 +4,31 @@
 
 require_once('../../class/autoload.php'); // API
 
-use TMRank\World;
+use TMRank\Zones;
 use TMRank\Utils;
 use TMRank\Database;
 
 $utils = new Utils();
 $db = new Database();
-$world = new World();
+$zones = new Zones();
 
 
 // TODO: Refactor players and world to use a general function
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
-  // First validate the login
-  //$utils->validateLogin($_GET['login']);
 
   // Values to use
-  $login = $utils->sanitizeLogin($_GET['login']);
-
   $className = $utils->getCurrentFileName();
   $classPrefix = getenv("REDIS_VARIABLE_" . strtoupper($className));
   
   // Redis key
-  !$login ? 
-    $redisKey = $classPrefix . '.ladder' :
-    $redisKey = $classPrefix . '.' . $login;
+  $redisKey = $classPrefix . '.ladder';
   
   if(!$db->getCacheDataLength($redisKey))
   {
     // Get new information
-    $newAPIData = $world->getData($login);
+    $newAPIData = $zones->getData();
     
     // Save to database
     //$db->saveCacheData($newAPIData, $redisKey);   

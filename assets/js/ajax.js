@@ -1,22 +1,29 @@
 // TODO: Add an anti-spam measure
 //       Investigate about Honey Pots
 
-// TODO 2: Add and autoloading AJAX request to get data for Zones
-// and World
-//
-// document.addEventListener('DOMContentLoaded', function() {
-//     ADD FUNCTION HERE ! ! ! !
-// }, false);
+// Get the current name of the page without the extension
+const pageFileName = window.location.pathname.split('/').pop().split('.')[0]
+
+const url = `/tmrank/shells/ajax/${pageFileName}.php`;
+
+const loginId = '#login';
+
+const formId = '#loginForm';
+
+// jQuery AJAX function call
+document.addEventListener('DOMContentLoaded', function() {
+    if(!pageFileName.includes('players')) 
+        getGeneralTable(url);
+}, false);
 
 
-
+// jQuery AJAX function call
 $(document).ready(function() {
-    var url = `/tmrank/shells/ajax/${pageFileName}.php`;
-
-    $('#loginForm').submit(function(event) {
+    
+    $(formId).submit(function(event) {
         event.preventDefault(); 
 
-        var login = $('#login').val();
+        var login = $(loginId).val();
 
         if(!validateLogin(login)){
             submitForm(url, login, extraOptions);
@@ -24,12 +31,61 @@ $(document).ready(function() {
     });
 });
 
+// AJAX request via form submit
+function submitForm(url, login, extraOption) {
+    $.ajax({
+        method: "GET",
+        url: url,
+        data: {
+            login: login
+        },
+        cache: false,
+        extraOption,
+        success: function(response) {
+            if(!response.includes('{')) {
+                alert(response);
+            } 
+            else {
+                console.log(JSON.parse(response));
+            }
+        },
+        error:  function(jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.errorThrown);
+        }
+    });
+}
 
-
-// Get the current name of the page without the extension
-const pageFileName = window.location.pathname.split('/').pop().split('.')[0]
+// AJAX request via form submit
+function getGeneralTable(url, extraOption) {
+    $.ajax({
+        method: "GET",
+        url: url,
+        data: {
+            login: ''
+        },
+        cache: true,
+        //extraOption,
+        success: function(response) {
+            if(!response.includes('{')) {
+                alert(response);
+            } 
+            else {
+                // Placeholder
+                // TODO: Refactor
+                if(pageFileName.includes('world'))
+                $('#general').append(JSON.parse(response).merge[0].nickname);
+                if(pageFileName.includes('zones'))
+                $('#general').append(JSON.parse(response).ladder[0].name);
+            }
+        },
+        error:  function(jqXHR, textStatus, errorThrown) {
+            console.log('rip');
+        }
+    });
+}
 
 // Add extra AJAX options for specific classes
+// @author 1rives
 const extraOptions = () => {
     switch (pageFileName) {
         case 'world':
@@ -39,7 +95,6 @@ const extraOptions = () => {
             break;
     }
 }
-
 
 
 // Original PHP function converted to Javascript
@@ -68,27 +123,3 @@ function validateLogin(login) {
     return error;
 }
 
-// General use AJAX form
-// @author 1rives
-function submitForm(url, login, extraOption) {
-    $.ajax({
-        method: "GET",
-        url: url,
-        data: {
-            login: login
-        },
-        extraOption,
-        success: function(response) {
-            if(!response.includes('{')) {
-                alert(response);
-            } 
-            else {
-
-                console.log(JSON.parse(response));
-            }
-        },
-        error:  function(jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.errorThrown);
-        }
-    });
-}

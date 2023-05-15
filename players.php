@@ -112,8 +112,12 @@
         <h1>TMRank</h1>
         <br>
         <button onclick="myFunction()"><em>night</em></button>
+        <br>
         <a href="/tmrank/world.php">
             <button>World</button>
+        </a>
+        <a href="/tmrank/zones.php">
+            <button>Zones</button>
         </a>
 
         

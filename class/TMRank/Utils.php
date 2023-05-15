@@ -327,6 +327,18 @@ class Utils extends TMRankClient
 
         return $timeUntilMidnight;
     }
+
+    /**
+     * Get the current name of the page file without the
+     * extension
+     *
+     * @return string File name
+     */
+    public function getCurrentFileName()
+    {
+        $currentFileName = basename($_SERVER['PHP_SELF']);
+        return strtolower(explode('.', $currentFileName)[1]);
+    }
 }
 
 ?>

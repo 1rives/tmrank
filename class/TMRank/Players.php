@@ -49,9 +49,6 @@ class Players extends TMRankClient
         // Get the environments list
         $envList = $this->environments;
 
-        // Default quantity of environments
-        $multiplayerLoop = 2;
-        
         // Player public data
         $array[] = sprintf('/tmf/players/%s/', $login);
 
@@ -65,7 +62,7 @@ class Players extends TMRankClient
         }
         else
         {
-            // No solo ranking
+            $multiplayerLoop = 2;
         }
       
         // Multiplayer data
@@ -74,7 +71,6 @@ class Players extends TMRankClient
             $array[] = sprintf('/tmf/players/%s/rankings/multiplayer/%s/', $login, $envList[$i]);
         }
 
-        
         return self::getProcessedDataOutput(
             $this->request($array)  
         );

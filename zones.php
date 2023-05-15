@@ -78,24 +78,18 @@
         <a href="/tmrank/players.php">
             <button>Players</button>
         </a>
-        <a href="/tmrank/zones.php">
-            <button>Zones</button>
+        <a href="/tmrank/world.php">
+            <button>World</button>
         </a>
 
         
     </div>
     <p>Obtained data is shown on the console</p>
     <div>
-        <form id="loginForm">
-            <h4>World login</h4>
-            
-            <input type="text" name="login" id="login">
-            <input type="submit" value="submit">
-            
-        </form>
+        <div id="general"></div>
     </div>
     
-    <div id="general"></div>
+    
     
     <script src="assets/js/ajax.js"></script>
 
