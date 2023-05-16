@@ -12,7 +12,6 @@ $utils = new Utils();
 $db = new Database();
 $world = new World();
 
-
 // TODO: Refactor players and world to use a general function
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')

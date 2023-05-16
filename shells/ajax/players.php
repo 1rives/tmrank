@@ -33,7 +33,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['login']))
     $newAPIData = $players->getData($login);
     
     // Save to database
-    //$db->saveCacheData($newAPIData, $redisKey);   
+    $db->saveCacheData($newAPIData, $redisKey);   
     
     // Return AJAX data
     echo json_encode($newAPIData); 

@@ -68,12 +68,25 @@ function getGeneralTable(url, extraOption) {
                 alert(response);
             } 
             else {
-                // Placeholder
-                // TODO: Refactor
-                if(pageFileName.includes('world'))
-                $('#general').append(JSON.parse(response).merge[0].nickname);
-                if(pageFileName.includes('zones'))
-                $('#general').append(JSON.parse(response).ladder[0].name);
+                let objResponse = JSON.parse(response)
+
+                // Zones
+                if(objResponse.hasOwnProperty('ladder')){
+                    $('#general').append(objResponse.ladder[0].name + '<br>');
+                    $('#general').append(objResponse.ladder[1].name + '<br>');
+                    $('#general').append(objResponse.ladder[2].name + '<br>');
+                    $('#general').append(objResponse.ladder[3].name + '<br>');
+                    $('#general').append(objResponse.ladder[4].name + '<br>');
+                }
+                // World
+                else {
+                    $('#general').append(objResponse.stadium[0].nickname + '<br>');
+                    $('#general').append(objResponse.stadium[1].nickname + '<br>');
+                    $('#general').append(objResponse.stadium[2].nickname + '<br>');
+                    $('#general').append(objResponse.stadium[3].nickname + '<br>');
+                    $('#general').append(objResponse.stadium[4].nickname + '<br>');
+                }
+
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
