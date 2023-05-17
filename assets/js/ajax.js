@@ -1,60 +1,88 @@
-// TODO: Add an anti-spam measure
-//       Investigate about Honey Pots
+//////////////////////////////////////////
+//              VARIABLES               //
+//////////////////////////////////////////
 
-// Get the current name of the page without the extension
-const pageFileName = window.location.pathname.split('/').pop().split('.')[0]
+// General variables
+// TODo: Fix 'url' path
+const currentPageName = window.location.pathname.split('/').pop().split('.')[0];
+const url = `/tmrank/shells/ajax/${currentPageName}.php`;
 
-const url = `/tmrank/shells/ajax/${pageFileName}.php`;
+// HTML elements
+const formId = $('#loginForm');
+const loginId = $('#login');
 
-const formId = '#loginForm';
+const loginInput = $('#login');
+const errorIcon = $('.icon .is-small .is-right');
+const errorSpan = $('#loginForm .help');
 
-const loginId = '#login';
 
-// jQuery AJAX function call
+// Validation variables
+const maxLoginLength = 25;
+const minLoginLength = 3;
+const loginRegex =  new RegExp(/^[a-zA-Z0-9_]*$/);
+
+//////////////////////////////////////////
+//                 MAIN                 //
+//////////////////////////////////////////
+
+
+// Returns general tables
 document.addEventListener('DOMContentLoaded', function() {
-    if(!pageFileName.includes('players')) 
-        getGeneralTable(url);
+    // Ignores 'players' since it does not have a general table
+    if(!currentPageName.includes('players')) getGeneralTable(url, extraOptions);
 }, false);
 
-// jQuery AJAX function call
+
+
+// Makes a AJAX request
 $(document).ready(function() {
-    
+
+    $(formId).on('reset', function() {
+        removeErrorStyles();
+    });
+
     $(formId).submit(function(event) {
         event.preventDefault(); 
 
-        var login = $(loginId).val();
+        // Player login
+        let login = $(loginId).val();
 
-        if(!validateLogin(login)){
+        if(isLoginValid(login)){
             submitForm(url, login, extraOptions);
         }
     });
 });
 
+
+//////////////////////////////////////////
+//              FUNCTIONS               //
+//////////////////////////////////////////
+
 // AJAX request via form submit
-function submitForm(url, login, extraOption) {
+function submitForm(url, login, extraOptions) {
     $.ajax({
         method: "GET",
         url: url,
         data: {
             login: login
         },
-        extraOption,
+        extraOptions,
         success: function(response) {
             if(!response.includes('{')) {
-                alert(response);
+                showError(response);
             } 
             else {
                 console.log(JSON.parse(response));
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.errorThrown);
+            console.log(jqXHR.status);
         }
     });
 }
 
-// AJAX request via form submit
-function getGeneralTable(url, extraOption) {
+// Automatic AJAX request for general data
+function getGeneralTable(url, extraOptions) {
     $.ajax({
         method: "GET",
         url: url,
@@ -65,7 +93,7 @@ function getGeneralTable(url, extraOption) {
         //extraOption,
         success: function(response) {
             if(!response.includes('{')) {
-                alert(response);
+                console.log(response);
             } 
             else {
                 let objResponse = JSON.parse(response)
@@ -90,15 +118,16 @@ function getGeneralTable(url, extraOption) {
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.errorThrown);
+            console.log(jqXHR.status);
         }
     });
 }
 
+
 // Add extra AJAX options for specific classes
 // @author 1rives
 const extraOptions = () => {
-    switch (pageFileName) {
+    switch (currentPageName) {
         case 'world':
             return 'contentType: application/json; charset=utf-8';
 
@@ -107,30 +136,64 @@ const extraOptions = () => {
     }
 }
 
+// Converts to lower case and removes all spaces
+function sanitizeString(string) {
+    return string.replace(/\s+/g, "").toLowerCase();
+}
 
 // Original PHP function converted to Javascript
-// @author 1rives
-function validateLogin(login) {
-    let error = 0;
-  
-    if (!login) {
-      error = 1;
-      alert('Please enter a login');
-      return error;
+// Returns true for valid login
+function isLoginValid(login) {
+
+    const errorMessages = [
+        'Login cannot be empty',
+        `Login must be at least ${minLoginLength} characters long`,
+        `Login cannot exceed ${maxLoginLength} characters`,
+        'Login can only contain letters, numbers and underscores'
+    ];
+
+    login = sanitizeString(login);
+
+    switch(true) {
+        case !login: 
+            showError(errorMessages[0]);
+            return 0;
+
+        case login.length < 3:
+            showError(errorMessages[1]);
+            return 0;
+
+        case login.length > 25:
+            showError(errorMessages[2]);
+            return 0;
+
+        case !loginRegex.test(login):
+            showError(errorMessages[3]);
+            return 0;
+
+        default:
+            showError(); // Removes all previous changes
+            return 1;
     }
-  
-    if (login.length > 25 || login.length < 3) {
-      error = 2;
-      alert('Length is not correct');
-      return error;
-    }
-  
-    if (!/^[a-zA-Z0-9_]*$/.test(login)) {
-      error = 3;
-      alert('Not a valid player login');
-      return error;
-    }
-  
-    return error;
+
+}
+
+// Changes styles for form-related elements 
+function showError(errorMessage) {
+    (!errorMessage) ? removeErrorStyles() : addErrorStyles(errorMessage);
+}
+
+// Resets all error styles and remove error mesage
+function removeErrorStyles() {
+    loginInput.removeClass('is-danger');
+    errorIcon.remove('i');
+    errorSpan.empty();
+}
+
+// Adds error styles and the error message
+function addErrorStyles(errorMessage) {
+    loginInput.addClass('is-danger');
+    errorIcon.append('<i class="fas fa-exclamation-triangle"></i>');
+    errorSpan.text(errorMessage);
 }
 

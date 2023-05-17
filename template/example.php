@@ -22,6 +22,18 @@
     // Specific or general page content
 
   ?>    
+
+  <?php // Used for pages with tables with/without login searching ?>    
+  <div class="container is-max-widescreen"> 
+      <div class="box">
+          
+          <?php include_once('template/login_form.php'); ?>
+
+          <div class="mx-6 my-2 px-6" id="general"></div>
+          
+      </div>
+  </div>
+  
   
   <?php include_once('template/footer.php'); ?>
 

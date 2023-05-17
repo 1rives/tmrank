@@ -23,15 +23,14 @@ session_start();
 
     <?php include_once('template/players/hero.php'); ?>
 
-    <div class="box container is-max-widescreen">
-        <h1 class="title"> Search a player </h1>
+    <div class="container is-max-widescreen"> 
+        <div class="box">
+            
+            <?php include_once('template/login_form.php'); ?>
 
-        <form id="loginForm">
-            <input type="text" name="login" id="login">
-            <input type="submit" value="submit">
-        </form>
-
-        <div id="general"></div>
+            <div class="mx-6 my-2 px-6" id="general"></div>
+            
+        </div>
     </div>
 
     <?php include_once('template/footer.php'); ?>
