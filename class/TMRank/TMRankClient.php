@@ -50,9 +50,10 @@ abstract class TMRankClient
 
         $apiURL = $this->apiURL;
 
-        // TODO: Thanks to limit of 360 requests per hour, multiple users has been created to change
+        // Thanks to limit of 360 requests per hour, multiple users has been created to change
         // when the current user has reached its limit. 
         // Every user has a numeral prefix at the end (From 1 to 10) with the same password.
+        // TODO: Change API user when out of requests
 
         // Client configuration
         $guzzleClient = new Client([
@@ -88,7 +89,7 @@ abstract class TMRankClient
         {
             $response = $e->getResponse()->getBody()->getContents();
 
-            // TODO: Find a way to 
+            // Misspelled error
             if(str_contains($response, 'Unkown player'))
             {
                 $response = 'Player does not exist';

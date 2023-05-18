@@ -78,7 +78,7 @@ class World extends TMRankClient {
         // Default options
         $path = 'World';
 
-        // TODO: Refactor or change function, makes request 2 times slower
+        // TODO: Refactor or change function, makes request two times slower
         $offset = self::getPlayerOffset($login);
 
         $playerData = \TMRank\TMRankClient::request([

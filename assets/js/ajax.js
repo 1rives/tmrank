@@ -37,10 +37,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Makes a AJAX request
 $(document).ready(function() {
 
+    // Reset error styles on reset button
     $(formId).on('reset', function() {
         removeErrorStyles();
     });
 
+    // AJAX request
     $(formId).submit(function(event) {
         event.preventDefault(); 
 
@@ -98,6 +100,10 @@ function getGeneralTable(url, extraOptions) {
             else {
                 let objResponse = JSON.parse(response)
 
+                // TODO: Loading all data after making the AJAX request then passing
+                // all the object is too heavy on the browser, try doing the request
+                // on a DataTables initialization. (Or just find a better way)
+
                 // Zones
                 if(objResponse.hasOwnProperty('ladder')){
                     $('#general').append(objResponse.ladder[0].name + '<br>');
@@ -105,6 +111,17 @@ function getGeneralTable(url, extraOptions) {
                     $('#general').append(objResponse.ladder[2].name + '<br>');
                     $('#general').append(objResponse.ladder[3].name + '<br>');
                     $('#general').append(objResponse.ladder[4].name + '<br>');
+
+                    $('table[id="tableZones"]').DataTable({
+                        paging: false,
+                        ordering: false,
+                        info: false,
+                        searching: false,
+        
+                        deferLoading: true,
+                        stateSave: true,
+                        responsive: true,
+                    });
                 }
                 // World
                 else {
@@ -113,6 +130,32 @@ function getGeneralTable(url, extraOptions) {
                     $('#general').append(objResponse.stadium[2].nickname + '<br>');
                     $('#general').append(objResponse.stadium[3].nickname + '<br>');
                     $('#general').append(objResponse.stadium[4].nickname + '<br>');
+                    
+                    var envList = [
+                        'Merge',
+                        'Stadium',
+                        'Desert',
+                        'Island',
+                        'Rally',
+                        'Coast',
+                        'Bay',
+                        'Snow'
+                    ];
+
+                    for (var index = 0; index < envList.length; index++) {
+
+                        $(`table[id="table${envList[index]}"]`).DataTable({
+                            paging: false,
+                            ordering: false,
+                            info: false,
+                            searching: false,
+            
+                            deferLoading: true,
+                            stateSave: true,
+                            responsive: true,
+                        });
+                        
+                    }
                 }
 
             }
@@ -125,7 +168,6 @@ function getGeneralTable(url, extraOptions) {
 
 
 // Add extra AJAX options for specific classes
-// @author 1rives
 const extraOptions = () => {
     switch (currentPageName) {
         case 'world':

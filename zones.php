@@ -35,7 +35,7 @@ session_start();
     <div class="container is-max-widescreen"> 
         <div class="box">
             <section class="section pt-0 pb-6">
-                <table id="example" class="table is-hoverable is-fullwidth">
+                <table id="tableZones" class="table is-hoverable is-fullwidth">
                     <thead>
                         <tr>
                             <th>Rank</th>
@@ -294,19 +294,5 @@ session_start();
     <script src="assets/js/ajax.js"></script>
     <!-- jQuery DataTables -->
     <script src="assets/DataTables/datatables.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#example').DataTable({
-                paging: true,
-                ordering: false,
-                info: true,
-                searching: true,
-
-                deferLoading: true,
-                stateSave: true,
-                responsive: true,
-            });
-        });
-    </script>
 </body>
 </html>

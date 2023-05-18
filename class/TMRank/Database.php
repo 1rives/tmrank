@@ -30,10 +30,11 @@ class Database extends TMRankClient
      * @return bool true for success, false for existing data
      * @throws \RedisException
      */
-    public function checkForLoginData($loginKey, $classPrefix)
+    public function checkIfLoginExists($loginKey, $classPrefix)
     {
         $keyWithLogin = $classPrefix . '.' . $loginKey;
 
+        // Why both returns are false??
         return (!self::getCacheDataLength($keyWithLogin)) ? false : false;
     }
 

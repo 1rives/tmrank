@@ -36,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     $newAPIData = $world->getData($login);
     
     // Save to database
-    //$db->saveCacheData($newAPIData, $redisKey);   
+    $db->saveCacheData($newAPIData, $redisKey);   
     
     // Return AJAX data
     echo json_encode($newAPIData); 
