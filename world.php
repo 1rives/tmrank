@@ -18,6 +18,7 @@ session_start();
     <link href="assets/DataTables/datatables.min.css" rel="stylesheet"/>
 </head>
 <body>
+    
 
     <?php include_once('template/navbar.php'); ?>
 
@@ -81,157 +82,23 @@ session_start();
                         </li>
                     </ul>
                 </div>
-                <table id="tablePlayer" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tablePlayer" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableMerge" class="table is-hoverable is-fullwidth">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </tbody>
+                <table id="tableMerge" class="table is-fullwidth">
                 </table>
-                <table id="tableStadium" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableStadium" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableDesert" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableDesert" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableIsland" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableIsland" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableRally" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableRally" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableCoast" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableCoast" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableBay" class="table is-hoverable is-fullwidth is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableBay" class="table is-fullwidth is-hidden">
                 </table>
-                <table id="tableSnow" class="table is-hoverable is-des is-hidden">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Nickname</th>
-                            <th>Country</th>
-                            <th>Ladder Points</th>
-                        </tr>
-                    </thead>
+                <table id="tableSnow" class="table is-fullwidth is-hidden">
                 </table>
             </section>
         </div>

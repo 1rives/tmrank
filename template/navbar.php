@@ -1,3 +1,4 @@
+<?php //Doesn't works, fix error in mobile-nabvar.js ?>
 <!-- Start Navigation bar -->
 <header>
   <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -7,9 +8,8 @@
         <!-- TMRank logo -->
         <a class="navbar-item" href="home.php">
           <img src="assets/img/logo.svg" width="112" height="28"></img>
-        
           <!-- Hidden mobile navbar -->
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar">
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>

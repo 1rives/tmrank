@@ -337,7 +337,7 @@ class Utils extends TMRankClient
     public function getCurrentFileName()
     {
         $currentFileName = basename($_SERVER['PHP_SELF']);
-        return strtolower(explode('.', $currentFileName)[1]);
+        return strtolower(explode('.', $currentFileName)[0]);
     }
 }
 

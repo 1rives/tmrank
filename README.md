@@ -1,3 +1,3 @@
-# TMRank
+## TMRank
 
-Estadisticas generales sobre jugadores de TrackMania Forever
+# Stats page for TrackMania Forever

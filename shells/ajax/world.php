@@ -29,7 +29,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
   !$login ? 
     $redisKey = $classPrefix . '.ladder' :
     $redisKey = $classPrefix . '.' . $login;
-  
+
   if(!$db->getCacheDataLength($redisKey))
   {
     // Get new information
@@ -40,11 +40,11 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
     
     // Return AJAX data
     echo json_encode($newAPIData); 
+    exit;
   }
-  else
-  {
-    echo json_encode($db->getCacheData($redisKey));
-  }
+  
+  echo json_encode($db->getCacheData($redisKey));
+  exit;
   
 }
 

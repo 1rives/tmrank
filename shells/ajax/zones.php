@@ -21,17 +21,17 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
   // Values to use
   $className = $utils->getCurrentFileName();
   $classPrefix = getenv("REDIS_VARIABLE_" . strtoupper($className));
-  
+
   // Redis key
   $redisKey = $classPrefix . '.ladder';
-  
+
   if(!$db->getCacheDataLength($redisKey))
   {
     // Get new information
     $newAPIData = $zones->getData();
     
     // Save to database
-    //$db->saveCacheData($newAPIData, $redisKey);   
+    $db->saveCacheData($newAPIData, $redisKey);   
     
     // Return AJAX data
     echo json_encode($newAPIData); 
