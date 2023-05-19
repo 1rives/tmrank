@@ -100,6 +100,68 @@ session_start();
                             <th>Ladder Points</th>
                         </tr>
                     </thead>
+                    <tbody>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nickname</th>
+                            <th>Country</th>
+                            <th>Ladder Points</th>
+                        </tr>
+                    </tbody>
                 </table>
                 <table id="tableStadium" class="table is-hoverable is-fullwidth is-hidden">
                     <thead>
@@ -161,7 +223,7 @@ session_start();
                         </tr>
                     </thead>
                 </table>
-                <table id="tableSnow" class="table is-hoverable is-fullwidth is-hidden">
+                <table id="tableSnow" class="table is-hoverable is-des is-hidden">
                     <thead>
                         <tr>
                             <th>Rank</th>

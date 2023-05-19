@@ -129,7 +129,6 @@ class Players extends TMRankClient
         $outputData->accountType = ($rawData->united) ? 'United' : 'Forever' ;
         $outputData->nation = $playerCountry;
         $outputData->flag = $utils->getFlag($playerCountry);
-        
     }
 
     /**

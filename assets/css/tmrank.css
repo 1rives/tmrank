@@ -11,3 +11,7 @@ body,html {
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
 }
+
+.is-hidden {
+    width: 100% !important;
+}

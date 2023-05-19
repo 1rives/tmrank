@@ -21,6 +21,17 @@ const maxLoginLength = 25;
 const minLoginLength = 3;
 const loginRegex =  new RegExp(/^[a-zA-Z0-9_]*$/);
 
+const envList = [
+    'Merge',
+    'Stadium',
+    'Desert',
+    'Island',
+    'Rally',
+    'Coast',
+    'Bay',
+    'Snow'
+];
+
 //////////////////////////////////////////
 //                 MAIN                 //
 //////////////////////////////////////////
@@ -125,37 +136,56 @@ function getGeneralTable(url, extraOptions) {
                 }
                 // World
                 else {
-                    $('#general').append(objResponse.stadium[0].nickname + '<br>');
-                    $('#general').append(objResponse.stadium[1].nickname + '<br>');
-                    $('#general').append(objResponse.stadium[2].nickname + '<br>');
-                    $('#general').append(objResponse.stadium[3].nickname + '<br>');
-                    $('#general').append(objResponse.stadium[4].nickname + '<br>');
+                    // $('.tabs').append(objResponse.stadium[0].rank + '<br>');
+                    // $('.tabs').append(objResponse.stadium[0].nickname + '<br>');
+                    // $('.tabs').append(objResponse.stadium[0].nation + '<br>');
+                    // $('.tabs').append(objResponse.stadium[0].points + '<br>');
                     
-                    var envList = [
-                        'Merge',
-                        'Stadium',
-                        'Desert',
-                        'Island',
-                        'Rally',
-                        'Coast',
-                        'Bay',
-                        'Snow'
-                    ];
+                    const envListLength = envList.length;
 
-                    for (var index = 0; index < envList.length; index++) {
+                    for (let index = 0; index < envListLength; index++) {
 
-                        $(`table[id="table${envList[index]}"]`).DataTable({
+                        var tableEnv = envList[index];
+                        var objectEnv = tableEnv.toLowerCase();
+                        
+                        var dataArray = [];
+
+                        // TODO: Save in db the contents of the table instead of the world Object
+
+                        // Hardcoded test
+                        // At least works . . .
+                        for (let index = 0; index < 10; index++) {
+                            dataArray.push([ objResponse[objectEnv][index].rank, objResponse[objectEnv][index].nickname, objResponse[objectEnv][index].nation, objResponse[objectEnv][index].points ],)
+                            
+                        }
+
+                        $(`table[id="table${tableEnv}"]`).DataTable({
                             paging: false,
                             ordering: false,
                             info: false,
                             searching: false,
-            
                             deferLoading: true,
                             stateSave: true,
                             responsive: true,
+                            data: [
+                                [ objResponse[objectEnv][0].rank, objResponse[objectEnv][0].nickname, objResponse[objectEnv][0].nation, objResponse[objectEnv][0].points ],
+                                [ objResponse[objectEnv][1].rank, objResponse[objectEnv][1].nickname, objResponse[objectEnv][1].nation, objResponse[objectEnv][1].points ],
+                                [ objResponse[objectEnv][2].rank, objResponse[objectEnv][2].nickname, objResponse[objectEnv][2].nation, objResponse[objectEnv][2].points ],
+                                [ objResponse[objectEnv][3].rank, objResponse[objectEnv][3].nickname, objResponse[objectEnv][3].nation, objResponse[objectEnv][3].points ],
+                                [ objResponse[objectEnv][4].rank, objResponse[objectEnv][4].nickname, objResponse[objectEnv][4].nation, objResponse[objectEnv][4].points ],
+                                [ objResponse[objectEnv][5].rank, objResponse[objectEnv][5].nickname, objResponse[objectEnv][5].nation, objResponse[objectEnv][5].points ],
+                                [ objResponse[objectEnv][6].rank, objResponse[objectEnv][6].nickname, objResponse[objectEnv][6].nation, objResponse[objectEnv][6].points ],
+                                [ objResponse[objectEnv][7].rank, objResponse[objectEnv][7].nickname, objResponse[objectEnv][7].nation, objResponse[objectEnv][7].points ],
+                                [ objResponse[objectEnv][8].rank, objResponse[objectEnv][8].nickname, objResponse[objectEnv][8].nation, objResponse[objectEnv][8].points ],
+                                [ objResponse[objectEnv][9].rank, objResponse[objectEnv][9].nickname, objResponse[objectEnv][9].nation, objResponse[objectEnv][9].points ]
+                            ]
+
                         });
+
                         
                     }
+                        
+                    
                 }
 
             }
