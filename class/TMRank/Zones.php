@@ -111,7 +111,7 @@ class Zones extends TMRankClient {
                 $zonesTempData[$x]->rank = $zoneRank;
                 $zonesTempData[$x]->name = $rawZonesData[$i]->zones[$pos]->zone->name;
                 $zonesTempData[$x]->flag = $zoneFlag;
-                $zonesTempData[$x]->points = $rawZonesData[$i]->zones[$pos]->points;
+                $zonesTempData[$x]->points = number_format($rawZonesData[$i]->zones[$pos]->points) . ' LP';
 
                 $zonesOutputData->ladder[$x] = $zonesTempData[$x];
 

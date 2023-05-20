@@ -23,7 +23,7 @@ $(document).ready(function () {
 
 function changeActiveTable(active, clicked) {
     active.addClass('is-hidden');
-    clicked.removeClass('is-hidden')
+    clicked.removeClass('is-hidden');
 }
 
 function changeActiveTab(active, clicked) {

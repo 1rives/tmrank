@@ -35,7 +35,7 @@ session_start();
     <div class="container is-max-widescreen"> 
         <div class="box">
             <section class="section pt-0 pb-6">
-                <table id="tableZones" class="table is-hoverable is-fullwidth">
+                <table id="tableZones" class="table is-fullwidth">
                </table>
             </section>
         </div>

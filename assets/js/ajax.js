@@ -173,9 +173,10 @@ function initializeZonesTables(zonesData) {
 
     $(`table[id="tableZones"]`).DataTable({
         paging: true,
+        pagingType: 'first_last_numbers',
         ordering: false,
         info: false,
-        searching: false,
+        searching: true,
 
         deferLoading: true,
         stateSave: true,

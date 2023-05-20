@@ -34,49 +34,49 @@ session_start();
                     <ul>
                         <li id="tabMerge" class="is-active">
                             <a>
-                            <span class="icon is-small">&#127760;</span>  
+                            <!-- <span class="icon is-small">&#127760;</span> -->  
                                 <span>Merge</span>
                             </a>
                         </li >
                         <li id="tabStadium" class="">
                             <a>
-                                <span class="icon is-small">&#127950;</span>
+                                <!-- <span class="icon is-small">&#127950;</span> -->
                                 <span>Stadium</span>
                             </a>
                         </li>
                         <li id="tabDesert" class="">
                             <a>
-                                <span class="icon is-small">&#127797;</span>
+                                <!-- <span class="icon is-small">&#127797;</span> -->
                                 <span>Desert</span>
                             </a>
                         </li>
                         <li id="tabIsland" class="">
                             <a>
-                                <span class="icon is-small">&#127796;</span>
+                                <!-- <span class="icon is-small">&#127796;</span> -->
                                 <span>Island</span>
                             </a>
                         </li>
                         <li id="tabRally" class="">
                             <a>
-                                <span class="icon is-small">&#127794;</span>
+                                <!-- <span class="icon is-small">&#127794;</span> -->
                                 <span>Rally</span>
                             </a>
                         </li>
                         <li id="tabCoast" class="">
                             <a>
-                                <span class="icon is-small">&#127965;</span>    
+                                <!-- <span class="icon is-small">&#127965;</span> -->    
                                 <span>Coast</span>
                             </a>
                         </li>
                         <li id="tabBay" class="">
                             <a>
-                                <span class="icon is-small">&#127980;</span>  
+                                <!-- <span class="icon is-small">&#127980;</span> -->  
                                 <span>Bay</span>
                             </a>
                         </li>
                         <li id="tabSnow" class="">
                             <a>
-                                <span class="icon is-small">&#127956;</span>  
+                                <!-- <span class="icon is-small">&#127956;</span> -->  
                                 <span>Snow</span>
                             </a>
                         </li>
