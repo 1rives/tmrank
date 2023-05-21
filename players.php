@@ -30,95 +30,119 @@ session_start();
             
             <section class="section pt-5 pb-3 mb-0">
                 <div class="container">
-                    
-                    <h1 class="title pt-5">General information</h1>
-
+                
+                    <!-- General player information -->
                     <div class="columns">
                         <div class="column has-text-centered is-full">
                         <div class="box">
-                            <h1 class="title">General information</h1>
-                            <p class="subtitle">World Ranking: </p>
-                            <p class="subtitle">Zone Ranking: </p>
+                            <div class="column box has-background-white-ter">
+                                <h2 class="title has-text-weight-normal is-size-1 is-size-4-mobile">{NICKNAME}</h2>
+                            </div>
+                            <p class="is-size-5 py-1">Account type: </p>
+                            <p class="is-size-5 py-1">Location: </p>
                         </div>
                         </div>
                     </div>
                 
                     <!-- Forever and United environments -->
                     <div class="columns is-centered">
-                        <div class="column is-one-third-desktop">
+                        <div class="column is-fullwidth">
                             <div class="box">
-                                <h1 class="title">General</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
+                                <h2 class="title mb-3">General</h2>
+                                <p class="is-size-5 py-1">World Ranking: </p>
+                                <p class="is-size-5 py-1">Nation Ranking: </p>
+                                <p class="is-size-5 py-1">Ladder points: </p>
+                            </div>
+                            <div>
+                                
                             </div>
                         </div>
-                        <div class="column is-one-third-desktop">
+                        <div class="column is-mobile">
                             <div class="box">
-                                <h1 class="title">Stadium</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
+                                <h2 class="title mb-3">Stadium</h2>
+                                <p class="is-size-5 py-1">World Ranking: </p>
+                                <p class="is-size-5 py-1">Nation Ranking: </p>
+                                <p class="is-size-5 py-1">Ladder points: </p>
                             </div>
+                            
                         </div>
                     </div>
+                    
 
                     <!-- United only environments -->
-                    <div class="columns">
-                        <div class="column">
-                            <div class="box">
-                                <h1 class="title">Desert</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
+                    <div class="is-unavailable is-unselectable is-hidden-mobile">
+                        <div class="columns">
+                            <div class="column">
+                                <div class="box">
+                                    <h2 class="title mb-3">Desert</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="box">
+                                    <h2 class="title mb-3">Island</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
                             </div>
                         </div>
-                        <div class="column">
-                            <div class="box">
-                                <h1 class="title">Island</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="box">
-                                <h1 class="title">Coast</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="columns">
-                        <div class="column">
-                            <div class="box">
-                                <h1 class="title">Rally</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="box">
-                                <h1 class="title">Bay</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
-                            </div>
-                        </div>
-                        <div class="column">
-                            <div class="box">
-                                <h1 class="title">Snow</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- United only -->
-                    <div class="columns is-centered">
-                        <div class="column has-text-centered is-half-desktop ">
-                            <div class="box">
-                                <h1 class="title">Solo ladder</h1>
-                                <p class="subtitle">World Ranking: </p>
-                                <p class="subtitle">Zone Ranking: </p>
+                        <div class="columns">
+                            <div class="column">
+                                <div class="box">
+                                    <h2 class="title mb-3">Coast</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="box">
+                                    <h2 class="title mb-3">Rally</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="columns">
+                            <div class="column">
+                                <div class="box">
+                                    <h2 class="title">Bay</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="box">
+                                    <h2 class="title">Snow</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        <!-- United only -->
+                        <div class="columns is-centered">
+                            <div class="column has-text-centered is-half-desktop ">
+                                <div class="box">
+                                    <h2 class="title">Solo ladder</h2>
+                                    <p class="is-size-5 py-1">World Ranking: </p>
+                                    <p class="is-size-5 py-1">Nation Ranking: </p>
+                                    <p class="is-size-5 py-1">Ladder points: </p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    
+
                 </div>
             </section>
 
@@ -131,7 +155,7 @@ session_start();
     <!-- Additional scripts below this line -->
     <!-- jQuery AJAX -->
     <script src="assets/jquery/jquery-3.3.1.min.js"></script>
-    <script src="assets/js/ajax.js"></script>
+    <script defer src="assets/js/ajax.js"></script>
 </body>
 
 </html>

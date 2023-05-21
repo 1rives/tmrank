@@ -37,7 +37,8 @@ class Players extends TMRankClient
     /**
      * Get the player data from the API.
      *
-     * Passes all the available player data.
+     * Passes all the available player data including general
+     * data, multiplayer ladder and solo ladder.
      *
      * @param string $login Player login
      * 
@@ -154,21 +155,23 @@ class Players extends TMRankClient
         // Merge and Stadium rank (Mostly Stadium)
         if($rawData[0]->united)
         {
-            $playerEnvCount = count((array)$envList);
+            // All environments
+            $playerEnvironments = count((array)$envList);
             $startIndex = 2;
         }
         else
         {
-            $playerEnvCount = 2;
+            // Merge and Stadium
+            $playerEnvironments = 2;
             $startIndex = 1;
         }
             
-        for ($i = 0; $i < $playerEnvCount; $i++)
+        for ($i = 0; $i < $playerEnvironments; $i++)
         {
             $rawDataIndex = $startIndex + $i;
-            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$rawDataIndex]->points);
             $outputData->{strtolower($envList[$i]).'WorldRanking'} = number_format($rawData[$rawDataIndex]->ranks[0]->rank);
             $outputData->{strtolower($envList[$i]).'ZoneRanking'} = number_format($rawData[$rawDataIndex]->ranks[1]->rank);
+            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$rawDataIndex]->points);
         }
         
     }

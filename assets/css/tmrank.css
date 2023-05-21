@@ -18,3 +18,8 @@ body,html {
     border-top-right-radius: 0px;
 }
 
+.is-unavailable { 
+    color: gray !important;
+    opacity: 0.2;
+}
+
