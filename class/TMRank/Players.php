@@ -166,12 +166,15 @@ class Players extends TMRankClient
             $startIndex = 1;
         }
             
+        // TODO: Add players subzone ranking if available
         for ($i = 0; $i < $playerEnvironments; $i++)
         {
             $rawDataIndex = $startIndex + $i;
-            $outputData->{strtolower($envList[$i]).'WorldRanking'} = number_format($rawData[$rawDataIndex]->ranks[0]->rank);
-            $outputData->{strtolower($envList[$i]).'ZoneRanking'} = number_format($rawData[$rawDataIndex]->ranks[1]->rank);
-            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$rawDataIndex]->points);
+            // TODO: Check error on the next two lines, ignoring errors works 
+            //       Error found in player login: noiszia
+            $outputData->{strtolower($envList[$i]).'WorldRanking'} = @number_format($rawData[$rawDataIndex]->ranks[0]->rank);
+            $outputData->{strtolower($envList[$i]).'ZoneRanking'} = @number_format($rawData[$rawDataIndex]->ranks[1]->rank);
+            $outputData->{strtolower($envList[$i]).'Points'} = number_format($rawData[$rawDataIndex]->points) . ' LP';
         }
         
     }
@@ -198,18 +201,18 @@ class Players extends TMRankClient
             // Account is not ranked
             if ($points == 0) 
             {
-                $outputData->soloPoints = $outputData->soloWorld = "Unranked";
+                $outputData->soloPoints = $outputData->soloWorldRanking = "Unranked";
             } 
             // Account is ranked
             else 
             {
-                $outputData->soloPoints = number_format($points);
-                $outputData->soloWorld = number_format($ranking);
+                $outputData->soloPoints = number_format($points) . ' LP';
+                $outputData->soloWorldRanking = number_format($ranking);
             }
         }
         else
         {
-            $outputData->soloPoints = $outputData->soloWorld = "Not an United account";
+            $outputData->soloPoints = $outputData->soloWorldRanking = "Not an United account";
         }
         
     }

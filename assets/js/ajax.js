@@ -3,7 +3,6 @@
 //////////////////////////////////////////
 
 // General variables
-// TODo: Fix 'url' path
 const currentPageName = window.location.pathname.split('/').pop().split('.')[0];
 const url = `/tmrank/shells/ajax/${currentPageName}.php`;
 
@@ -20,6 +19,7 @@ const errorSpan = $('#loginForm .help');
 const maxLoginLength = 25;
 const minLoginLength = 3;
 const loginRegex =  new RegExp(/^[a-zA-Z0-9_]*$/);
+var previousLogin = '';
 
 const envList = [
     'Merge',
@@ -59,9 +59,13 @@ $(document).ready(function() {
         event.preventDefault(); 
 
         // Player login
-        let login = $(loginId).val();
+        let login = sanitizeString($(loginId).val());
 
-        if(isLoginValid(login)){
+        if(isLoginValid(login) && login !== previousLogin){
+            // Saves current login to prevent the same AJAX request
+            // for the username
+            previousLogin = login;
+
             submitForm(url, login, extraOptions);
         } 
     });
@@ -81,16 +85,35 @@ function submitForm(url, login, extraOptions) {
             login: login
         },
         extraOptions,
+        beforeSend: function() {
+            // Shows loading and disables the button
+            $('#submitButton').addClass('is-loading').prop( "disabled", true );
+
+        },
         success: function(response) {
+            // Reset button to default
+            $('#submitButton').removeClass('is-loading').prop( "disabled", false );
+
             if(!response.includes('{')) {
-                showError(response);
+                showError(response.replaceAll('"', ''));
             } 
             else {
-                console.log(JSON.parse(response));
+                let data = JSON.parse(response);
+
+                // Player
+                if(data.hasOwnProperty('accountType')) 
+                    showPlayersData(data, envList);
+
+                // World
+                if(data.hasOwnProperty('rank'))
+                    console.log('world');
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.status);
+            // Reset button to default
+            $('#submitButton').removeClass('is-loading').prop( "disabled", false );
+
+            showError("An error has occurred, try later");
         }
     });
 }
@@ -110,7 +133,8 @@ function getGeneralTable(url, extraOptions) {
             } 
             else {
                 let data = JSON.parse(response);
-                showTables(data, envList);
+                
+                showTables(data);
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
@@ -119,16 +143,117 @@ function getGeneralTable(url, extraOptions) {
     });
 }
 
+
+// Adds to every column players data
+function showPlayersData(data) {   
+
+    // General player data
+    $('#player-nickname').empty().append(data.nickname);
+    $('#player-account-type').text(`Account type: ${data.accountType}`);
+    $('#player-account-location').text(`Account location: ${data.nation}`);
+
+    appendMultiPlayersData(data, envList);
+
+    appendSoloPlayersData(data);
+
+    // Data is set, now show the columns
+    unhidePlayersData(data.accountType); 
+}
+
+// By default, the data columns are hidden
+// When the content is ready, show columns
+function unhidePlayersData(accountType) {
+    let content = $('#data-container');
+    let unitedContent = $('#united-container');
+
+    content.removeClass('is-hidden');
+
+    // Hides the United content for the Forever account
+    if(!accountType.includes('United')) {
+
+        // Hides the United container
+        unitedContent.addClass('is-unavailable is-unselectable is-hidden-mobile');
+
+        for (let index = 2; index < envListLength; index++) {
+
+            // Obtain environment 
+            let env = envList[index].toLowerCase();
+    
+            let worldRanking = $(`#${env}-world-ranking`);
+            let nationRanking = $(`#${env}-nation-ranking`);
+            let pointsRanking = $(`#${env}-points`);
+        
+            worldRanking.text('World ranking: -');
+            nationRanking.text('Nation ranking: -');
+            pointsRanking.text('Ladder Points: -');
+    
+        }
+
+        $('#solo-world-ranking').text(`World ranking: -`);
+        $('#solo-points').text(`Ladder Points: -`);
+
+    } else {
+        // Shows the United container if hidden
+        unitedContent.removeClass('is-unavailable is-unselectable is-hidden-mobile');
+    }
+        
+}
+
+// Returns all multiplayer data from the player
+function appendMultiPlayersData(data, envList) {
+    
+    // Available enviroments for player
+    playerEnvs = getPlayerEnvironmentsCount(data.accountType);
+
+    for (let index = 0; index < playerEnvs; index++) {
+
+        // Obtain environment 
+        let env = envList[index].toLowerCase();
+
+        let worldRanking = $(`#${env}-world-ranking`);
+        let nationRanking = $(`#${env}-nation-ranking`);
+        let pointsRanking = $(`#${env}-points`);
+    
+        worldRanking.text(`World ranking: ${data[env + "WorldRanking"]}`);
+        nationRanking.text(`Nation ranking: ${data[env + "ZoneRanking"]}`);
+        pointsRanking.text(`Ladder Points: ${data[env + "Points"]}`);
+
+    }
+
+    
+}
+
+// Returns all solo data from the player
+function appendSoloPlayersData(data, envList) {
+
+    // Only United accounts have solo ranking
+    if(data.accountType.includes("United")) {
+        $('#solo-world-ranking').text(`World ranking: ${data.soloWorldRanking}`);
+        $('#solo-points').text(`Ladder Points: ${data.soloPoints}`);
+    }
+
+}
+
+// Obtain all available environments for the current player
+function getPlayerEnvironmentsCount(accountType) {
+
+    if(accountType.includes("United")) {
+        return envList.length
+    } else {
+        return 2; // Merge and Stadium
+    }
+}
+
+
 // General tables initialization
-function showTables(data, environmentList) {
+function showTables(data) {
 
-    if(data.hasOwnProperty('ladder')) {
+    if(data.hasOwnProperty('merge')) 
+        initializeWorldTables(data, envList);
+
+    if(data.hasOwnProperty('ladder')) 
         initializeZonesTables(data);
-    }
-
-    if(data.hasOwnProperty('merge')) {
-        initializeWorldTables(data, environmentList);
-    }
+    
 }
 
 // Processes all data for the World tables and initializes them
@@ -247,8 +372,6 @@ function isLoginValid(login) {
         `Login cannot exceed ${maxLoginLength} characters`,
         'Login can only contain letters, numbers and underscores'
     ];
-
-    login = sanitizeString(login);
 
     switch(true) {
         case !login: 

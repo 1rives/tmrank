@@ -25,11 +25,30 @@ session_start();
     <?php include_once('template/world/hero.php'); ?>
 
     <div class="container is-max-widescreen"> 
-        <div class="box">
+        <div class="box no-top-radius">
+
+            <!-- Error for disabled JavaScript -->
+            <noscript>
+                <section class="section pt-0 pb-5 mt-0 mb-0">
+                    <article class="message is-danger">
+
+                        <div class="message-header">
+                            <p>An error has occurred</p>
+                        </div>
+
+                        <div class="message-body">
+                            <p>This page requires JavaScript to function properly. Please enable JavaScript in your browser settings and refresh the page.</p>
+                        </div>
+
+                    </article>
+                </section>
+            </noscript>
+
 
             <?php include_once('template/login_form.php'); ?>
-                
+
             <section class="section pt-5 pb-3">
+
                 <div class="tabs is-centered is-boxed pb-0 mb-0">
                     <ul>
                         <li id="tabMerge" class="is-active">

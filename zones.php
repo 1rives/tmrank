@@ -33,7 +33,25 @@ session_start();
     <?php include_once('template/zones/hero.php'); ?>
 
     <div class="container is-max-widescreen"> 
-        <div class="box">
+        <div class="box no-top-radius">
+
+            <!-- Error for disabled JavaScript -->
+            <noscript>
+                <section class="section pt-0 pb-5 mt-0 mb-0">
+                    <article class="message is-danger">
+
+                        <div class="message-header">
+                            <p>An error has occurred</p>
+                        </div>
+
+                        <div class="message-body">
+                            <p>This page requires JavaScript to function properly. Please enable JavaScript in your browser settings and refresh the page.</p>
+                        </div>
+
+                    </article>
+                </section>
+            </noscript>
+            
             <section class="section pt-0 pb-6">
                 <table id="tableZones" class="table is-fullwidth">
                </table>

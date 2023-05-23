@@ -16,10 +16,10 @@
 
         <div class="field is-grouped">
             <div class="control">
-                <button type="submit" class="button is-primary">Submit</button>
+                <button type="submit" id="submitButton" class="button is-primary">Submit</button>
             </div>
             <div class="control">
-                <button type="reset" class="button is-light">Reset</button>
+                <button type="reset" id="resetButton" class="button is-light">Reset</button>
             </div>
         </div>
     </form>
