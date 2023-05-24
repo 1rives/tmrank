@@ -101,23 +101,25 @@ session_start();
                         </li>
                     </ul>
                 </div>
-                <table id="tablePlayer" class="table is-fullwidth is-hidden">
+                
+                <!-- Inline width dirty fix  -->
+                <table id="tablePlayer" class="table is-fullwidth" style="width: 100%;">
                 </table>
-                <table id="tableMerge" class="table is-fullwidth">
+                <table id="tableMerge" class="table is-fullwidth" style="width: 100%;">
                 </table>
-                <table id="tableStadium" class="table is-fullwidth is-hidden">
+                <table id="tableStadium" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
-                <table id="tableDesert" class="table is-fullwidth is-hidden">
+                <table id="tableDesert" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
-                <table id="tableIsland" class="table is-fullwidth is-hidden">
+                <table id="tableIsland" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
-                <table id="tableRally" class="table is-fullwidth is-hidden">
+                <table id="tableRally" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
-                <table id="tableCoast" class="table is-fullwidth is-hidden">
+                <table id="tableCoast" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
-                <table id="tableBay" class="table is-fullwidth is-hidden">
+                <table id="tableBay" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
-                <table id="tableSnow" class="table is-fullwidth is-hidden">
+                <table id="tableSnow" class="table is-fullwidth is-hidden" style="width: 100%;">
                 </table>
             </section>
         </div>

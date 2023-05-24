@@ -1,5 +1,11 @@
 <?php
 /**
+ * Guzzle HTTP client for the Trackmania Web Services API.
+ * 
+ * TODO: Integrate TMRank class in composer's vendor
+ */
+
+/**
  * Autoloader from TrackMania Web Services SDK for PHP v2.0 
  * http://code.google.com/p/trackmania-ws-sdk/
  *
