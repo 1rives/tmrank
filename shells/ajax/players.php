@@ -1,5 +1,7 @@
 <?php 
 
+session_start();
+
 require_once('../../class/autoload.php'); // API
 
 use TMRank\Utils;
@@ -13,7 +15,10 @@ if($_SERVER['REQUEST_METHOD'] == 'GET' && !empty($_GET['login']))
   // Validates the login first
   $utils->validateLogin($_GET['login']);
 
-  $redisKey = $db->getCurrentRequestRedisKey($_GET['login']);
+  // Player login
+  $login = $_GET['login'];
+
+  $redisKey = $db->getCurrentRequestRedisKey($login);
 
   $db->returnAJAXRequest($login, $redisKey);
 }

@@ -1,5 +1,7 @@
 <?php 
 
+session_start();
+
 require_once('../../class/autoload.php'); // API
 
 use TMRank\Utils;
@@ -12,7 +14,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
   $redisKey = $db->getCurrentRequestRedisKey(null);
 
-  $db->returnAJAXRequest($login, $redisKey);
+  $db->returnAJAXRequest(null, $redisKey);
 }
 
 ?>

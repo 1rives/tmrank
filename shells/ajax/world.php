@@ -1,5 +1,7 @@
 <?php 
 
+session_start();
+
 require_once('../../class/autoload.php'); // API
 
 use TMRank\Utils;
@@ -7,6 +9,8 @@ use TMRank\Database;
 
 $utils = new Utils();
 $db = new Database();
+
+// TODO: Fix same repeating countries in table
 
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {

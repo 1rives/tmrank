@@ -73,7 +73,7 @@ class Database extends TMRankClient
             $newData = $$classInstance->getData($login);
 
             // Save new data
-            self::saveCacheData($newData, $redisKey);   
+            //self::saveCacheData($newData, $redisKey);   
         
             echo json_encode($newData);
             exit();
@@ -105,7 +105,7 @@ class Database extends TMRankClient
 
         // Creates the Redis key depending if it's a general request
         // or a login-specific one
-        isset($login) ? 
+        !isset($login) ? 
             $redisKey = $classPrefix . '.ladder' :
             $redisKey = $classPrefix . '.' . $utils->sanitizeLogin($login);
 

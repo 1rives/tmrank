@@ -107,7 +107,7 @@ function submitForm(url, login, extraOptions) {
 
                 // World
                 if(data.hasOwnProperty('rank'))
-                    console.log('world');
+                    showWorldPlayerData(data, envList);
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
@@ -133,6 +133,7 @@ function getGeneralTable(url, extraOptions) {
                 console.log(response);
             } 
             else {
+                console.log(response);
                 let data = JSON.parse(response);
                 
                 showTables(data);
@@ -145,7 +146,7 @@ function getGeneralTable(url, extraOptions) {
 }
 
 
-// Adds to every column players data
+// Add the obtained player data to the columns
 function showPlayersData(data) {   
 
     // General player data
@@ -257,6 +258,7 @@ function showTables(data) {
     
 }
 
+
 // Processes all data for the World tables and initializes them
 // through DataTables
 function initializeWorldTables(worldData, environmentList) {
@@ -275,8 +277,8 @@ function initializeWorldTables(worldData, environmentList) {
             info: false,
             searching: false,
 
-            deferLoading: true,
             stateSave: true,
+            stateDuration: -1, // Saved in current session
             responsive: true,
 
             data: assignTableDataToArray(worldData, dataEnvironment),
@@ -291,9 +293,38 @@ function initializeWorldTables(worldData, environmentList) {
     }
 }
 
+// Processes the top 10 for the Player's Merge table and initializes them
+// through DataTables
+function initializeWorldPlayerTable(worldData) {
+
+    // Properties are in lower case
+    var dataEnvironment = tableName.toLowerCase();
+
+    $('table[id="tablePlayer"]').DataTable({
+        paging: false,
+        ordering: false,
+        info: false,
+        searching: false,
+
+        stateSave: true,
+        stateDuration: -1, // Saved in current session
+        responsive: true,
+
+        data: assignTableDataToArray(worldData, envList[0]),
+        columns: [
+            { title: "Rank" },
+            { title: "Nickname" },
+            { title: "Country" },
+            { title: "Ladder Points" }
+        ],
+        
+    });
+    
+}
+
 // Processes all data for the Zones table and initializes it
 // through DataTables
-// Only one table is used, tables for zones and subZones should 
+// Only one table is used atm, tables for zones and subZones should 
 // be implemented later
 function initializeZonesTables(zonesData) {
 
@@ -304,8 +335,8 @@ function initializeZonesTables(zonesData) {
         info: false,
         searching: true,
 
-        deferLoading: true,
         stateSave: true,
+        stateDuration: -1, // Saved in current session
         responsive: true,
 
         data: assignTableDataToArray(zonesData, null),

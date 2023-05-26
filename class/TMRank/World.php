@@ -204,7 +204,7 @@ class World extends TMRankClient {
                 ${$envList[$i]}[] = new \stdClass();
 
                 // Get player country via array deferencing
-                $playerCountry = explode('|', $rawWorldData[0]->players[$x]->player->path)[1];
+                $playerCountry = explode('|', $rawWorldData[$i]->players[$x]->player->path)[1];
 
                 ${$envList[$i]}[$x]->rank = number_format($rawWorldData[$i]->players[$x]->rank);
                 ${$envList[$i]}[$x]->nickname = $colorparser->toHTML($rawWorldData[$i]->players[$x]->player->nickname);
