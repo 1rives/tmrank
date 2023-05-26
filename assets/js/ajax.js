@@ -106,8 +106,8 @@ function submitForm(url, login, extraOptions) {
                     showPlayersData(data, envList);
 
                 // World
-                if(data.hasOwnProperty('rank'))
-                    showWorldPlayerData(data, envList);
+                else 
+                    initializeWorldPlayerTable(data);
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
@@ -176,6 +176,8 @@ function unhidePlayersData(accountType) {
         // Hides the United container
         unitedContent.addClass('is-unavailable is-unselectable is-hidden-mobile');
 
+        // Resets current United values if previously submitted an
+        // United account
         for (let index = 2; index < envListLength; index++) {
 
             // Obtain environment 
@@ -216,6 +218,7 @@ function appendMultiPlayersData(data, envList) {
         let nationRanking = $(`#${env}-nation-ranking`);
         let pointsRanking = $(`#${env}-points`);
     
+        // ex.: World ranking: stadiumWorldRanking
         worldRanking.text(`World ranking: ${data[env + "WorldRanking"]}`);
         nationRanking.text(`Nation ranking: ${data[env + "ZoneRanking"]}`);
         pointsRanking.text(`Ladder Points: ${data[env + "Points"]}`);
@@ -226,7 +229,7 @@ function appendMultiPlayersData(data, envList) {
 }
 
 // Returns all solo data from the player
-function appendSoloPlayersData(data, envList) {
+function appendSoloPlayersData(data) {
 
     // Only United accounts have solo ranking
     if(data.accountType.includes("United")) {
@@ -281,7 +284,7 @@ function initializeWorldTables(worldData, environmentList) {
             stateDuration: -1, // Saved in current session
             responsive: true,
 
-            data: assignTableDataToArray(worldData, dataEnvironment),
+            data: assignGeneralTablesDataToArray(worldData, dataEnvironment),
             columns: [
                 { title: "Rank" },
                 { title: "Nickname" },
@@ -297,10 +300,9 @@ function initializeWorldTables(worldData, environmentList) {
 // through DataTables
 function initializeWorldPlayerTable(worldData) {
 
-    // Properties are in lower case
-    var dataEnvironment = tableName.toLowerCase();
+    $(`table[id="tableMerge"]`).DataTable().destroy();
 
-    $('table[id="tablePlayer"]').DataTable({
+    $('table[id="tableMerge"]').DataTable({
         paging: false,
         ordering: false,
         info: false,
@@ -310,7 +312,7 @@ function initializeWorldPlayerTable(worldData) {
         stateDuration: -1, // Saved in current session
         responsive: true,
 
-        data: assignTableDataToArray(worldData, envList[0]),
+        data: assignPlayerTableDataToArray(worldData),
         columns: [
             { title: "Rank" },
             { title: "Nickname" },
@@ -339,7 +341,7 @@ function initializeZonesTables(zonesData) {
         stateDuration: -1, // Saved in current session
         responsive: true,
 
-        data: assignTableDataToArray(zonesData, null),
+        data: assignGeneralTablesDataToArray(zonesData, null),
         columns: [
             { title: "Rank" },
             { title: "Name" },
@@ -352,7 +354,7 @@ function initializeZonesTables(zonesData) {
 
 // Returns general data formatted for DataTables depending
 // on the called class
-function assignTableDataToArray(data, env) {
+function assignGeneralTablesDataToArray(data, env) {
     
     let dataArray = [];
 
@@ -373,6 +375,23 @@ function assignTableDataToArray(data, env) {
                             data.ladder[i].name, 
                             data.ladder[i].points],);
         }
+    }
+    
+    return dataArray;
+}
+
+// Returns player data formatted for DataTables depending
+// on the called class
+function assignPlayerTableDataToArray(data) {
+    
+    let dataArray = [];
+
+    // World 
+    for (let i = 0; i < 10; i++) {
+        dataArray.push([data[i].rank, 
+                        data[i].nickname, 
+                        data[i].nation, 
+                        data[i].points],);
     }
     
     return dataArray;

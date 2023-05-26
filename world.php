@@ -103,8 +103,6 @@ session_start();
                 </div>
                 
                 <!-- Inline width dirty fix  -->
-                <table id="tablePlayer" class="table is-fullwidth is-hidden" style="width: 100%;">
-                </table>
                 <table id="tableMerge" class="table is-fullwidth" style="width: 100%;">
                 </table>
                 <table id="tableStadium" class="table is-fullwidth is-hidden" style="width: 100%;">

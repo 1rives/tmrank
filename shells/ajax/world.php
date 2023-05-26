@@ -10,8 +10,6 @@ use TMRank\Database;
 $utils = new Utils();
 $db = new Database();
 
-// TODO: Fix same repeating countries in table
-
 if($_SERVER['REQUEST_METHOD'] == 'GET')
 {
   // Validates the login first

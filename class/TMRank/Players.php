@@ -170,7 +170,8 @@ class Players extends TMRankClient
         for ($i = 0; $i < $playerEnvironments; $i++)
         {
             $rawDataIndex = $startIndex + $i;
-            // TODO: Check error on the next two lines, ignoring errors works 
+            // TODO: Check error on the next two lines, ignoring error shows 0 
+            //       on every ranking except Merge and Stadium 
             //       Error found in player login: noiszia
             $outputData->{strtolower($envList[$i]).'WorldRanking'} = @number_format($rawData[$rawDataIndex]->ranks[0]->rank);
             $outputData->{strtolower($envList[$i]).'ZoneRanking'} = @number_format($rawData[$rawDataIndex]->ranks[1]->rank);

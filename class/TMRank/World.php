@@ -67,7 +67,9 @@ class World extends TMRankClient {
      *
      * @param string $login Player login
      * 
-     * @return \stdClass 
+     * @return \stdClass
+
+     * 
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     protected function getLoginRanking($login) 
@@ -78,14 +80,20 @@ class World extends TMRankClient {
         // Default options
         $path = 'World';
 
-        // TODO: Refactor or change function, makes request two times slower
+        // TODO: Refactor or change function, function makes request two times slower
         $offset = self::getPlayerOffset($login);
 
-        $playerData = \TMRank\TMRankClient::request([
-            sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[0], $offset)
-        ]);
+        if($offset) {
+            $playerData = \TMRank\TMRankClient::request([
+                sprintf('/tmf/rankings/multiplayer/players/%s/%s/?offset=%s', $path, $envList[0], $offset)
+            ]);
 
-        return self::getProcessedPlayerData($playerData);
+            return self::getProcessedPlayerData($playerData);
+        }
+
+        // Returns 0 since the player hasn't played ever
+        return $offset;
+        
     }
 
     /**
