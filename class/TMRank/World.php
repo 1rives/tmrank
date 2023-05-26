@@ -91,8 +91,8 @@ class World extends TMRankClient {
             return self::getProcessedPlayerData($playerData);
         }
 
-        // Returns 0 since the player hasn't played ever
-        return $offset;
+        // Returns an error message since the player isn't ranked
+        return 'Player is not ranked';
         
     }
 
@@ -236,16 +236,18 @@ class World extends TMRankClient {
      * Makes a request to get the page position of the player,
      * replacing the last value to 0.
      * 
-     * Ex.: Rank 86 = Offset 80
+     * Ex.: Rank 586 = Offset 580
      * 
      * @return array Array containing URL paths
      * @throws \GuzzleHttp\Exception\ClientException
      **/
     protected function getPlayerOffset($login)
     {
-        $mergeEnv = $this->environments[0];
+        // Create a utils instance
+        $utils = new Utils();
 
-        $utils = new Utils;
+        // Get Merge environment strin
+        $mergeEnv = $this->environments[0];
 
         try 
         {
@@ -257,9 +259,12 @@ class World extends TMRankClient {
         {
             $_SESSION['errorMessage'] = Message::toString($e->getResponse());
         }
-    
-        // Replace last number
-        $offset = substr_replace($requestOffset[0]->ranks[0]->rank, '0', -1);
+
+        isset($requestOffset[0]->ranks[0]->rank) ? 
+            // Replace last number of ranked player
+            $offset = substr_replace($requestOffset[0]->ranks[0]->rank, '0', -1) :
+            // Player is not ranked
+            $offset = 0;
 
         return $offset;
 
