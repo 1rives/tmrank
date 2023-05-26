@@ -9,6 +9,9 @@
 namespace TMRank;
 
 use TMRank\Utils;
+use TMRank\Players;
+use TMRank\World;
+use TMRank\Zones;
 
 /**
  * General access to Redis database
@@ -32,10 +35,81 @@ class Database extends TMRankClient
      */
     public function checkIfLoginExists($loginKey, $classPrefix)
     {
-        $keyWithLogin = $classPrefix . '.' . $loginKey;
+        $key = $classPrefix . '.' . $loginKey;
 
         // Why both returns are false??
-        return (!self::getCacheDataLength($keyWithLogin)) ? false : false;
+        return (!self::getCacheDataLength($key)) ? false : false;
+    }
+
+    /**
+     * Processes AJAX request
+     *
+     * Checks for existing data in Redis and return it, if database is
+     * empty make a new request from the API
+     *
+     * @param string $login Sanitized TMF player login
+     * @param string $redisKey Used Redis key for request
+     * @param string $class Used class for request
+     * 
+     * @return void AJAX Request
+     **/
+    public function returnAJAXRequest($login, $redisKey)
+    {
+        // Declare instances for the different classes
+        $players = new Players();
+        $world = new World();
+        $zones = new Zones();
+
+        // Declare a Utils instance
+        $utils = new Utils();
+
+        // Request data if empty
+        if(!self::getCacheDataLength($redisKey))
+        {
+            // Get current class name
+            $classInstance = $utils->getCurrentFileName();
+
+            // Request with class name
+            $newData = $$classInstance->getData($login);
+
+            // Save new data
+            self::saveCacheData($newData, $redisKey);   
+        
+            echo json_encode($newData);
+            exit();
+        }
+        
+        // Return db data
+        echo json_encode(self::getCacheData($redisKey));
+    }
+
+    /**
+     * Obtain Redis key for class
+     *
+     * Depending on the used class, return the complete Redis key
+     * to use.
+     * 
+     * An empty player login always return a general request (ex.: World ladder)
+     *
+     * @param string TMF player login
+     * 
+     * @return string Redis key name
+     **/
+    public function getCurrentRequestRedisKey($login)
+    {
+        // Declare a Utils instance
+        $utils = new Utils;
+    
+        $classOfRequestMade = $utils->getCurrentFileName();
+        $classPrefix = getenv("REDIS_VARIABLE_" . strtoupper($classOfRequestMade));
+
+        // Creates the Redis key depending if it's a general request
+        // or a login-specific one
+        isset($login) ? 
+            $redisKey = $classPrefix . '.ladder' :
+            $redisKey = $classPrefix . '.' . $utils->sanitizeLogin($login);
+
+        return $redisKey;
     }
 
     /** 

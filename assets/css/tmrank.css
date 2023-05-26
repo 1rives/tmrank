@@ -19,7 +19,6 @@ body,html {
 }
 
 .is-unavailable { 
-    color: gray !important;
     opacity: 0.2;
 }
 

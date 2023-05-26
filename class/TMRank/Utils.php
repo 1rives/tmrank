@@ -329,8 +329,10 @@ class Utils extends TMRankClient
     }
 
     /**
-     * Get the current name of the page file without the
+     * Get the current name/class of the page file without the
      * extension
+     * 
+     * Used to determine what class was called in AJAX
      *
      * @return string File name
      */
