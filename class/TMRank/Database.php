@@ -74,7 +74,7 @@ class Database extends TMRankClient
 
             // Save if there's data
             if($newData) {
-                //self::saveCacheData($newData, $redisKey);
+                self::saveCacheData($newData, $redisKey);
             }   
         
             echo json_encode($newData);

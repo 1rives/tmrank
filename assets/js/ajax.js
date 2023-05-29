@@ -14,6 +14,8 @@ const loginInput = $('#login');
 const errorIcon = $('.icon .is-small .is-right');
 const errorSpan = $('#loginForm .help');
 
+const worldPlayerButton = $('li#tabPlayer');
+var isPlayerTableHidden = 1;
 
 // Validation variables
 const maxLoginLength = 25;
@@ -53,6 +55,13 @@ $(document).ready(function() {
     $(formId).on('reset', function() {
         removeErrorStyles();
     });
+
+    // Reset error styles on reset button
+    $(worldPlayerButton).on('click', function() {
+        hideWorldPlayerTable();
+        isPlayerTableHidden++;
+    });
+
 
     // AJAX request
     $(formId).submit(function(event) {
@@ -95,6 +104,7 @@ function submitForm(url, login, extraOptions) {
             $('#submitButton').removeClass('is-loading').prop( "disabled", false );
 
             if(!response.includes('{')) {
+                // Shows "Player not found" without double quotations
                 showError(response.replaceAll('"', ''));
             } 
             else {
@@ -106,8 +116,17 @@ function submitForm(url, login, extraOptions) {
                     showPlayersData(data, envList);
 
                 // World
-                else 
-                    initializeWorldPlayerTable(data);
+                else {
+                    
+                    appendWorldPlayerData(data);
+                    
+                    if(isPlayerTableHidden) {
+                        showWorldPlayerTable();
+                        isPlayerTableHidden--;
+                    }
+                        
+                } 
+                    
             }
         },
         error:  function(jqXHR, textStatus, errorThrown) {
@@ -162,6 +181,45 @@ function showPlayersData(data) {
     unhidePlayersData(data.accountType); 
 }
 
+// Hides the current active table and shows the player table
+// Use once, then hide with the following function
+function showWorldPlayerTable() {
+    let currentTable = $('.table:visible');
+    let playerTable = $('table[id=tablePlayer]');
+
+    let generalTabs = $('div[id=tableTabs]');
+    let playerTab = $('div[id=tableTabPlayer]');
+    
+    //let isPlayerTabActive = playerTab.hasClass('is-active');
+    
+    currentTable.addClass('is-hidden');
+    playerTable.show();
+
+    generalTabs.addClass('is-hidden');
+    playerTab.removeClass('is-hidden');
+
+
+}
+
+// Hides the player table and shows the previous selected World table
+function hideWorldPlayerTable() {
+    let mergeTable = $(`table[id=tableMerge]`);
+    let playerTable = $('table[id=tablePlayer]');
+
+    let generalTabs = $('div[id=tableTabs]');
+    let playerTab = $('div[id=tableTabPlayer]');
+    
+    generalTabs.removeClass('is-hidden');
+    playerTab.addClass('is-hidden');
+
+    mergeTable.removeClass('is-hidden');
+    playerTable.hide();
+    
+
+    // Enable search on same username
+    previousLogin = '';
+}
+
 // By default, the data columns are hidden
 // When the content is ready, show columns
 function unhidePlayersData(accountType) {
@@ -174,7 +232,7 @@ function unhidePlayersData(accountType) {
     if(!accountType.includes('United')) {
 
         // Hides the United container
-        unitedContent.addClass('is-unavailable is-unselectable is-hidden-mobile');
+        unitedContent.toggleClass('is-unavailable is-unselectable is-hidden-mobile');
 
         // Resets current United values if previously submitted an
         // United account
@@ -198,7 +256,7 @@ function unhidePlayersData(accountType) {
 
     } else {
         // Shows the United container if hidden
-        unitedContent.removeClass('is-unavailable is-unselectable is-hidden-mobile');
+        unitedContent.toggleClass('is-unavailable is-unselectable is-hidden-mobile');
     }
         
 }
@@ -218,7 +276,7 @@ function appendMultiPlayersData(data, envList) {
         let nationRanking = $(`#${env}-nation-ranking`);
         let pointsRanking = $(`#${env}-points`);
     
-        // ex.: World ranking: stadiumWorldRanking
+        // ex.: World ranking: data.stadiumWorldRanking
         worldRanking.text(`World ranking: ${data[env + "WorldRanking"]}`);
         nationRanking.text(`Nation ranking: ${data[env + "ZoneRanking"]}`);
         pointsRanking.text(`Ladder Points: ${data[env + "Points"]}`);
@@ -266,6 +324,7 @@ function showTables(data) {
 // through DataTables
 function initializeWorldTables(worldData, environmentList) {
 
+    // Initializes all general tables
     for (let i = 0; i < envListLength; i++) {
 
         // Specific table name
@@ -280,8 +339,8 @@ function initializeWorldTables(worldData, environmentList) {
             info: false,
             searching: false,
 
-            stateSave: true,
-            stateDuration: -1, // Saved in current session
+            "stateSave": true,
+            "stateDuration": -1, // Saved in current session
             responsive: true,
 
             data: assignGeneralTablesDataToArray(worldData, dataEnvironment),
@@ -293,26 +352,29 @@ function initializeWorldTables(worldData, environmentList) {
             ],
             
         });
+
+        // Only Merge tab should be shown
+        if(!tableName.includes('Merge'))
+            $(`table[id="table${tableName}"]`).toggle();    
     }
+
+    initializeWorldPlayerTable();
+
 }
 
-// Processes the top 10 for the Player's Merge table and initializes them
-// through DataTables
-function initializeWorldPlayerTable(worldData) {
-
-    $(`table[id="tableMerge"]`).DataTable().destroy();
-
-    $('table[id="tableMerge"]').DataTable({
+// Initializes the hidden Player table
+function initializeWorldPlayerTable() {
+     
+     $(`table[id="tablePlayer"]`).toggle().DataTable({
         paging: false,
         ordering: false,
         info: false,
         searching: false,
 
-        stateSave: true,
-        stateDuration: -1, // Saved in current session
+        "stateSave": true,
+        "stateDuration": -1, // Saved in current session
         responsive: true,
 
-        data: assignPlayerTableDataToArray(worldData),
         columns: [
             { title: "Rank" },
             { title: "Nickname" },
@@ -321,6 +383,25 @@ function initializeWorldPlayerTable(worldData) {
         ],
         
     });
+}
+
+// Processes the top 10 for the Player's Merge table and initializes them
+// through DataTables
+function appendWorldPlayerData(playerData) {
+
+    var playerTable = $('table[id="tablePlayer"]').DataTable();
+
+    // Converts data to an array for DataTables
+    var processedPlayerData = assignPlayerTableDataToArray(playerData);
+
+    // Removes all previous data
+    playerTable.clear();
+
+    for (let index = 0; index < 10; index++) {
+        playerTable.row
+            .add(processedPlayerData[index])
+            .draw(); 
+    }
     
 }
 

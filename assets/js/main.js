@@ -12,21 +12,18 @@ $(document).ready(function () {
             let activeTab = $('.is-active');
             let clickedTab = $('#' + this.id);
             
-            let activeTable = $(".table:not(.is-hidden)");
+            let activeTable = $(".table:visible");
             let clickedTable = $('#table' + this.id.replace('tab', ''));
 
-            changeActiveTable(activeTable, clickedTable);
-            changeActiveTab(activeTab, clickedTab);
+            clickedTable.toggle();
+            activeTable.toggle();
+
+            changeSelectedTab(activeTab, clickedTab);
         }
     })
 });
 
-function changeActiveTable(active, clicked) {
-    active.addClass('is-hidden');
-    clicked.removeClass('is-hidden');
-}
-
-function changeActiveTab(active, clicked) {
+function changeSelectedTab(active, clicked) {
     active.removeClass('is-active');
     clicked.addClass('is-active');
 }
