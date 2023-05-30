@@ -288,7 +288,7 @@ function unhidePlayersData(accountType) {
 
     } else {
         // Shows the United container if hidden
-        unitedContent.toggleClass('is-unavailable is-unselectable is-hidden-mobile');
+        unitedContent.removeClass('is-unavailable is-unselectable is-hidden-mobile');
     }
         
 }
