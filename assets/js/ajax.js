@@ -15,6 +15,9 @@ const errorIcon = $('.icon .is-small .is-right');
 const errorSpan = $('#loginForm .help');
 
 const worldPlayerButton = $('li#tabPlayer');
+
+var savedTab = '';
+var savedTable = '';
 var isPlayerTableHidden = 1;
 
 // Validation variables
@@ -58,7 +61,12 @@ $(document).ready(function() {
 
     // Reset error styles on reset button
     $(worldPlayerButton).on('click', function() {
-        hideWorldPlayerTable();
+
+        // Doesn't works without this timeout
+        setTimeout(() => {
+            hideWorldPlayerTable();
+          }, 10);
+
         isPlayerTableHidden++;
     });
 
@@ -184,40 +192,64 @@ function showPlayersData(data) {
 // Hides the current active table and shows the player table
 // Use once, then hide with the following function
 function showWorldPlayerTable() {
+    // Tables
     let currentTable = $('.table:visible');
     let playerTable = $('table[id=tablePlayer]');
 
-    let generalTabs = $('div[id=tableTabs]');
-    let playerTab = $('div[id=tableTabPlayer]');
+    // Tabs containers
+    let tabsContainer = $('div[id=tableTabs]');
+    let playerTabContainer = $('div[id=tableTabPlayer]');
+
+    // Specific tabs
+    let currentTab = $('#tableTabs li.is-active');
+    let playerTab = $('li[id=tabPlayer]');
     
-    //let isPlayerTabActive = playerTab.hasClass('is-active');
+    // Save user selected items
+    setSelectedItems(currentTab, currentTable);
     
+    tabsContainer.addClass('is-hidden');
+    playerTabContainer.removeClass('is-hidden');
+
     currentTable.addClass('is-hidden');
     playerTable.show();
 
-    generalTabs.addClass('is-hidden');
-    playerTab.removeClass('is-hidden');
-
+    currentTab.removeClass('is-active');
+    playerTab.addClass('is-active');
 
 }
 
-// Hides the player table and shows the previous selected World table
+// Hides the player table and shows the previous 
+// selected World table/tab
 function hideWorldPlayerTable() {
-    let mergeTable = $(`table[id=tableMerge]`);
+    // Tables
+    let lastSelectedTable = savedTable;
     let playerTable = $('table[id=tablePlayer]');
 
-    let generalTabs = $('div[id=tableTabs]');
-    let playerTab = $('div[id=tableTabPlayer]');
-    
-    generalTabs.removeClass('is-hidden');
-    playerTab.addClass('is-hidden');
+    // Tabs containers
+    let tabsContainer = $('div[id=tableTabs]');
+    let playerTabContainer = $('div[id=tableTabPlayer]');
 
-    mergeTable.removeClass('is-hidden');
+    // Previously selected tab
+    let lastSelectedTab = savedTab;
+    let playerTab = $('li[id=tabPlayer]');
+    
+    tabsContainer.removeClass('is-hidden');
+    playerTabContainer.addClass('is-hidden');
+
+    lastSelectedTable.removeClass('is-hidden');
     playerTable.hide();
     
+    lastSelectedTab.addClass('is-active');
+    playerTab.removeClass('is-active');
 
     // Enable search on same username
     previousLogin = '';
+}
+
+// Passes to a global variable the selected tab and table
+function setSelectedItems(tab, table) {
+    savedTab = tab;
+    savedTable = table;
 }
 
 // By default, the data columns are hidden
