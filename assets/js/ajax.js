@@ -137,11 +137,11 @@ function submitForm(url, login, extraOptions) {
                     
             }
         },
-        error:  function(jqXHR, textStatus, errorThrown) {
+        error:  function(data) {
             // Reset button to default
             $('#submitButton').removeClass('is-loading').prop( "disabled", false );
 
-            showError("An error has occurred, try later");
+            showError(data);
         }
     });
 }
@@ -161,13 +161,11 @@ function getGeneralTable(url, extraOptions) {
             } 
             else {
                 console.log(response);
-                let data = JSON.parse(response);
-                
-                showTables(data);
+           
             }
         },
-        error:  function(jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.status);
+        error:  function(data) {
+            console.log(jqXHR.response.message);
         }
     });
 }
