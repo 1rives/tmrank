@@ -18,7 +18,6 @@ use TMRank\Zones;
  */
 class Database extends TMRankClient
 {
-
     /** 
      * Check existing login data on Redis.
      * 
@@ -27,6 +26,8 @@ class Database extends TMRankClient
      *
      * Example of full key: Players.username777
      *
+     * TODO: Check if this function is actually needed (getCacheDataLength...)
+     * 
      * @param string $loginKey Player login for Redis key
      * @param string $classPrefix Class name for key prefix, ex.: "World" or "Players"
      *
@@ -37,8 +38,7 @@ class Database extends TMRankClient
     {
         $key = $classPrefix . '.' . $loginKey;
 
-        // Why both returns are false??
-        return (!self::getCacheDataLength($key)) ? false : false;
+        return (!self::getCacheDataLength($key)) ? false : true;
     }
 
     /**
@@ -72,7 +72,6 @@ class Database extends TMRankClient
             // Request with class name
             $newData = $$classInstance->getData($login);
 
-            // Save if there's data
             if($newData) {
                 //self::saveCacheData($newData, $redisKey);
             }   
@@ -115,7 +114,12 @@ class Database extends TMRankClient
     }
 
     /** 
-     * Save data to redis.
+     * Save cache data to redis.
+     * 
+     * The saved cache will expire at midnight.
+     * 
+     * If $key doesn't have a dot, then is not cache and the 
+     * data persists by default.
      *
      * @param string $dataToSave Processed data to save
      * @param string $key Name of key for the data
@@ -137,8 +141,17 @@ class Database extends TMRankClient
             $redis->connect($redisHost, $redisPort);
 
             $redis->set($key, self::encodeCacheData($dataToSave));
-            $keyTimeout = $utils->getTimeUntilMidnight();
-            $redis->expireAt($key, $keyTimeout);
+
+            // Default daily caching
+            if(strpos($key, '.') !== FALSE) {
+                $keyTimeout = $utils->getTimeUntilMidnight();
+                $redis->expireAt($key, $keyTimeout);
+            }
+            // Hourly caching, used mostly for API credentials
+            if(strpos($key, 'TMRank.') !== FALSE) {
+                $keyTimeout = $utils->getTimeUntilNextHour();
+                $redis->expireAt($key, $keyTimeout);
+            }
 
             $redis->close();
 
@@ -159,7 +172,7 @@ class Database extends TMRankClient
      *
      * @param string $key Name of key for the data
      *
-     * @return \stdClass Data obtained from redis
+     * @return mixed Data obtained from redis
      * @throws \RedisException
      */
     public function getCacheData($key)
@@ -233,7 +246,7 @@ class Database extends TMRankClient
      * ONLY FOR DEVELOPMENT PURPOSES
      * 
      * Used to delete content inside of a key
-     * with the purpouse of testing cronjobs
+     * with the purpose of testing cronjobs
      * 
      * @param string $key Name of key for the data
      *

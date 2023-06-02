@@ -17,6 +17,8 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\BadResponseException;
 
+use TMRank\Database;
+
 /**
  * HTTP client used to make asynchronous requests on the TrackMania Web Services API.
  * 
@@ -36,6 +38,20 @@ abstract class TMRankClient
     protected $apiURL = 'http://ws.trackmania.com';
 
     /**
+	 * Redis key used for the API username
+	 * 
+	 * @var string
+	 */
+    protected $apiUsernameKey = 'TMRank.username';
+
+    /**
+     * Redis key used for the API password
+     * 
+     * @var string
+     */
+    protected $apiPasswordKey = 'TMRank.password';
+
+    /**
      * Executes HTTP request to the public API
      *
      * Makes an asynchronous request using Guzzle promises
@@ -47,20 +63,21 @@ abstract class TMRankClient
      **/
     protected function request(array $requestArray) 
     {
-
         $apiURL = $this->apiURL;
+        $usernameKey = $this->apiUsernameKey;
+        $passwordKey = $this->apiPasswordKey;
 
-        // Thanks to limit of 360 requests per hour, multiple users has been created to change
-        // when the current user has reached its limit. 
+        // Thanks to limit of 360 requests per hour, multiple users needs to be created to change
+        // the used credentials when it has reached its limit. 
         // Every user has a numeral prefix at the end (From 1 to 10) with the same password.
-        // TODO: Change API user when out of requests
+        $apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
 
         // Client configuration
         $guzzleClient = new Client([
             'base_uri' => $apiURL,
             'auth' => [ 
-                getenv('TMFWEBSERVICE_USER_1'), 
-                getenv('TMFWEBSERVICE_PASSWORD') 
+                $apiCredentials[0], 
+                $apiCredentials[1] 
             ],
             'stream' => false,
             'decode_content' => false,
@@ -69,7 +86,7 @@ abstract class TMRankClient
 
         try 
         {
-            $promises = self::getData($requestArray, $guzzleClient);
+            $promises = self::getRequestData($requestArray, $guzzleClient);
 
             $promisesData = Utils::unwrap($promises);
 
@@ -80,13 +97,23 @@ abstract class TMRankClient
         {
             $response = $e->getResponse()->getBody()->getContents();
 
-            // Misspelled error
-            if(str_contains($response, 'Unkown player'))
-            {
-                $response = 'Player does not exist';
-            }
+            // Defining error messages
+            $requestLimitError = 'Rate limit reached';
+            $misspellError = 'Unkown player';
 
-            echo json_encode($response);
+            switch(true) {
+                case str_contains($response, $requestLimitError):
+                    self::updateAPICredentials($usernameKey, $passwordKey);
+                    break;
+
+                    case str_contains($response, $misspellError):
+                        echo 'Player does not exist';
+                        break;     
+                        
+                        default:
+                            echo json_encode($response);
+                            break;
+            }
         }
     }
 
@@ -101,7 +128,7 @@ abstract class TMRankClient
      * 
      * @return array HTTP responses
      **/
-    protected function getData($requests, $guzzle)
+    protected function getRequestData($requests, $guzzle)
     {
         foreach($requests as $request) 
         {
@@ -131,8 +158,67 @@ abstract class TMRankClient
         return $requests;
     }
 
+    /**
+     * Get the API Username 
+     *
+     * Obtain the currently used Username credential for the TMFWebServices,
+     * updates credentials if empty
+     *
+     * @param string $usernameKey Key for the API username credential
+     * @param string $passwordKey Key for the API password credential
+     * 
+     * @return array Current API username and password
+     **/
+    protected function getAPICredentials($usernameKey, $passwordKey)
+    {
+        $database = new Database;
 
+        $apiUsername = $database->getCacheData($usernameKey);
+        $apiPassword = $database->getCacheData($passwordKey);
+    
+        return array($apiUsername, $apiPassword);
+    }
 
+    /**
+     * undocumented function summary
+     *
+     * Undocumented function long description
+     *
+     * @param string $usernameKey Key for the API username credential
+     * @param string $passwordKey Key for the API password credential
+     **/
+    protected function updateAPICredentials($usernameKey, $passwordKey)
+    {
+        $database = new Database;
+
+        // Not an username/password
+        if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
+            return false;
+
+        $defaultUsername = 'TMFWEBSERVICE_USER_';     // Without number prefix
+        $defaultPassword = 'TMFWEBSERVICE_PASSWORD_'; // Without number prefix
+
+        // TODO: Add specific situations, ex.: Password set but not the username
+        if(!$database->getCacheDataLength($usernameKey)) 
+        {
+            $database->saveCacheData($usernameKey, $defaultUsername . '1');
+            $database->saveCacheData($passwordKey, $defaultPassword . '1');
+        } 
+        else 
+        {
+            // Obtain the current number of account used
+            $username = explode($database->getCacheData($usernameKey), '_');
+            $password = explode($database->getCacheData($passwordKey), '_');
+
+            // Gets the new username
+            $newUsername = sprintf($defaultUsername . "%n", intval($username)+1);
+            $newPassword = sprintf($defaultPassword . "%n", intval($password)+1);
+
+            $database->saveCacheData($usernameKey, $newUsername);
+            $database->saveCacheData($passwordKey, $newPassword);
+
+        }
+    }
 }
 
 

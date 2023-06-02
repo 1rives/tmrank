@@ -323,10 +323,23 @@ class Utils extends TMRankClient
     {
         $expirationTime = 'tomorrow midnight';
 
-        $timeUntilMidnight = strtotime($expirationTime);
-
-        return $timeUntilMidnight;
+        return strtotime($expirationTime);
     }
+
+    /**
+     * Generates the time left in seconds for
+     * the cache to expire.
+     *
+     * @return int Unix timestamp
+     */
+    public function getTimeUntilNextHour()
+    {
+        // Find how to get time until next hour
+        $expirationTime = '';
+
+        return strtotime($expirationTime);
+    }
+
 
     /**
      * Get the current name/class of the page file without the
