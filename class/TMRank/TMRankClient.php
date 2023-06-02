@@ -69,20 +69,11 @@ abstract class TMRankClient
 
         try 
         {
-            // Create all asynchronous requests
-            foreach($requestArray as $requestString) 
-            {
-                $promises[] = $guzzleClient->getAsync($requestString);
-            }
+            $promises = self::getData($requestArray, $guzzleClient);
 
-            $requestResults = Utils::unwrap($promises);
+            $promisesData = Utils::unwrap($promises);
 
-            foreach($requestResults as $requestResult) 
-            {
-                // Array to object
-                $requestBodies[] = 
-                    json_decode($requestResult->getBody());
-            }
+            return self::convertJSONToObject($promisesData);
 
         } 
         catch(BadResponseException $e) 
@@ -96,13 +87,53 @@ abstract class TMRankClient
             }
 
             echo json_encode($response);
-            exit;
         }
-        
-
-        return $requestBodies;
     }
 
+    /**
+     * Create all asynchronous requests 
+     *
+     * Creates a request with promises including the required
+     * set of request paths
+     *
+     * @param array $requests Request path/s to execute
+     * @param Client $guzzle Guzzle client instance
+     * 
+     * @return array HTTP responses
+     **/
+    protected function getData($requests, $guzzle)
+    {
+        foreach($requests as $request) 
+        {
+            $promises[] = $guzzle->getAsync($request);
+        }
+
+        return $promises;
+    }
+
+    /**
+     * Converts JSON to object
+     *
+     * Extracts all successfully obtained requests in the format 
+     * of an array from the HTTP response
+     *
+     * @param array $promises Request HTTP responses
+     * 
+     * @return array Decoded data
+     **/
+    protected function convertJSONToObject($promises)
+    {
+        foreach($promises as $promise) 
+        {
+            $requests[] = json_decode($promise->getBody());
+        }
+
+        return $requests;
+    }
+
+
+
 }
+
 
 ?>
