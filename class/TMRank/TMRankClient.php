@@ -52,6 +52,20 @@ abstract class TMRankClient
      */
     protected $apiPasswordKey = 'TMRank.password';
 
+     /**
+	 * Redis key prefix used for the API username
+	 * 
+	 * @var string
+	 */
+    protected $prefixUsernameKey = 'TMFWEBSERVICE_USER_';
+
+    /**
+     * Redis key prefix used for the API password
+     * 
+     * @var string
+     */
+    protected $prefixPasswordKey = 'TMFWEBSERVICE_PASSWORD_';
+
     /**
      * Executes HTTP request to the public API
      *
@@ -64,9 +78,19 @@ abstract class TMRankClient
      **/
     protected function request(array $requestArray) 
     {
+        // Check for available accounts
+        self::checkAvailableAPIAccounts($this->apiUsernameKey);
+
         $apiURL = $this->apiURL;
         $usernameKey = $this->apiUsernameKey;
         $passwordKey = $this->apiPasswordKey;
+
+        $database = new Database;
+
+        //echo $passwordKey;
+        //echo self::getAPICredentials($usernameKey, $passwordKey)[1];
+
+        exit;
 
         try 
         {
@@ -78,31 +102,33 @@ abstract class TMRankClient
             if(!$apiCredentials)
                 throw new Exception("No account", 400);
 
-            // $usernameKey = $apiCredentials[0];
-            // $passwordKey = $apiCredentials[1];
+            $usernameKey = $apiCredentials[0];
+            $passwordKey = $apiCredentials[1];
 
 
-            // echo $usernameKey;
+            echo $usernameKey;
+  
 
            
-            // // Client configuration
-            // $guzzleClient = new Client([
-            //     'base_uri' => $apiURL,
-            //     'auth' => [ 
-            //         $usernameKey, 
-            //         $passwordKey 
-            //     ],
-            //     'stream' => false,
-            //     'decode_content' => false,
-            //     'timeout' => 10.0,
-            // ]);
+            // Client configuration
+            $guzzleClient = new Client([
+                'base_uri' => $apiURL,
+                'auth' => [ 
+                    $usernameKey, 
+                    $passwordKey 
+                ],
+                'stream' => false,
+                'decode_content' => false,
+                'timeout' => 10.0,
+            ]);
 
         
-            // $promises = self::getRequestData($requestArray, $guzzleClient);
+            $promises = self::getRequestData($requestArray, $guzzleClient);
 
-            // $promisesData = Utils::unwrap($promises);
+            $promisesData = Utils::unwrap($promises);
 
-            // return self::convertJSONToObject($promisesData);
+            // TODO: Change AJAX to getJSON
+            return self::convertJSONToObject($promisesData);
             
 
         } 
@@ -130,13 +156,15 @@ abstract class TMRankClient
 
             switch(true) {
                 case str_contains($response, $noAccountError):
-                    self::setAPICredentials($apiCredentials[0], $apiCredentials[1]);
-                    self::request($requestArray);
+                    echo "No account";
+                    // self::setAPICredentials($apiCredentials[0], $apiCredentials[1]);
+                    // self::request($requestArray);
                     break;
 
                     case str_contains($response, $requestLimitError):
-                        self::changeAPICredentials($apiCredentials[0], $apiCredentials[1]);
-                        self::request($requestArray);
+                        echo "No more reqeuests";
+                        // self::setDefaultAPICredentials($apiCredentials[0], $apiCredentials[1]);
+                        // self::request($requestArray);
                         break;  
                             
                             default:
@@ -204,28 +232,28 @@ abstract class TMRankClient
 
         $apiUsername = $database->getCacheData($usernameKey);
         $apiPassword = $database->getCacheData($passwordKey);
-    
+        
         return array($apiUsername, $apiPassword);
     }
 
     /**
      * Sets the API credentials
      *
-     * Sets the first account at the environment values as the API credentials.
+     * Sets the first account with the API credentials.
      * 
      * @param string $usernameKey Key for the API username credential
      * @param string $passwordKey Key for the API password credential
      **/
-    protected function setAPICredentials($usernameKey, $passwordKey)
+    protected function setDefaultAPICredentials($usernameKey, $passwordKey)
     {
         $database = new Database;
+
+        $usernamePrefix = $this->apiUsernameKey;
+        $passwordPrefix = $this->apiPasswordKey;
 
         // Not an username/password
         // if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
         //     return false;
-
-        $usernamePrefix = 'TMFWEBSERVICE_USER_';     // Without number prefix
-        $passwordPrefix = 'TMFWEBSERVICE_PASSWORD_'; // Without number prefix
 
         // TODO: Add specific situations, ex.: Password set but not the username
         $database->saveCacheData($usernameKey, $usernamePrefix . '1');
@@ -244,16 +272,16 @@ abstract class TMRankClient
      * @param string $usernameKey Key for the API username credential
      * @param string $passwordKey Key for the API password credential
      **/
-    protected function changeAPICredentials($usernameKey, $passwordKey)
+    protected function updateAPICredentials($usernameKey, $passwordKey)
     {
         $database = new Database;
+
+        $usernamePrefix = $this->apiUsernameKey;
+        $passwordPrefix = $this->apiPasswordKey;
 
         // Not an username/password
         // if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
         //     return false;
-
-        $usernamePrefix = 'TMFWEBSERVICE_USER_';     // Without number prefix
-        $passwordPrefix = 'TMFWEBSERVICE_PASSWORD_'; // Without number prefix
 
         $currentAccount = $database->getCacheData($usernameKey);
 
@@ -279,13 +307,21 @@ abstract class TMRankClient
 
      * @throws Exception
      **/
-    public function checkAvailableAPIAccounts($apiUsername)
+    public function checkAvailableAPIAccounts($apiUsername, $apiPassword)
     {
         try 
         {
             if(!getenv($apiUsername))
             {
                 throw new Exception('There was an error processing the request, try later');
+            }
+            if(!self::getAPICredentials($apiUsername, $apiPassword)) 
+            {
+                $usernameKey = $this->apiUsernameKey;
+                $passwordKey = $this->apiPasswordKey;
+
+                self::setDefaultAPICredentials($usernameKey, $passwordKey);
+                // TODO: Call here request with the corresponding parameter
             }
         } 
         catch (Exception $e) 
