@@ -78,65 +78,68 @@ abstract class TMRankClient
      **/
     protected function request(array $requestArray) 
     {
-        // Check for available accounts
-        self::checkAvailableAPIAccounts($this->apiUsernameKey);
-
-        $apiURL = $this->apiURL;
         $usernameKey = $this->apiUsernameKey;
         $passwordKey = $this->apiPasswordKey;
 
-        $database = new Database;
+        //
+        //
+        // TODO: Redo credentials system
+        //
+        //
 
-        //echo $passwordKey;
-        //echo self::getAPICredentials($usernameKey, $passwordKey)[1];
 
-        exit;
+
+
+        // Check for available accounts
+        //self::checkAvailableAPIAccounts($usernameKey, getenv($passwordKey));
+
+        //$apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
+
+        //echo $apiCredentials[0];
+
+
 
         try 
         {
+            $apiURL = $this->apiURL;
+
             // Thanks to limit of 360 requests per hour, multiple users needs to be created to change
             // the used credentials when it has reached its limit. 
             // Every user has a numeral prefix at the end (From 1 to 10) with the same password.
             $apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
             
             if(!$apiCredentials)
-                throw new Exception("No account", 400);
+                throw new Exception("No account");
 
-            $usernameKey = $apiCredentials[0];
-            $passwordKey = $apiCredentials[1];
-
-
-            echo $usernameKey;
-  
-
+            $apiUsername = $apiCredentials[0];
+            $apiPassword = $apiCredentials[1];
            
             // Client configuration
             $guzzleClient = new Client([
                 'base_uri' => $apiURL,
                 'auth' => [ 
-                    $usernameKey, 
-                    $passwordKey 
+                    $apiUsername, 
+                    $apiPassword 
                 ],
                 'stream' => false,
                 'decode_content' => false,
                 'timeout' => 10.0,
             ]);
 
-        
+            // Makes every request individually
             $promises = self::getRequestData($requestArray, $guzzleClient);
 
             $promisesData = Utils::unwrap($promises);
 
             // TODO: Change AJAX to getJSON
             return self::convertJSONToObject($promisesData);
-            
 
         } 
         catch(BadResponseException $e) 
         {
             $response = $e->getResponse()->getBody()->getContents();
 
-            // Misspell on the API
+            // Fix misspell on the API
             $misspellError = 'Unkown player';
 
             if(str_contains($response, $misspellError))
@@ -150,21 +153,25 @@ abstract class TMRankClient
         {
             $response = $ex->getMessage();
 
-            // Defining error messages
-            $requestLimitError = 'Rate limit reached';
-            $noAccountError = 'No account';
+            // Main function argument (request)
+            $argument = func_get_args()[0];
 
-            switch(true) {
+            // Defining error messages
+            $noAccountError = 'No account';
+            $requestLimitError = 'Rate limit reached';
+        
+            switch(true) 
+            {
                 case str_contains($response, $noAccountError):
-                    echo "No account";
-                    // self::setAPICredentials($apiCredentials[0], $apiCredentials[1]);
-                    // self::request($requestArray);
+
+                    self::setDefaultAPICredentials($apiUsername, $apiPassword);
+                    self::request($argument);
                     break;
 
                     case str_contains($response, $requestLimitError):
-                        echo "No more reqeuests";
-                        // self::setDefaultAPICredentials($apiCredentials[0], $apiCredentials[1]);
-                        // self::request($requestArray);
+
+                        self::updateAPICredentials($apiUsername, $apiPassword);
+                        self::request($argument);
                         break;  
                             
                             default:
@@ -304,30 +311,54 @@ abstract class TMRankClient
      * Throws an exception if there's no more accounts until the next hour
      *
      * @param string $apiUsername Complete API username account with number prefix 
+     * @param string $apiPassword API password for the account with number prefix 
 
      * @throws Exception
      **/
-    public function checkAvailableAPIAccounts($apiUsername, $apiPassword)
+    protected function checkAvailableAPIAccounts($apiUsername, $apiPassword)
     {
         try 
         {
-            if(!getenv($apiUsername))
+            if(self::isAPIAccountsUnavailable($apiUsername))
             {
                 throw new Exception('There was an error processing the request, try later');
             }
-            if(!self::getAPICredentials($apiUsername, $apiPassword)) 
+        
+           
+            $usernameKey = $this->apiUsernameKey;
+            $passwordKey = $this->apiPasswordKey;
+
+            $apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
+
+            $apiUsername = $apiCredentials[0];
+            $apiPassword = $apiCredentials[1];
+
+            if(!$apiUsername && !$apiPassword) 
             {
-                $usernameKey = $this->apiUsernameKey;
-                $passwordKey = $this->apiPasswordKey;
+                $argument = func_get_args()[0];
 
                 self::setDefaultAPICredentials($usernameKey, $passwordKey);
-                // TODO: Call here request with the corresponding parameter
+                self::request($argument);
             }
         } 
         catch (Exception $e) 
         {
             echo $e->getMessage();
         }
+    }
+
+    /**
+     * Checks for available API accounts to make requests
+     *
+     * Not more accounts available means that all the accounts requests are used.
+     * 
+     * @param string $apiUsername Complete API username account with number prefix 
+
+     * @return bool True for exceeded requests on all accounts, false for more requests available
+     **/
+    protected function isAPIAccountsUnavailable($apiUsername)
+    {
+        return (!$apiUsername);
     }
 
 }
