@@ -52,6 +52,13 @@ abstract class TMRankClient
      */
     protected $apiPasswordKey = 'TMRank.password';
 
+    /**
+     * Redis key used for the current API account
+     * 
+     * @var string
+     */
+    protected $apiAccountNumberKey = 'TMRank.accountNumber';
+
      /**
 	 * Redis key prefix used for the API username
 	 * 
@@ -65,6 +72,15 @@ abstract class TMRankClient
      * @var string
      */
     protected $prefixPasswordKey = 'TMFWEBSERVICE_PASSWORD_';
+
+    /**
+     * Default account for API requests. 
+     * Used altogether with the API Username/Password prefix.
+     * 
+     * @var int
+     */
+    protected $defaultAccountNumber = 1;
+
 
     /**
      * Executes HTTP request to the public API
@@ -81,23 +97,7 @@ abstract class TMRankClient
         $usernameKey = $this->apiUsernameKey;
         $passwordKey = $this->apiPasswordKey;
 
-        //
-        //
-        // TODO: Redo credentials system
-        //
-        //
-
-
-
-
-        // Check for available accounts
-        //self::checkAvailableAPIAccounts($usernameKey, getenv($passwordKey));
-
-        //$apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
-
-        //echo $apiCredentials[0];
-
-
+        // TODO: Create function to check if the current account exists
 
         try 
         {
@@ -163,15 +163,12 @@ abstract class TMRankClient
             switch(true) 
             {
                 case str_contains($response, $noAccountError):
-
-                    self::setDefaultAPICredentials($apiUsername, $apiPassword);
-                    self::request($argument);
+                    // No account
+                    // Maybe this isn't necessary at all...
                     break;
 
                     case str_contains($response, $requestLimitError):
-
-                        self::updateAPICredentials($apiUsername, $apiPassword);
-                        self::request($argument);
+                        // Updates the current account to an available one
                         break;  
                             
                             default:
@@ -223,129 +220,157 @@ abstract class TMRankClient
     }
 
     /**
-     * Get the API Username 
+     * Get the API Username and Password
      *
-     * Obtain the currently used Username credential for the TMFWebServices,
-     * updates credentials if empty
+     * Obtain the currently used credentials for the TMFWebServices.
+     * Returns fals if there's no account set.
      *
      * @param string $usernameKey Key for the API username credential
      * @param string $passwordKey Key for the API password credential
      * 
-     * @return array Current API username and password
+     * @return mixed Array with current API username and password, false for not found.
      **/
-    protected function getAPICredentials($usernameKey, $passwordKey)
+    protected function getCurrentAPICredentials($usernameKey, $passwordKey)
     {
         $database = new Database;
 
-        $apiUsername = $database->getCacheData($usernameKey);
-        $apiPassword = $database->getCacheData($passwordKey);
-        
-        return array($apiUsername, $apiPassword);
+        return array(
+            $database->getCacheData($usernameKey), 
+            $database->getCacheData($passwordKey)
+        );
     }
 
     /**
      * Sets the API credentials
      *
-     * Sets the first account with the API credentials.
+     * Sets the first API account for requests.
+     * Selects the account according to the default number prefix.
      * 
      * @param string $usernameKey Key for the API username credential
      * @param string $passwordKey Key for the API password credential
+     * @param int $defaultAccountKey Key for the API default account number
      **/
-    protected function setDefaultAPICredentials($usernameKey, $passwordKey)
+    protected function setDefaultAPICredentials($usernameKey, $passwordKey, $accountNumberKey)
     {
         $database = new Database;
 
-        $usernamePrefix = $this->apiUsernameKey;
-        $passwordPrefix = $this->apiPasswordKey;
+        $usernamePrefix = $this->prefixUsernameKey;
+        $passwordPrefix = $this->prefixPasswordKey;
+        $accountNumber = $this->defaultAccountNumber;
 
-        // Not an username/password
-        // if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
-        //     return false;
+        // Get the default API account credentials
+        $username = getenv($usernamePrefix . $accountNumber);
+        $password = getenv($passwordPrefix . $accountNumber);
 
-        // TODO: Add specific situations, ex.: Password set but not the username
-        $database->saveCacheData($usernameKey, $usernamePrefix . '1');
-        $database->saveCacheData($passwordKey, $passwordPrefix . '1');
-        
-  
-
-    }
-
-     /**
-     * Change the API credentials
-     *
-     * Since the current account can't be used until the next hour, an account
-     * change is made.
-     * 
-     * @param string $usernameKey Key for the API username credential
-     * @param string $passwordKey Key for the API password credential
-     **/
-    protected function updateAPICredentials($usernameKey, $passwordKey)
-    {
-        $database = new Database;
-
-        $usernamePrefix = $this->apiUsernameKey;
-        $passwordPrefix = $this->apiPasswordKey;
-
-        // Not an username/password
-        // if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
-        //     return false;
-
-        $currentAccount = $database->getCacheData($usernameKey);
-
-        // Obtain the current number of account used
-        // Number is the same for username and password
-        $accountNumber = explode($currentAccount, '_')[2]++;
-
-        self::checkAvailableAPIAccounts($usernamePrefix . "{$accountNumber}");
-
-        $newUsername = sprintf($usernamePrefix . "%n", intval($accountNumber));
-        $newPassword = sprintf($passwordPrefix . "%n", intval($accountNumber));
-
-        $database->saveCacheData($usernameKey, $newUsername);
-        $database->saveCacheData($passwordKey, $newPassword);
+        $database->saveCacheData($usernameKey, $username);
+        $database->saveCacheData($passwordKey, $password);
+        $database->saveCacheData($accountNumberKey, $accountNumber);
     }
 
     /**
-     * Checks for available accounts
-     * 
-     * Throws an exception if there's no more accounts until the next hour
+     * Updates the API account
      *
-     * @param string $apiUsername Complete API username account with number prefix 
-     * @param string $apiPassword API password for the account with number prefix 
-
-     * @throws Exception
+     * Changes the credentials to the next account available
+     * 
+     * @param string $usernameKey Key for the API username credential
+     * @param string $passwordKey Key for the API password credential
+     * @param string $nextAccountPrefix Current API account prefix
      **/
-    protected function checkAvailableAPIAccounts($apiUsername, $apiPassword)
+    protected function updateAPICredentials($usernameKey, $passwordKey, $accountNumberKey)
     {
-        try 
-        {
-            if(self::isAPIAccountsUnavailable($apiUsername))
-            {
-                throw new Exception('There was an error processing the request, try later');
-            }
+        $database = new Database;
+
+        $usernamePrefix = $this->prefixUsernameKey;
+        $passwordPrefix = $this->prefixPasswordKey;
+        $accountNumber = $database->getCacheData($accountNumberKey);
+
+        // TODO: Add validation for non-existant account ($accountNumberKey)
+        $newAccountNumber = $accountNumber++;
+
+        $database->saveCacheData($usernameKey, $usernamePrefix . $newAccountNumber);
+        $database->saveCacheData($passwordKey, $passwordPrefix . $newAccountNumber);
+        $database->saveCacheData($accountNumberKey, $newAccountNumber);
+    }
+
+
+
+    //  /**
+    //  * Change the API credentials
+    //  *
+    //  * Since the current account can't be used until the next hour, an account
+    //  * change is made.
+    //  * 
+    //  * @param string $usernameKey Key for the API username credential
+    //  * @param string $passwordKey Key for the API password credential
+    //  **/
+    // protected function updateAPICredentials($usernameKey, $passwordKey)
+    // {
+    //     $database = new Database;
+
+    //     $usernamePrefix = $this->apiUsernameKey;
+    //     $passwordPrefix = $this->apiPasswordKey;
+
+    //     // Not an username/password
+    //     // if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
+    //     //     return false;
+
+    //     $currentAccount = $database->getCacheData($usernameKey);
+
+    //     // Obtain the current number of account used
+    //     // Number is the same for username and password
+    //     $accountNumber = explode($currentAccount, '_')[2]++;
+
+    //     self::checkAvailableAPIAccounts($usernamePrefix . "{$accountNumber}");
+
+    //     $newUsername = sprintf($usernamePrefix . "%n", intval($accountNumber));
+    //     $newPassword = sprintf($passwordPrefix . "%n", intval($accountNumber));
+
+    //     $database->saveCacheData($usernameKey, $newUsername);
+    //     $database->saveCacheData($passwordKey, $newPassword);
+    // }
+
+    // /**
+    //  * Checks for available accounts
+    //  * 
+    //  * Throws an exception if there's no more accounts until the next hour
+    //  *
+    //  * @param string $apiUsername Complete API username account with number prefix 
+    //  * @param string $apiPassword API password for the account with number prefix 
+
+    //  * @throws Exception
+    //  **/
+    // protected function checkAvailableAPIAccounts($apiUsername, $apiPassword)
+    // {
+    //     try 
+    //     {
+    //         if
+    //         if(self::isAPIAccountsUnavailable($apiUsername))
+    //         {
+    //             throw new Exception('There was an error processing the request, try later');
+    //         }
         
            
-            $usernameKey = $this->apiUsernameKey;
-            $passwordKey = $this->apiPasswordKey;
+    //         $usernameKey = $this->apiUsernameKey;
+    //         $passwordKey = $this->apiPasswordKey;
 
-            $apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
+    //         $apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
 
-            $apiUsername = $apiCredentials[0];
-            $apiPassword = $apiCredentials[1];
+    //         $apiUsername = $apiCredentials[0];
+    //         $apiPassword = $apiCredentials[1];
 
-            if(!$apiUsername && !$apiPassword) 
-            {
-                $argument = func_get_args()[0];
+    //         if(!$apiUsername && !$apiPassword) 
+    //         {
+    //             $argument = func_get_args()[0];
 
-                self::setDefaultAPICredentials($usernameKey, $passwordKey);
-                self::request($argument);
-            }
-        } 
-        catch (Exception $e) 
-        {
-            echo $e->getMessage();
-        }
-    }
+    //             self::setDefaultAPICredentials($usernameKey, $passwordKey);
+    //             self::request($argument);
+    //         }
+    //     } 
+    //     catch (Exception $e) 
+    //     {
+    //         echo $e->getMessage();
+    //     }
+    // }
 
     /**
      * Checks for available API accounts to make requests
