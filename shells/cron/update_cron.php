@@ -25,6 +25,7 @@
      *     Ex.: 22:00 to 20:59 the next day
      **/
     
+    // TODO: On CRONJOB, reset every hour the credentials to the default account
     $availableRequests = [ 1, 2, 3 ];
 
     if(in_array($_GET['request'], $availableRequests))

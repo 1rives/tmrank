@@ -314,7 +314,7 @@ class Utils extends TMRankClient
     }
 
     /**
-     * Generates the time left in seconds for
+     * Generates the time left in timestamp for
      * the cache to expire.
      *
      * @return int Unix timestamp
@@ -327,17 +327,17 @@ class Utils extends TMRankClient
     }
 
     /**
-     * Generates the time left in seconds for
+     * Generates the time left in timestamp for
      * the cache to expire.
      *
      * @return int Unix timestamp
      */
     public function getTimeUntilNextHour()
     {
-        // Find how to get time until next hour
-        $expirationTime = '';
+        $nextHour = strtotime('next hour');
+        $nextHourStart = strtotime(date('Y-m-d H:00:00', $nextHour));
 
-        return strtotime($expirationTime);
+        return $nextHourStart;
     }
 
 

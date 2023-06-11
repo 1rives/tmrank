@@ -147,6 +147,7 @@ function submitForm(url, login, extraOptions) {
 }
 
 // Automatic AJAX request for general data
+// TODO: Fix World and Zones not using this function
 function getGeneralTable(url, extraOptions) {
     $.ajax({
         method: "GET",
@@ -160,12 +161,12 @@ function getGeneralTable(url, extraOptions) {
                 console.log(response);
             } 
             else {
-                console.log(response);
-           
+                //data = JSON.parse(response);
+                showTables(data);
             }
         },
         error:  function(data) {
-            console.log(jqXHR.response.message);
+            console.log(data);
         }
     });
 }

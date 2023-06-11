@@ -127,7 +127,7 @@ class Database extends TMRankClient
      * @return bool True for successful data update
      * @throws \RedisException
      */
-    public function saveCacheData($dataToSave, $key)
+    public function saveCacheData($data, $key)
     {
         try 
         {
@@ -140,7 +140,7 @@ class Database extends TMRankClient
             $redis = new \Redis();
             $redis->connect($redisHost, $redisPort);
 
-            $redis->set($key, self::encodeCacheData($dataToSave));
+            $redis->set($key, self::encodeCacheData($data));
 
             // Default daily caching
             if(strpos($key, '.') !== FALSE) {
