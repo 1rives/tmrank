@@ -13,9 +13,6 @@ require '/var/www/html/tmrank/vendor/autoload.php';
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Utils;
-use GuzzleHttp\Psr7\Message;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Exception\BadResponseException;
 
 use TMRank\Database;
@@ -86,12 +83,14 @@ abstract class TMRankClient
      */
     protected $defaultAccountNumber = 1;
 
-
     /**
-     * Executes HTTP request to the public API
+     * Executes HTTP request/s to the public API
      *
      * Makes an asynchronous request using Guzzle promises
      *
+     * Note: Thanks to limit of 360 requests per hour, multiple users needs to be created 
+     * in order to change the current account when no more requests can be made. 
+     * 
      * @param array $requestArray Single or multiples request paths 
      * 
      * @return mixed Unserialized API response
@@ -105,12 +104,14 @@ abstract class TMRankClient
         $passwordKey = $this->apiPasswordKey;
         $accountNumberKey = $this->apiAccountNumberKey;
 
-        // Checks if an account is set
-        if(!self::isAPIAccountSet($usernameKey, $passwordKey)) 
+        if(!self::isAPIAccountSet($usernameKey, $passwordKey))
+        {
             self::setDefaultAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
-            
-        // Exits from the program when there's no requests available
-        if(self::areAPIAccountsUnavailable($usernameKey)) {
+        }
+
+        // Returns error for no requests available
+        if(self::areAPIAccountsUnavailable()) 
+        {
             echo json_encode("The limit for requests has been reached, please try later");
             exit;
         }
@@ -119,11 +120,8 @@ abstract class TMRankClient
         {
             $apiURL = $this->apiURL;
 
-            // Thanks to limit of 360 requests per hour, multiple users needs to be created to change
-            // the current account when no more request can be made. 
-            // Every user has a numeral prefix at the end (From 1 to 10) with the same password.
             $apiCredentials = self::getCurrentAPICredentials($usernameKey, $passwordKey);
-           
+
             // Client configuration
             $guzzleClient = new Client([
                 'base_uri' => $apiURL,
@@ -140,7 +138,7 @@ abstract class TMRankClient
             $promises = self::getRequestData($requestArray, $guzzleClient);
 
             $promisesData = Utils::unwrap($promises);
-
+    
             // TODO: Change AJAX to getJSON
             return self::convertJSONToObject($promisesData);
 
@@ -161,14 +159,14 @@ abstract class TMRankClient
             {
                 case str_contains($guzzleResponse, $requestLimitError):
                     // Update credentials and make again the request
-                    // TODO: 
+                    // TODO: Current way of detecting this error is not working.
                     self::updateAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
-                    self::request($mainArgument);
+                    //self::request($mainArgument);
                     break;  
 
                     case str_contains($response, $misspellError):
                         echo json_encode('Player does not exist');
-                        break;  
+                        exit;
                         
                         default:
                             echo json_encode($response);
@@ -203,6 +201,8 @@ abstract class TMRankClient
      *
      * Extracts all successfully obtained requests in the format 
      * of an array from the HTTP response
+     * 
+     * TODO: Refactor the AJAX request to getJSON and remove this
      *
      * @param array $promises Request HTTP responses
      * 
@@ -310,102 +310,22 @@ abstract class TMRankClient
         $database->saveCacheData($newAccountNumber, $accountNumberKey);
     }
 
-
-
-    //  /**
-    //  * Change the API credentials
-    //  *
-    //  * Since the current account can't be used until the next hour, an account
-    //  * change is made.
-    //  * 
-    //  * @param string $usernameKey Key for the API username credential
-    //  * @param string $passwordKey Key for the API password credential
-    //  **/
-    // protected function updateAPICredentials($usernameKey, $passwordKey)
-    // {
-    //     $database = new Database;
-
-    //     $usernamePrefix = $this->apiUsernameKey;
-    //     $passwordPrefix = $this->apiPasswordKey;
-
-    //     // Not an username/password
-    //     // if(!str_contains($usernameKey, '.') && !str_contains($passwordKey, '.'))
-    //     //     return false;
-
-    //     $currentAccount = $database->getCacheData($usernameKey);
-
-    //     // Obtain the current number of account used
-    //     // Number is the same for username and password
-    //     $accountNumber = explode($currentAccount, '_')[2]++;
-
-    //     self::checkAvailableAPIAccounts($usernamePrefix . "{$accountNumber}");
-
-    //     $newUsername = sprintf($usernamePrefix . "%n", intval($accountNumber));
-    //     $newPassword = sprintf($passwordPrefix . "%n", intval($accountNumber));
-
-    //     $database->saveCacheData($usernameKey, $newUsername);
-    //     $database->saveCacheData($passwordKey, $newPassword);
-    // }
-
-    // /**
-    //  * Checks for available accounts
-    //  * 
-    //  * Throws an exception if there's no more accounts until the next hour
-    //  *
-    //  * @param string $apiUsername Complete API username account with number prefix 
-    //  * @param string $apiPassword API password for the account with number prefix 
-
-    //  * @throws Exception
-    //  **/
-    // protected function checkAvailableAPIAccounts($apiUsername, $apiPassword)
-    // {
-    //     try 
-    //     {
-    //         if
-    //         if(self::isAPIAccountsUnavailable($apiUsername))
-    //         {
-    //             throw new Exception('There was an error processing the request, try later');
-    //         }
-        
-           
-    //         $usernameKey = $this->apiUsernameKey;
-    //         $passwordKey = $this->apiPasswordKey;
-
-    //         $apiCredentials = self::getAPICredentials($usernameKey, $passwordKey);
-
-    //         $apiUsername = $apiCredentials[0];
-    //         $apiPassword = $apiCredentials[1];
-
-    //         if(!$apiUsername && !$apiPassword) 
-    //         {
-    //             $argument = func_get_args()[0];
-
-    //             self::setDefaultAPICredentials($usernameKey, $passwordKey);
-    //             self::request($argument);
-    //         }
-    //     } 
-    //     catch (Exception $e) 
-    //     {
-    //         echo $e->getMessage();
-    //     }
-    // }
-
     /**
      * Checks for available API accounts to make requests
      *
      * Not more accounts available means that all the accounts requests are used.
      * Checks with the current account number if an account exists.
      * 
-     * @param string $usernameKey Key for the API username credential 
-     * 
-     * @return mixed Value of current username if there's any
+     * @return bool True for account found
      **/
-    protected function areAPIAccountsUnavailable($usernameKey)
+    protected function areAPIAccountsUnavailable()
     {   
+        $usernamePrefix = $this->prefixUsernameKey;
+
         $newAccountNumber = self::getCurrentAPIAccountNumber($this->apiAccountNumberKey)+1;
 
-        return getenv($usernameKey . $newAccountNumber) ?
-            true : false;
+        return getenv($usernamePrefix . $newAccountNumber) ?
+            false : true;
     }
 
     /**
@@ -413,14 +333,14 @@ abstract class TMRankClient
      *
      * Checks for existing credentials on database.
      * 
-     * @return mixed Value of current username if there's any
+     * @return bool True for existing account
      **/
     protected function isAPIAccountSet($usernameKey, $passwordKey)
     {   
         $apiAccount = self::getCurrentAPICredentials($usernameKey, $passwordKey);
 
-        return $apiAccount[0] && $apiAccount[1] ?
-            false : true;
+        return ($apiAccount[0] && $apiAccount[1]) ?
+            true : false;
     }
 
 }

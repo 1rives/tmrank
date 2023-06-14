@@ -161,7 +161,7 @@ function getGeneralTable(url, extraOptions) {
                 console.log(response);
             } 
             else {
-                //data = JSON.parse(response);
+                data = JSON.parse(response);
                 showTables(data);
             }
         },
