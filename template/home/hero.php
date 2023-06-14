@@ -6,10 +6,10 @@
     <div class="container">
       <div class="">
         <p class="title">
-          Slider here
+          
         </p>
         <p class="subtitle">
-          Slider here
+          
         </p>
       </div>
     </div>

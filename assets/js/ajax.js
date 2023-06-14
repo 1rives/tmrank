@@ -2,6 +2,8 @@
 //              VARIABLES               //
 //////////////////////////////////////////
 
+// TODO: Create separated files for every class or utils
+
 // General variables
 const currentPageName = window.location.pathname.split('/').pop().split('.')[0];
 const url = `/tmrank/shells/ajax/${currentPageName}.php`;
@@ -116,7 +118,7 @@ function submitForm(url, login, extraOptions) {
                 showError(response.replaceAll('"', ''));
             } 
             else {
-                console.log(response);
+                // console.log(response);
                 let data = JSON.parse(response);
 
                 // Player
@@ -125,14 +127,12 @@ function submitForm(url, login, extraOptions) {
 
                 // World
                 else {
-                    
                     appendWorldPlayerData(data);
                     
                     if(isPlayerTableHidden) {
                         showWorldPlayerTable();
                         isPlayerTableHidden--;
                     }
-                        
                 } 
                     
             }
@@ -158,7 +158,7 @@ function getGeneralTable(url, extraOptions) {
         //extraOption,
         success: function(response) {
             if(!response.includes('{')) {
-                console.log(response);
+                // console.log(response);
             } 
             else {
                 data = JSON.parse(response);
@@ -166,7 +166,7 @@ function getGeneralTable(url, extraOptions) {
             }
         },
         error:  function(data) {
-            console.log(data);
+            showError(data);
         }
     });
 }
@@ -567,15 +567,23 @@ function showError(errorMessage) {
 
 // Resets all error styles and remove error mesage
 function removeErrorStyles() {
-    loginInput.removeClass('is-danger');
-    errorIcon.remove('i');
     errorSpan.empty();
+
+    // For Zones and World general table
+    if(loginInput && errorIcon) {
+        loginInput.removeClass('is-danger');
+        errorIcon.remove('i');
+    }
 }
 
 // Adds error styles and the error message
 function addErrorStyles(errorMessage) {
-    loginInput.addClass('is-danger');
-    errorIcon.append('<i class="fas fa-exclamation-triangle"></i>');
     errorSpan.text(errorMessage);
+
+    // For Zones and World general table
+    if(loginInput && errorIcon) {
+        loginInput.addClass('is-danger');
+        errorIcon.append('<i class="fas fa-exclamation-triangle"></i>');
+    }
 }
 

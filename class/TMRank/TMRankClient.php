@@ -160,7 +160,7 @@ abstract class TMRankClient
             {
                 case str_contains($guzzleResponse, $requestLimitError):
                     // Update credentials and make again the request
-                    // TODO: Change credentials and make request
+                    // TODO: Change credentials and make request at the same time
                     self::updateAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
                     echo "Please refresh the page and search again";
                     exit; 

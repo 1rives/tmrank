@@ -13,8 +13,6 @@ use TMRank\Database;
 $utils = new Utils();
 $db = new Database();
 
-$accountCredential = $db->getCacheData('TMRank.username');
-
 ?>
 
 <!DOCTYPE html>
@@ -35,20 +33,6 @@ $accountCredential = $db->getCacheData('TMRank.username');
 
     <div class="container is-max-widescreen"> 
         <div class="box no-top-radius">
-
-            <section class="section pt-0 pb-5 mt-0 mb-0">
-                <article class="message">
-
-                    <div class="message-header">
-                        <p>Credentials</p>
-                    </div>
-
-                    <div class="message-body">
-                        <p>Current API account: <strong><?php echo $accountCredential; ?></strong></p>
-                    </div>
-
-                </article>
-            </section>
 
             <!-- Error for disabled JavaScript -->
             <noscript>

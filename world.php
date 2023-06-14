@@ -27,6 +27,8 @@ session_start();
     <div class="container is-max-widescreen"> 
         <div class="box no-top-radius">
 
+        <p class="help is-danger"></p>
+
             <!-- Error for disabled JavaScript -->
             <noscript>
                 <section class="section pt-0 pb-5 mt-0 mb-0">

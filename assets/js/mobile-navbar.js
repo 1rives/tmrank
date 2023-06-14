@@ -1,3 +1,5 @@
+// TODO: Fix, not working
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // Get all "navbar-burger" elements

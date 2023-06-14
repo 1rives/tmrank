@@ -9,6 +9,8 @@
     use TMRank\Utils;
     use TMRank\Database;
 
+    // TODO: Remove Cronjob, not needed thanks to Redis data expiration
+
     /**
      * The only way to update the database reliably is through
      * this script with a CRONJOB.
@@ -24,11 +26,11 @@
      * 3 - Every hour at every minute minus 1st' script hour.
      *     Ex.: 22:00 to 20:59 the next day
      **/
-    
-    // TODO: On CRONJOB, reset every hour the credentials to the default account
     $availableRequests = [ 1, 2, 3 ];
 
-    if(in_array($_GET['request'], $availableRequests))
+    // Doesn't execute temporarily
+    if(in_array($_GET['request'], $availableRequests) 
+        && true == false)
     {
         // Declare multiples instances
         $utils = new Utils();
@@ -43,6 +45,8 @@
 
         // Delete all stored players since by the time
         // this executes, the data is outdated
+        // TODO: Does this comment even makes sense?
+        //       Every key is deleted when it expires
 
         foreach ($classesToUpdate as $className)
         {
@@ -62,7 +66,6 @@
             {
                 if(!$db->getCacheDataLength($redisKey))
                 {
-                    
                     if(method_exists($classInstance, $classFunction)) 
                     {     
                         $dataForUpdate = call_user_func(array($classInstance, $classFunction));
