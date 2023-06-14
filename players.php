@@ -13,7 +13,7 @@ use TMRank\Database;
 $utils = new Utils();
 $db = new Database();
 
-$accountCredential = $db->getCacheData('TMRank.username')
+$accountCredential = $db->getCacheData('TMRank.username');
 
 ?>
 
@@ -44,7 +44,7 @@ $accountCredential = $db->getCacheData('TMRank.username')
                     </div>
 
                     <div class="message-body">
-                        <p>Currently used API account: <strong><?php echo $accountCredential; ?></strong></p>
+                        <p>Current API account: <strong><?php echo $accountCredential; ?></strong></p>
                     </div>
 
                 </article>

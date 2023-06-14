@@ -8,10 +8,8 @@
  */
 namespace TMRank;
 
-use TMRank\Players;
-
 /**
- * General-use functions, used in multiple classes.
+ * General use functions, used in multiple classes.
  */
 class Utils extends TMRankClient
 {
@@ -19,7 +17,7 @@ class Utils extends TMRankClient
 	 * Trackmania Forever countries and their correspondent
      * abbreviation. 
      * 
-     * Not every country in the array is present in the game.
+     * Not every country in this array is present in the game.
 	 * 
      * @author https://www.xaseco.org/
 	 * @var array

@@ -261,7 +261,7 @@ class World extends TMRankClient {
         }
 
         isset($requestOffset[0]->ranks[0]->rank) ? 
-            // Replace last number of ranked player
+            // Replace last number of the player ranking
             $offset = substr_replace($requestOffset[0]->ranks[0]->rank, '0', -1) :
             // Player is not ranked
             $offset = 0;
@@ -269,8 +269,6 @@ class World extends TMRankClient {
         return $offset;
 
     }
-
-   
     
 }
 

@@ -13,6 +13,7 @@ require '/var/www/html/tmrank/vendor/autoload.php';
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\BadResponseException;
 
 use TMRank\Database;
@@ -88,7 +89,7 @@ abstract class TMRankClient
      *
      * Makes an asynchronous request using Guzzle promises
      *
-     * Note: Thanks to limit of 360 requests per hour, multiple users needs to be created 
+     * Thanks to limit of 360 requests per hour, multiple users needs to be created 
      * in order to change the current account when no more requests can be made. 
      * 
      * @param array $requestArray Single or multiples request paths 
@@ -100,26 +101,27 @@ abstract class TMRankClient
      **/
     protected function request(array $requestArray) 
     {
+        $apiURL = $this->apiURL;
         $usernameKey = $this->apiUsernameKey;
         $passwordKey = $this->apiPasswordKey;
         $accountNumberKey = $this->apiAccountNumberKey;
 
-        if(!self::isAPIAccountSet($usernameKey, $passwordKey))
-        {
-            self::setDefaultAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
-        }
-
         // Returns error for no requests available
+        // TODO: Add validation exceptions for existing Players, 
+        // World (login or general) and Zones data
         if(self::areAPIAccountsUnavailable()) 
         {
             echo json_encode("The limit for requests has been reached, please try later");
             exit;
         }
 
+        if(!self::isAPIAccountSet($usernameKey, $passwordKey))
+        {
+            self::setDefaultAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
+        }
+
         try 
         {
-            $apiURL = $this->apiURL;
-
             $apiCredentials = self::getCurrentAPICredentials($usernameKey, $passwordKey);
 
             // Client configuration
@@ -132,37 +134,36 @@ abstract class TMRankClient
                 'stream' => false,
                 'decode_content' => false,
                 'timeout' => 10.0,
+                'allow_redirects' => true,
             ]);
 
-            // Makes every request individually
             $promises = self::getRequestData($requestArray, $guzzleClient);
 
             $promisesData = Utils::unwrap($promises);
-    
-            // TODO: Change AJAX to getJSON
+
+            // TODO: Change AJAX to getJSON (jQuery)
             return self::convertJSONToObject($promisesData);
 
         } 
         catch(Exception | BadResponseException $e) 
         {
-            $guzzleResponse = $e->getResponse()->getBody()->getContents();
             $response = $e->getMessage();
+            $guzzleResponse = $e->getResponse()->getBody()->getContents();
 
-            // Main function argument (request)
-            $mainArgument = func_get_args()[0];
 
             // Defining error messages
             $misspellError = 'Unkown player';
             $requestLimitError = 'Rate limit reached';
         
+            // TODO: Improve exception handling and showing errors
             switch(true) 
             {
                 case str_contains($guzzleResponse, $requestLimitError):
                     // Update credentials and make again the request
-                    // TODO: Current way of detecting this error is not working.
+                    // TODO: Change credentials and make request
                     self::updateAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
-                    //self::request($mainArgument);
-                    break;  
+                    echo "Please refresh the page and search again";
+                    exit; 
 
                     case str_contains($response, $misspellError):
                         echo json_encode('Player does not exist');
@@ -181,7 +182,7 @@ abstract class TMRankClient
      * Creates a request with promises including the required
      * set of request paths
      *
-     * @param array $requests Request path/s to execute
+     * @param array $requests Request path or paths to execute
      * @param Client $guzzle Guzzle client instance
      * 
      * @return array HTTP responses
@@ -300,7 +301,9 @@ abstract class TMRankClient
 
         // TODO: Add validation for non-existant account ($accountNumberKey)
         $accountNumber = $database->getCacheData($accountNumberKey);
-        $newAccountNumber = $accountNumber++;
+
+        // New account prefix
+        $newAccountNumber = $accountNumber + 1;
 
         $accountUsername = $usernamePrefix . $newAccountNumber;
         $accountPassword = $passwordPrefix . $newAccountNumber;
@@ -313,8 +316,8 @@ abstract class TMRankClient
     /**
      * Checks for available API accounts to make requests
      *
-     * Not more accounts available means that all the accounts requests are used.
      * Checks with the current account number if an account exists.
+     * Not more accounts available means that all the accounts requests are used.
      * 
      * @return bool True for account found
      **/

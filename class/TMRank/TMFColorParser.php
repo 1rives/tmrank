@@ -9,8 +9,6 @@ namespace TMRank;
 
 /**
  * TMFColorParser v1.3c by oorf|fuckfish (fish@stabb.de)
- *
- * 
  */
 class TMFColorParser{
 
