@@ -1,0 +1,24 @@
+/* Broken responsiveness on mobile fix */
+
+body,html {
+    overflow-x: hidden;
+}
+
+/* Reduces the excesive padding of the default footer */
+
+.footer {
+    padding-bottom: 1.7%;
+}
+
+/* Custom styles for container box */
+
+.no-top-radius {
+    padding-top: 2rem; 
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+.is-unavailable { 
+    opacity: 0.2;
+}
+
