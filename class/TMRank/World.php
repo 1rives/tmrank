@@ -78,7 +78,7 @@ class World extends TMRankClient {
         $envList = $this->environments;
 
         // Default options
-        $path = 'World';
+        $path = getenv('REDIS_VARIABLE_WORLD');
 
         // TODO: Refactor or change function, function makes request two times slower
         $offset = self::getPlayerOffset($login);
@@ -111,7 +111,7 @@ class World extends TMRankClient {
         $envList = $this->environments;
 
         // Default options
-        $path = 'World';
+        $path = getenv('REDIS_VARIABLE_WORLD');
         $offset = 0;
 
         for ($i = 0; $i < count((array)$envList); $i++)

@@ -18,17 +18,14 @@ TMRank is built using the following technologies:
 - **Guzzle**
 - **Redis**
 - **jQuery**
-- **CronJob**
-- **W3M**
 - **Docker**
 
 The current client created in Guzzle is based on the original SDK made by Nadeo for their public API, which can be found [here](https://forum.maniaplanet.com/viewtopic.php?f=206&t=1207&sid=f509d21ce0415db77e12f80f13f747d7).
 
 ## Project Background
 
-This project was initially developed as a rushed exam and has undergone adjustments and refactoring to improve its functionality and code quality.
+This project was initially developed as a rushed exam and has undergone some adjustments and refactoring to improve its functionality and code quality.
+TMRank is an unofficial project and is not affiliated with Nadeo.
 
-**Disclaimer**: TMRank is an unofficial project and is not affiliated with Nadeo or the TrackMania Forever game developers.
-
-**License**
+## License
 TMRank is released under the MIT License.

@@ -15,7 +15,6 @@ use TMRank\Utils;
  */
 class Zones extends TMRankClient {
 
-
     /**
      * Get the zones data from the API.
      *
@@ -40,7 +39,7 @@ class Zones extends TMRankClient {
      **/
     public function updateZonesRanking() 
     {
-        $path = 'World';
+        $path = getenv('REDIS_VARIABLE_WORLD');
         $offset = 0;
 
         // Since the results are always 92, ten cycles is enough

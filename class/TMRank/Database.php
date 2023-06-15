@@ -98,16 +98,19 @@ class Database extends TMRankClient
      **/
     public function getCurrentRequestRedisKey($login)
     {
+        $redisClassPrefix = getenv('REDIS_VARIABLE_PREFIX');
+        $redisLadderKey = getenv('REDIS_LADDER_KEY');
+
         // Declare a Utils instance
         $utils = new Utils;
     
         $classOfRequestMade = $utils->getCurrentFileName();
-        $classPrefix = getenv("REDIS_VARIABLE_" . strtoupper($classOfRequestMade));
+        $classPrefix = getenv($redisClassPrefix . strtoupper($classOfRequestMade));
 
         // Creates the Redis key depending if it's a general request
         // or a login-specific one
         !isset($login) ? 
-            $redisKey = $classPrefix . '.ladder' :
+            $redisKey = $classPrefix . '.' . $redisLadderKey:
             $redisKey = $classPrefix . '.' . $utils->sanitizeLogin($login);
 
         return $redisKey;
@@ -131,6 +134,8 @@ class Database extends TMRankClient
     {
         try 
         {
+            $redisMainKey = getenv('REDIS_MAIN_KEY');
+
             // Declare a Utils instance
             $utils = new Utils();
 
@@ -148,7 +153,7 @@ class Database extends TMRankClient
                 $redis->expireAt($key, $keyTimeout);
             }
             // Hourly caching, used mostly for API credentials
-            if(strpos($key, 'TMRank.') !== FALSE) {
+            if(strpos($key, $redisMainKey . '.') !== FALSE) {
                 $keyTimeout = $utils->getTimeUntilNextHour();
                 $redis->expireAt($key, $keyTimeout);
             }

@@ -34,44 +34,7 @@ abstract class TMRankClient
 	 * 
 	 * @var string
 	 */
-    protected $apiURL = 'http://ws.trackmania.com';
-
-    /**
-	 * Redis key used for the API username
-	 * 
-	 * @var string
-	 */
-    protected $apiUsernameKey = 'TMRank.username';
-
-    /**
-     * Redis key used for the API password
-     * 
-     * @var string
-     */
-    protected $apiPasswordKey = 'TMRank.password';
-
-    /**
-     * Redis key used for the current API account
-     * 
-     * @var string
-     */
-    protected $apiAccountNumberKey = 'TMRank.accountNumber';
-
-     /**
-	 * Redis key prefix used for the API username.
-     * The account number should be added at the end of the string.
-	 * 
-	 * @var string
-	 */
-    protected $prefixUsernameKey = 'TMFWEBSERVICE_USER_';
-
-    /**
-     * Redis key prefix used for the API password.
-     * The account number should be added at the end of the string.
-     * 
-     * @var string
-     */
-    protected $prefixPasswordKey = 'TMFWEBSERVICE_PASSWORD_';
+    private $apiURL = 'http://ws.trackmania.com';
 
     /**
      * Default account for API requests. 
@@ -102,9 +65,11 @@ abstract class TMRankClient
     protected function request(array $requestArray) 
     {
         $apiURL = $this->apiURL;
-        $usernameKey = $this->apiUsernameKey;
-        $passwordKey = $this->apiPasswordKey;
-        $accountNumberKey = $this->apiAccountNumberKey;
+
+        $usernameKey = getenv('REDIS_USERNAME_KEY');
+        $passwordKey = getenv('REDIS_ACCOUNTNUMBER_KEY');
+        $accountNumberKey = getenv('REDIS_ACCOUNTNUMBER_KEY');
+
 
         // Returns error for no requests available
         // TODO: Add validation exceptions for existing Players, 
@@ -150,23 +115,25 @@ abstract class TMRankClient
             $response = $e->getMessage();
             $guzzleResponse = $e->getResponse()->getBody()->getContents();
 
-
-            // Defining error messages
+            // Error messages
             $misspellError = 'Unkown player';
             $requestLimitError = 'Rate limit reached';
+
+            // Responses
+            $noPlayerResponse = 'Player does not exist';
+            $requestLimitResponse = 'Please refresh the page and search again';
         
             // TODO: Improve exception handling and showing errors
             switch(true) 
             {
                 case str_contains($guzzleResponse, $requestLimitError):
-                    // Update credentials and make again the request
                     // TODO: Change credentials and make request at the same time
                     self::updateAPICredentials($usernameKey, $passwordKey, $accountNumberKey);
-                    echo "Please refresh the page and search again";
+                    echo $requestLimitResponse;
                     exit; 
 
                     case str_contains($response, $misspellError):
-                        echo json_encode('Player does not exist');
+                        echo json_encode($noPlayerResponse);
                         exit;
                         
                         default:
@@ -270,10 +237,11 @@ abstract class TMRankClient
     {
         $database = new Database;
 
-        $usernamePrefix = $this->prefixUsernameKey;
-        $passwordPrefix = $this->prefixPasswordKey;
-
+        $usernamePrefix = getenv('TMFWEBSERVICE_USER_PREFIX');
+        $passwordPrefix = getenv('TMFWEBSERVICE_PASSWORD_PREFIX');
         $accountNumber = $this->defaultAccountNumber;
+
+        // New account
         $accountUsername = $usernamePrefix . $accountNumber;
         $accountPassword = $passwordPrefix . $accountNumber;
 
@@ -296,8 +264,8 @@ abstract class TMRankClient
     {
         $database = new Database;
 
-        $usernamePrefix = $this->prefixUsernameKey;
-        $passwordPrefix = $this->prefixPasswordKey;
+        $usernamePrefix = getenv('TMFWEBSERVICE_USER_PREFIX');
+        $passwordPrefix = getenv('TMFWEBSERVICE_PASSWORD_PREFIX');
 
         // TODO: Add validation for non-existant account ($accountNumberKey)
         $accountNumber = $database->getCacheData($accountNumberKey);
@@ -323,9 +291,10 @@ abstract class TMRankClient
      **/
     protected function areAPIAccountsUnavailable()
     {   
-        $usernamePrefix = $this->prefixUsernameKey;
+        $usernamePrefix = getenv('TMFWEBSERVICE_USER_PREFIX');
+        $accountNumberKey = getenv('REDIS_ACCOUNTNUMBER_KEY');
 
-        $newAccountNumber = self::getCurrentAPIAccountNumber($this->apiAccountNumberKey)+1;
+        $newAccountNumber = self::getCurrentAPIAccountNumber($accountNumberKey)+1;
 
         return getenv($usernamePrefix . $newAccountNumber) ?
             false : true;
