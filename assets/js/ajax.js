@@ -118,7 +118,7 @@ function submitForm(url, login, extraOptions) {
                 showError(response.replaceAll('"', ''));
             } 
             else {
-                // console.log(response);
+                 console.log(response);
                 let data = JSON.parse(response);
 
                 // Player

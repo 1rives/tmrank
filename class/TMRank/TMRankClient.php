@@ -66,15 +66,14 @@ abstract class TMRankClient
     {
         $apiURL = $this->apiURL;
 
-        $usernameKey = getenv('REDIS_USERNAME_KEY');
-        $passwordKey = getenv('REDIS_ACCOUNTNUMBER_KEY');
-        $accountNumberKey = getenv('REDIS_ACCOUNTNUMBER_KEY');
-
+        $usernameKey = getenv('REDIS_MAIN_KEY') . '.' . getenv('REDIS_USER_KEY');
+        $passwordKey = getenv('REDIS_MAIN_KEY') . '.' . getenv('REDIS_PASSWORD_KEY');
+        $accountNumberKey = getenv('REDIS_MAIN_KEY') . '.' . getenv('REDIS_ACCOUNTNUMBER_KEY');
 
         // Returns error for no requests available
         // TODO: Add validation exceptions for existing Players, 
         // World (login or general) and Zones data
-        if(self::areAPIAccountsUnavailable()) 
+        if(self::areAPIAccountsUnavailable($accountNumberKey)) 
         {
             echo json_encode("The limit for requests has been reached, please try later");
             exit;
@@ -289,10 +288,9 @@ abstract class TMRankClient
      * 
      * @return bool True for account found
      **/
-    protected function areAPIAccountsUnavailable()
+    protected function areAPIAccountsUnavailable($accountNumberKey)
     {   
         $usernamePrefix = getenv('TMFWEBSERVICE_USER_PREFIX');
-        $accountNumberKey = getenv('REDIS_ACCOUNTNUMBER_KEY');
 
         $newAccountNumber = self::getCurrentAPIAccountNumber($accountNumberKey)+1;
 
