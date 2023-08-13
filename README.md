@@ -23,8 +23,3 @@ The current client is based on the SDK made by Nadeo for their public API, which
 ## Project Background
 
 This project was initially developed as a rushed exam and has undergone some adjustments and refactoring to improve its functionality and code quality.
-
-TMRank is an unofficial project and is not affiliated with Nadeo.
-
-## License
-TMRank is released under the MIT License.
