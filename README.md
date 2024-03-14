@@ -1,3 +1,5 @@
+## **This project won't be updated anymore due to lack of time and interest.**
+
 # TMRank
 
 TMRank is a web application designed to provide data and rankings about TrackMania Forever.
